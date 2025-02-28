@@ -58,7 +58,7 @@ export default function EarlyAccess() {
         // Check if it's a duplicate email error
         if (error.code === '23505') {
           console.log('Duplicate email detected');
-          setMessage("You're already on our waitlist!");
+          setMessage("You&apos;re already on our waitlist!");
           setMessageType('info');
         } else {
           throw error;
