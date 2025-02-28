@@ -11,19 +11,19 @@ export default function HowItWorks() {
           <div className="text-center p-6">
             <div className="text-5xl font-bold text-[#4a7729] mb-5">1</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Share Your Profile</h3>
-            <p className="text-gray-700">Give us your adventure preference beta including preferred locations, sports, skill levels, social interests and timing then we'll find the perfect matches for your next adventure.</p>
+            <p className="text-gray-700">Give us your adventure preference beta including preferred locations, sports, skill levels, social interests and timing then we&apos;ll find the perfect matches for your next adventure.</p>
           </div>
           
           <div className="text-center p-6">
             <div className="text-5xl font-bold text-[#4a7729] mb-5">2</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Book Your Session</h3>
-            <p className="text-gray-700">Every Sunday morning we'll offer a menu of adventure options for the week ahead matched to your adventure preferences, availability and upcoming conditions. Book a spot and you're good to go.</p>
+            <p className="text-gray-700">Every Sunday morning we&apos;ll offer a menu of adventure options for the week ahead matched to your adventure preferences, availability and upcoming conditions. Book a spot and you&apos;re good to go.</p>
           </div>
           
           <div className="text-center p-6">
             <div className="text-5xl font-bold text-[#4a7729] mb-5">3</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Enjoy Your Adventure</h3>
-            <p className="text-gray-700">Meet your guide at the designated spot, enjoy the adventure then get back to work. We'll only share proof on social if you post first.</p>
+            <p className="text-gray-700">Meet your guide at the designated spot, enjoy the adventure then get back to work. We&apos;ll only share proof on social if you post first.</p>
           </div>
         </div>
       </div>

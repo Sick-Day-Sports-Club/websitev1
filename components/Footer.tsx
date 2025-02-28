@@ -18,11 +18,11 @@ export default function Footer() {
             Privacy Policy
           </Link>
           <Link href="#" className="text-white hover:text-gray-300">
-            Doctor's Notes
+            Doctor&apos;s Notes
           </Link>
         </div>
         <div className="text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} Sick Day Sports Club. All rights reserved. We won't tell your boss. Unless your boss is Yvon - in which case you should probably be surfing right now.</p>
+          <p>&copy; {new Date().getFullYear()} Sick Day Sports Club. All rights reserved. We won&apos;t tell your boss. Unless your boss is Yvon - in which case you should probably be surfing right now.</p>
         </div>
       </div>
     </footer>
