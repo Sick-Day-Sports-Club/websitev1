@@ -22,7 +22,7 @@ export default function Footer() {
           </Link>
         </div>
         <div className="text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} Sick Day Sports Club. All rights reserved. We won&apos;t tell your boss. Unless your boss is Yvon - in which case you should probably be surfing right now.</p>
+          <p>&copy; {new Date().getFullYear()} Sick Day Sports Club. All rights reserved. We won&apos;t tell your boss. Unless your boss is Yvon &ndash; in which case you should probably be surfing right now.</p>
         </div>
       </div>
     </footer>

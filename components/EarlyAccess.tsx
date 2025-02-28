@@ -22,7 +22,7 @@ export default function EarlyAccess() {
     setMessage('');
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('waitlist')
         .insert([{ email: email.trim() }]);
       
