@@ -2,7 +2,11 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import ValueProp from '@/components/ValueProp';
 import HowItWorks from '@/components/HowItWorks';
+import CtaSection from '@/components/CtaSection';
+import Testimonials from '@/components/Testimonials';
+import AdventurePrescriptions from '@/components/AdventurePrescriptions';
 import EarlyAccess from '@/components/EarlyAccess';
+import BackToWorkTips from '@/components/BackToWorkTips';
 import Footer from '@/components/Footer';
 
 export const metadata = {
@@ -17,7 +21,11 @@ export default function HomePage() {
       <Hero />
       <ValueProp />
       <HowItWorks />
+      <CtaSection />
+      <Testimonials />
+      <AdventurePrescriptions />
       <EarlyAccess />
+      <BackToWorkTips />
       <Footer />
     </main>
   );
