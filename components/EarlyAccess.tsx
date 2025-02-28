@@ -112,24 +112,26 @@ export default function EarlyAccess() {
         </div>
         
         {/* Signup form */}
-        <form onSubmit={handleSubmit} className="flex max-w-md mx-auto justify-center gap-0">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Your email address"
-            className="flex-1 p-4 border-none rounded-l-md text-black max-w-sm"
-            required
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors whitespace-nowrap"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Submitting...' : 'Join Waitlist'}
-          </button>
-        </form>
+        <div className="flex justify-center">
+          <form onSubmit={handleSubmit} className="flex w-full max-w-md">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email address"
+              className="flex-1 p-4 border-none rounded-l-md text-black min-w-0"
+              required
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors whitespace-nowrap"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Submitting...' : 'Join Waitlist'}
+            </button>
+          </form>
+        </div>
         
         {/* Form message */}
         {message && (
