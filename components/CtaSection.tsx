@@ -11,7 +11,7 @@ interface TimeLeft {
 }
 
 // March 27, 2024 at 9:00 AM PDT
-const LAUNCH_DATE = new Date(Date.UTC(2024, 2, 27, 16, 0, 0)); // 9 AM PDT = 16:00 UTC
+const LAUNCH_DATE = new Date('2024-03-27T16:00:00.000Z');
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
@@ -21,10 +21,14 @@ export default function CtaSection() {
   useEffect(() => {
     function calculateTimeLeft() {
       const now = new Date();
-      const difference = LAUNCH_DATE.getTime() - now.getTime();
-      console.log('Time difference:', difference);
-      console.log('Current time:', now.toISOString());
-      console.log('Launch time:', LAUNCH_DATE.toISOString());
+      const targetDate = LAUNCH_DATE;
+      
+      // Log for debugging
+      console.log('Now:', now.toISOString());
+      console.log('Target:', targetDate.toISOString());
+      
+      const difference = targetDate.getTime() - now.getTime();
+      console.log('Time difference (ms):', difference);
 
       if (difference > 0) {
         // Calculate full days
@@ -34,18 +38,16 @@ export default function CtaSection() {
         // Calculate remaining minutes
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
 
-        console.log('Calculated time left:', { days, hours, minutes });
+        console.log('Time remaining:', { days, hours, minutes });
         setTimeLeft({ days, hours, minutes });
       } else {
-        console.log('No time left, countdown finished');
+        console.log('Launch date has passed');
         setTimeLeft({ days: 0, hours: 0, minutes: 0 });
       }
     }
 
-    // Calculate immediately
+    // Calculate immediately and then every minute
     calculateTimeLeft();
-    
-    // Then update every minute
     const timer = setInterval(calculateTimeLeft, 60000);
 
     return () => clearInterval(timer);
@@ -82,7 +84,7 @@ export default function CtaSection() {
           Sick Day Sports Club is launching in Bend, OR this spring with plans for other top adventure towns through 2025. Save those sick days and be the first to experience the club.
         </p>
         
-        {/* Countdown timer - always show for now while debugging */}
+        {/* Countdown timer */}
         <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-2xl mx-auto">
           <p className="font-bold mb-4 text-center">Countdown to Launch</p>
           <div className="flex justify-center gap-12 mb-4">
