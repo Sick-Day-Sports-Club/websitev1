@@ -12,7 +12,7 @@ interface TimeLeft {
 }
 
 // March 27, 2024 at 9:00 AM PDT (16:00 UTC)
-const LAUNCH_TIMESTAMP = 1711555200000; // new Date('2024-03-27T16:00:00.000Z').getTime()
+const LAUNCH_TIMESTAMP = new Date('2024-03-27T16:00:00Z').getTime();
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
