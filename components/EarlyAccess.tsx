@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Container from './Container';
 
@@ -25,6 +25,35 @@ export default function EarlyAccess() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
+
+  useEffect(() => {
+    const launchDate = new Date('2024-03-15T00:00:00');
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const difference = launchDate.getTime() - now.getTime();
+
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+        setCountdown({ days, hours, minutes });
+      } else {
+        // If launch date has passed
+        setCountdown({ days: 0, hours: 0, minutes: 0 });
+      }
+    };
+
+    // Update immediately
+    updateCountdown();
+
+    // Update every minute
+    const interval = setInterval(updateCountdown, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,57 +117,60 @@ export default function EarlyAccess() {
   return (
     <section className="py-20 bg-[#4a7729] text-white text-center" id="signup">
       <Container>
-        <h2 className="text-4xl mb-5">Get Early Access</h2>
+        <h2 className="text-4xl font-bold mb-5">Get Early Access</h2>
         <p className="text-xl max-w-[700px] mx-auto mb-8">
-          Be among the first to try Sick Day Sports Club when we launch. Enter your email below for early access or the waitlist and start banking those wellness days.
+          Be among the first to try the Club when we launch. Enter your email below for early access and start banking those wellness days.
         </p>
         
         {/* Countdown timer */}
-        <div className="mb-8 bg-white/10 p-4 rounded max-w-md mx-auto">
-          <p className="text-center mb-1"><strong>Weekend is too far away!</strong></p>
-          <div className="flex justify-center gap-4">
+        <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-md mx-auto backdrop-blur-sm">
+          <p className="text-center mb-2 font-bold text-xl">Launching Soon!</p>
+          <div className="flex justify-center gap-6">
             <div className="text-center">
-              <div className="text-4xl font-bold">3</div>
-              <div>Days</div>
+              <div className="text-5xl font-bold">{countdown.days}</div>
+              <div className="text-sm uppercase tracking-wide">Days</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold">7</div>
-              <div>Hours</div>
+              <div className="text-5xl font-bold">{countdown.hours}</div>
+              <div className="text-sm uppercase tracking-wide">Hours</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold">42</div>
-              <div>Minutes</div>
+              <div className="text-5xl font-bold">{countdown.minutes}</div>
+              <div className="text-sm uppercase tracking-wide">Minutes</div>
             </div>
           </div>
-          <p className="text-center mt-3 italic">Why wait? Take a sick day!</p>
+          <p className="text-center mt-4 italic font-medium">Why wait? Join the waitlist now!</p>
         </div>
         
         {/* Signup form */}
         <div className="flex justify-center">
-          <form onSubmit={handleSubmit} className="flex w-full max-w-md">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              className="flex-1 p-4 border-none rounded-l-md text-black min-w-0"
-              required
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors whitespace-nowrap"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Submitting...' : 'Join Waitlist'}
-            </button>
+          <form onSubmit={handleSubmit} className="flex w-full max-w-md relative">
+            <div className="absolute -inset-1 bg-white/30 rounded-lg blur"></div>
+            <div className="relative flex w-full bg-white rounded-lg p-1">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Your email address"
+                className="flex-1 p-4 rounded-l-md text-black min-w-0 focus:outline-none focus:ring-2 focus:ring-[#4a7729] placeholder:text-gray-500"
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                className="px-6 py-4 bg-[#2c2c2c] text-white font-semibold rounded-md hover:bg-[#1a1a1a] transition-all duration-300 whitespace-nowrap transform hover:scale-105 shadow-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Submitting...' : 'Join Waitlist'}
+              </button>
+            </div>
           </form>
         </div>
         
         {/* Form message */}
         {message && (
           <div 
-            className={`mt-4 font-bold ${
+            className={`mt-6 text-lg font-bold ${
               messageType === 'success' ? 'text-white' : 
               messageType === 'error' ? 'text-red-200' :
               'text-blue-200'

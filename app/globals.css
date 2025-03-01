@@ -3,58 +3,127 @@
 @tailwind utilities;
 
 :root {
-  --primary: #000000;
-  --secondary: #4a7729;
-  --light: #f6f6f6;
-  --dark: #2c2c2c;
-  --accent: #e6a532;
+  /* Brand Colors */
+  --color-primary: #4a7729;
+  --color-primary-dark: #3d6222;
+  --color-secondary: #2c2c2c;
+  --color-secondary-light: #f6f6f6;
+  --color-accent: #e6a532;
+  
+  /* Spacing */
+  --container-padding: 1rem;
+  --container-max-width: 1200px;
+  
+  /* Typography */
+  --base-line-height: 1.6;
+  
+  /* Transitions */
+  --transition-default: all 0.3s ease;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
+/* Base Styles */
 body {
-  line-height: 1.6;
-  color: var(--dark);
+  line-height: var(--base-line-height);
+  color: var(--color-secondary);
   background-color: white;
 }
 
+/* Container */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--container-padding);
 }
 
 @media (min-width: 640px) {
-  .container {
-    padding: 0 1.5rem;
+  :root {
+    --container-padding: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .container {
-    padding: 0 2rem;
+  :root {
+    --container-padding: 2rem;
   }
 }
 
-.btn-primary {
-  @apply inline-block bg-white text-black py-4 px-8 rounded font-semibold text-lg transition-all duration-300;
-}
+/* Components */
+@layer components {
+  .btn-primary {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    transition: var(--transition-default);
+    background-color: white;
+    color: var(--color-secondary);
+  }
 
-.btn-primary:hover {
-  @apply bg-gray-100;
-}
+  .btn-primary:hover {
+    background-color: var(--color-secondary-light);
+    transform: translateY(-1px);
+  }
 
-.btn-secondary {
-  @apply inline-block bg-transparent text-white py-[14px] px-[29px] border-2 border-white rounded font-semibold text-lg transition-all duration-300 ml-4;
-}
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.875rem 1.8125rem;
+    border: 2px solid white;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    transition: var(--transition-default);
+    margin-left: 1rem;
+    color: white;
+    background-color: transparent;
+  }
 
-.btn-secondary:hover {
-  @apply bg-white/10;
-}
+  .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
 
-.section-title {
-  @apply text-center mb-12;
-}
+  .section-title {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
 
-.section-title h2 {
-  @apply text-4xl mb-4;
+  .section-title h2 {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+  }
+  
+  /* Form Elements */
+  .form-input {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--color-secondary-light);
+    transition: var(--transition-default);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(74, 119, 41, 0.2);
+  }
+  
+  /* Cards */
+  .card {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-md);
+  }
 }
