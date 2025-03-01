@@ -7,6 +7,7 @@ interface TimeLeft {
   days: number;
   hours: number;
   minutes: number;
+  seconds: number;
 }
 
 const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00'); // 9 AM PDT on March 27th
@@ -14,7 +15,7 @@ const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00'); // 9 AM PDT on March 
 export default function EarlyAccess() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0 });
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -25,17 +26,18 @@ export default function EarlyAccess() {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
         });
       } else {
         // If we're past the launch date, show zeros
-        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
 
-    // Calculate immediately and then every minute
+    // Calculate immediately and then every second
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000);
+    const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
   }, []);
@@ -68,18 +70,22 @@ export default function EarlyAccess() {
         {/* Countdown timer */}
         <div className="mb-8 bg-white/10 p-6 rounded-lg max-w-md mx-auto">
           <p className="font-bold mb-4">Launching in Bend March 27!</p>
-          <div className="flex justify-center gap-12 mb-4">
+          <div className="flex justify-center gap-8 mb-4">
             <div className="text-center">
-              <div className="text-5xl font-bold">{timeLeft.days}</div>
+              <div className="text-4xl font-bold">{String(timeLeft.days).padStart(2, '0')}</div>
               <div className="text-sm uppercase tracking-wide">Days</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold">{timeLeft.hours}</div>
+              <div className="text-4xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
               <div className="text-sm uppercase tracking-wide">Hours</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold">{timeLeft.minutes}</div>
+              <div className="text-4xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
               <div className="text-sm uppercase tracking-wide">Minutes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold">{String(timeLeft.seconds).padStart(2, '0')}</div>
+              <div className="text-sm uppercase tracking-wide">Seconds</div>
             </div>
           </div>
         </div>

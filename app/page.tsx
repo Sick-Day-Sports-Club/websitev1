@@ -7,7 +7,6 @@ import Testimonials from '@/components/Testimonials';
 import AdventurePrescriptions from '@/components/AdventurePrescriptions';
 import BackToWorkTips from '@/components/BackToWorkTips';
 import Footer from '@/components/Footer';
-import EarlyAccess from '@/components/EarlyAccess';
 import FAQ from '@/components/FAQ';
 import ContactForm from '@/components/ContactForm';
 
@@ -27,7 +26,6 @@ export default function HomePage() {
       <Testimonials />
       <AdventurePrescriptions />
       <BackToWorkTips />
-      <EarlyAccess />
       <FAQ />
       <ContactForm />
       <Footer />

@@ -38,7 +38,7 @@ export default function Navbar() {
               FAQ
             </Link>
             <Link href="#launch" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
-              Early Access
+              Launch Info
             </Link>
           </div>
 
@@ -72,7 +72,7 @@ export default function Navbar() {
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Early Access
+                  Launch Info
                 </Link>
               </div>
             </div>

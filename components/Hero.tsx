@@ -197,6 +197,7 @@ export default function Hero() {
         <Link 
           href="#launch"
           className="inline-flex items-center text-white hover:text-[#4a7729] transition-colors"
+          onClick={() => trackCTAClick('learn_more')}
         >
           <span className="mr-2 font-semibold">Learn More</span>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
