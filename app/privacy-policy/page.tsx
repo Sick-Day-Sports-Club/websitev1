@@ -1,6 +1,7 @@
 import Container from '@/components/Container';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import type { Metadata } from 'next';
 import Script from 'next/script';
 
@@ -23,6 +24,11 @@ export default function PrivacyPolicy() {
     dateModified: '2024-02-28',
   };
 
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Privacy Policy', href: '/privacy-policy', current: true },
+  ];
+
   return (
     <>
       <Script
@@ -31,8 +37,9 @@ export default function PrivacyPolicy() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Navbar />
-      <main className="py-16 bg-white min-h-[calc(100vh-80px)]">
+      <main className="py-16 bg-white min-h-[calc(100vh-80px)]" id="main-content">
         <Container>
+          <Breadcrumbs items={breadcrumbItems} />
           <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
           
           <div className="prose prose-lg max-w-none">

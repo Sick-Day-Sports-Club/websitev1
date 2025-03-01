@@ -4,6 +4,7 @@ import "./globals.css";
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import CookieConsent from '@/components/CookieConsent';
 import BackToTop from '@/components/BackToTop';
+import SkipToContent from '@/components/SkipToContent';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sick Day Sports Club",
   description: "Turn your sick days into adventure days",
+  metadataBase: new URL('https://sickdaysports.club'),
 };
 
 export default function RootLayout({
@@ -30,6 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SkipToContent />
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}

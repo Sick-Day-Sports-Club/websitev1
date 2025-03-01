@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -17,34 +17,56 @@ export default function Hero() {
     '/images/hero-background7.jpg'
   ];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === images.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 5000); // Change image every 5 seconds
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const goToImage = (index: number) => {
-    setCurrentImageIndex(index);
-  };
-
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     setCurrentImageIndex((prevIndex) => 
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
     );
-  };
+  }, [images.length]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     setCurrentImageIndex((prevIndex) => 
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
     );
-  };
+  }, [images.length]);
+
+  const goToImage = useCallback((index: number) => {
+    setCurrentImageIndex(index);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      nextImage();
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(timer);
+  }, [nextImage]);
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        prevImage();
+      } else if (e.key === 'ArrowRight') {
+        nextImage();
+      } else if (e.key >= '1' && e.key <= '7') {
+        const index = parseInt(e.key) - 1;
+        if (index < images.length) {
+          goToImage(index);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextImage, prevImage, goToImage, images.length]);
 
   return (
-    <section className="relative h-[90vh] flex items-center justify-start">
+    <section 
+      className="relative h-[90vh] flex items-center justify-start"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Hero image carousel"
+    >
       {/* Background images with fade transition */}
       {images.map((image, index) => (
         <div
@@ -52,6 +74,10 @@ export default function Hero() {
           className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentImageIndex ? 'opacity-100' : 'opacity-0'
           }`}
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`Slide ${index + 1} of ${images.length}`}
+          aria-hidden={index !== currentImageIndex}
         >
           <Image
             src={image}
@@ -60,6 +86,7 @@ export default function Hero() {
             priority={index === 0}
             className="object-cover"
             sizes="100vw"
+            loading={index === 0 ? 'eager' : 'lazy'}
           />
         </div>
       ))}
@@ -70,7 +97,7 @@ export default function Hero() {
       {/* Navigation arrows */}
       <button
         onClick={prevImage}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 text-white p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 text-white p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
         aria-label="Previous image"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -79,7 +106,7 @@ export default function Hero() {
       </button>
       <button
         onClick={nextImage}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 text-white p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 text-white p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
         aria-label="Next image"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -88,17 +115,24 @@ export default function Hero() {
       </button>
 
       {/* Dot indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex space-x-2">
+      <div 
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex space-x-2"
+        role="tablist"
+        aria-label="Choose image to display"
+      >
         {images.map((_, index) => (
           <button
             key={index}
             onClick={() => goToImage(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-2 h-2 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white ${
               index === currentImageIndex
                 ? 'bg-white w-4'
                 : 'bg-white/50 hover:bg-white/75'
             }`}
+            role="tab"
+            aria-selected={index === currentImageIndex}
             aria-label={`Go to image ${index + 1}`}
+            tabIndex={0}
           />
         ))}
       </div>
@@ -114,13 +148,13 @@ export default function Hero() {
         <div className="flex flex-wrap gap-4">
           <Link 
             href="#signup" 
-            className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors"
+            className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
           >
             Get Early Access
           </Link>
           <Link 
             href="#how" 
-            className="bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-8 rounded-md transition-colors"
+            className="bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
           >
             Learn More
           </Link>
