@@ -10,8 +10,8 @@ interface TimeLeft {
   minutes: number;
 }
 
-// March 27, 2024 at 9:00 AM PDT
-const LAUNCH_DATE = new Date('2024-03-27T16:00:00.000Z');
+// March 27, 2024 at 9:00 AM PDT (16:00 UTC)
+const LAUNCH_TIMESTAMP = 1711555200000; // new Date('2024-03-27T16:00:00.000Z').getTime()
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
@@ -20,14 +20,12 @@ export default function CtaSection() {
 
   useEffect(() => {
     function calculateTimeLeft() {
-      const now = new Date();
-      const targetDate = LAUNCH_DATE;
+      const now = Date.now();
+      const difference = LAUNCH_TIMESTAMP - now;
       
       // Log for debugging
-      console.log('Now:', now.toISOString());
-      console.log('Target:', targetDate.toISOString());
-      
-      const difference = targetDate.getTime() - now.getTime();
+      console.log('Current timestamp:', now);
+      console.log('Launch timestamp:', LAUNCH_TIMESTAMP);
       console.log('Time difference (ms):', difference);
 
       if (difference > 0) {
