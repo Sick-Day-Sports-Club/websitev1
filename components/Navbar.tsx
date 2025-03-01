@@ -6,7 +6,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="container">
+    <div className="container mx-auto px-4">
       <nav className="flex justify-between items-center py-5">
         <Link href="/" className="text-2xl font-bold text-black">
           Sick Day Sports Club

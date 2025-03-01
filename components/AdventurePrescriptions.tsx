@@ -1,7 +1,7 @@
 export default function AdventurePrescriptions() {
   return (
     <section className="py-20 bg-white">
-      <div className="container">
+      <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl mb-4">Adventure Prescriptions</h2>
           <p className="text-xl text-gray-600">An epic remedy to standing desk treadmill fatigue</p>
