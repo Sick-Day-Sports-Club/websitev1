@@ -22,7 +22,7 @@ export default function CtaSection() {
       <Container className="relative z-10">
         <h2 className="text-4xl md:text-5xl font-bold mb-6">We&apos;re Launching Soon</h2>
         <p className="text-xl max-w-4xl mx-auto mb-8">
-          Sick Day Sports Club already has a global adventure guide network <a href="http://findadventureguides.com" className="text-white underline">findadventureguides.com</a> and is launching in Bend this spring with plans for other top adventure towns through 2025. Save those sick days and join our waitlist to be the first to know when we launch near you!
+          Sick Day Sports Club built a global adventure guide network and is launching in Bend, OR this spring with plans for other top adventure towns through 2025. Save those sick days and join our waitlist to be the first to know when we launch near you!
         </p>
         <Link href="#signup" className="btn-primary inline-block py-4 px-8 rounded bg-white text-black font-semibold hover:bg-gray-100 transition-colors">
           Join the Waitlist

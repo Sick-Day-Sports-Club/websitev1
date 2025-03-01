@@ -34,6 +34,9 @@ export default function Navbar() {
             <Link href="#testimonials" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               Testimonials
             </Link>
+            <Link href="#faq" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+              FAQ
+            </Link>
             <Link href="#signup" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               Early Access
             </Link>
@@ -56,6 +59,13 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Testimonials
+                </Link>
+                <Link 
+                  href="#faq" 
+                  className="text-white font-semibold hover:text-[#4a7729] transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  FAQ
                 </Link>
                 <Link 
                   href="#signup" 

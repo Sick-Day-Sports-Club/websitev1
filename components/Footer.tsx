@@ -18,9 +18,6 @@ export default function Footer() {
           <Link href="/privacy-policy" className="text-white hover:text-gray-300">
             Privacy Policy
           </Link>
-          <Link href="#" className="text-white hover:text-gray-300">
-            Doctor&apos;s Notes
-          </Link>
         </div>
         <div className="text-gray-400 text-sm max-w-2xl mx-auto">
           <p>&copy; {new Date().getFullYear()} Sick Day Sports Club. All rights reserved. We won&apos;t tell your boss. Unless your boss is Yvon &ndash; in which case you should probably be surfing right now.</p>
