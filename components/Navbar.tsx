@@ -37,7 +37,7 @@ export default function Navbar() {
             <Link href="#faq" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               FAQ
             </Link>
-            <Link href="#signup" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+            <Link href="#launch" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               Early Access
             </Link>
           </div>
@@ -68,7 +68,7 @@ export default function Navbar() {
                   FAQ
                 </Link>
                 <Link 
-                  href="#signup" 
+                  href="#launch" 
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
