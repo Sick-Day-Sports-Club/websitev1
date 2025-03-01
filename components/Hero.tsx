@@ -3,45 +3,59 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { trackCarouselInteraction, trackCTAClick } from '@/utils/analytics';
+
+// Temporary type definition until the image optimization script runs
+interface HeroImage {
+  src: string;
+  blurDataURL: string;
+}
+
+// Temporary heroImages array until the image optimization script runs
+const heroImages: HeroImage[] = [
+  {
+    src: '/images/hero-background.jpg',
+    blurDataURL: ''
+  },
+  {
+    src: '/images/hero-background2.jpg',
+    blurDataURL: ''
+  },
+  // Add other images here
+];
 
 export default function Hero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  const images = [
-    '/images/hero-background.jpg',
-    '/images/hero-background2.jpg',
-    '/images/hero-background3.jpg',
-    '/images/hero-background4.jpg',
-    '/images/hero-background5.jpg',
-    '/images/hero-background6.jpg',
-    '/images/hero-background7.jpg'
-  ];
-
   const nextImage = useCallback(() => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  }, [images.length]);
+    setCurrentImageIndex((prevIndex) => {
+      const newIndex = prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1;
+      trackCarouselInteraction('next', newIndex);
+      return newIndex;
+    });
+  }, []);
 
   const prevImage = useCallback(() => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  }, [images.length]);
+    setCurrentImageIndex((prevIndex) => {
+      const newIndex = prevIndex === 0 ? heroImages.length - 1 : prevIndex - 1;
+      trackCarouselInteraction('prev', newIndex);
+      return newIndex;
+    });
+  }, []);
 
   const goToImage = useCallback((index: number) => {
     setCurrentImageIndex(index);
+    trackCarouselInteraction('dot', index);
   }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       nextImage();
-    }, 5000); // Change image every 5 seconds
+    }, 5000);
 
     return () => clearInterval(timer);
   }, [nextImage]);
 
-  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
@@ -50,7 +64,7 @@ export default function Hero() {
         nextImage();
       } else if (e.key >= '1' && e.key <= '7') {
         const index = parseInt(e.key) - 1;
-        if (index < images.length) {
+        if (index < heroImages.length) {
           goToImage(index);
         }
       }
@@ -58,7 +72,11 @@ export default function Hero() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [nextImage, prevImage, goToImage, images.length]);
+  }, [nextImage, prevImage, goToImage]);
+
+  const handleCTAClick = (ctaType: 'early_access' | 'learn_more') => {
+    trackCTAClick(ctaType);
+  };
 
   return (
     <section 
@@ -67,27 +85,41 @@ export default function Hero() {
       aria-roledescription="carousel"
       aria-label="Hero image carousel"
     >
-      {/* Background images with fade transition */}
-      {images.map((image, index) => (
+      {heroImages.map((image: HeroImage, index: number) => (
         <div
-          key={image}
+          key={image.src}
           className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentImageIndex ? 'opacity-100' : 'opacity-0'
           }`}
           role="group"
           aria-roledescription="slide"
-          aria-label={`Slide ${index + 1} of ${images.length}`}
+          aria-label={`Slide ${index + 1} of ${heroImages.length}`}
           aria-hidden={index !== currentImageIndex}
         >
-          <Image
-            src={image}
-            alt={`Adventure background ${index + 1}`}
-            fill
-            priority={index === 0}
-            className="object-cover"
-            sizes="100vw"
-            loading={index === 0 ? 'eager' : 'lazy'}
-          />
+          <picture>
+            <source
+              srcSet={`${image.src.replace('.jpg', '-1920.webp')} 1920w,
+                      ${image.src.replace('.jpg', '-1200.webp')} 1200w,
+                      ${image.src.replace('.jpg', '-1080.webp')} 1080w,
+                      ${image.src.replace('.jpg', '-828.webp')} 828w,
+                      ${image.src.replace('.jpg', '-750.webp')} 750w,
+                      ${image.src.replace('.jpg', '-640.webp')} 640w`}
+              sizes="100vw"
+              type="image/webp"
+            />
+            <Image
+              src={image.src}
+              alt={`Adventure background ${index + 1}`}
+              fill
+              priority={index === 0}
+              className="object-cover"
+              sizes="100vw"
+              quality={90}
+              placeholder="blur"
+              blurDataURL={image.blurDataURL}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          </picture>
         </div>
       ))}
       
@@ -120,7 +152,7 @@ export default function Hero() {
         role="tablist"
         aria-label="Choose image to display"
       >
-        {images.map((_, index) => (
+        {heroImages.map((_: HeroImage, index: number) => (
           <button
             key={index}
             onClick={() => goToImage(index)}
@@ -149,12 +181,14 @@ export default function Hero() {
           <Link 
             href="#signup" 
             className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+            onClick={() => handleCTAClick('early_access')}
           >
             Get Early Access
           </Link>
           <Link 
             href="#how" 
             className="bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+            onClick={() => handleCTAClick('learn_more')}
           >
             Learn More
           </Link>

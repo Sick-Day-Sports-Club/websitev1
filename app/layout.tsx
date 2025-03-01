@@ -1,10 +1,14 @@
+'use client';
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { useEffect } from "react";
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import CookieConsent from '@/components/CookieConsent';
 import BackToTop from '@/components/BackToTop';
 import SkipToContent from '@/components/SkipToContent';
+import { initScrollDepthTracking } from '@/utils/analytics';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,17 +20,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Sick Day Sports Club",
-  description: "Turn your sick days into adventure days",
-  metadataBase: new URL('https://sickdaysports.club'),
-};
+// Move metadata to a separate file since we're using 'use client'
+import { metadata } from './metadata';
+export { metadata };
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  useEffect(() => {
+    initScrollDepthTracking();
+  }, []);
+
   return (
     <html lang="en">
       <body

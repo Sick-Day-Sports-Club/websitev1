@@ -8,6 +8,8 @@ import AdventurePrescriptions from '@/components/AdventurePrescriptions';
 import BackToWorkTips from '@/components/BackToWorkTips';
 import Footer from '@/components/Footer';
 import EarlyAccess from '@/components/EarlyAccess';
+import FAQ from '@/components/FAQ';
+import ContactForm from '@/components/ContactForm';
 
 export const metadata = {
   title: 'Sick Day Sports Club | Connect with Local Outdoor Guides',
@@ -26,6 +28,8 @@ export default function HomePage() {
       <AdventurePrescriptions />
       <BackToWorkTips />
       <EarlyAccess />
+      <FAQ />
+      <ContactForm />
       <Footer />
     </main>
   );
