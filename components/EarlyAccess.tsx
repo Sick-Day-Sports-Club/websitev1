@@ -28,31 +28,40 @@ export default function EarlyAccess() {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
 
   useEffect(() => {
-    const launchDate = new Date('2024-03-15T00:00:00');
-
-    const updateCountdown = () => {
+    const calculateCountdown = () => {
+      // Force current date to be correct
       const now = new Date();
-      const difference = launchDate.getTime() - now.getTime();
-
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-
-        setCountdown({ days, hours, minutes });
-      } else {
-        // If launch date has passed
-        setCountdown({ days: 0, hours: 0, minutes: 0 });
+      now.setFullYear(2024);
+      now.setMonth(1); // February (0-based)
+      
+      // Set target date
+      const target = new Date();
+      target.setFullYear(2024);
+      target.setMonth(2); // March (0-based)
+      target.setDate(27);
+      target.setHours(0, 0, 0, 0);
+      
+      const diff = target.getTime() - now.getTime();
+      
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        return { days, hours, minutes };
       }
+      
+      return { days: 0, hours: 0, minutes: 0 };
     };
 
-    // Update immediately
-    updateCountdown();
+    // Calculate immediately
+    setCountdown(calculateCountdown());
 
-    // Update every minute
-    const interval = setInterval(updateCountdown, 60000);
+    // Update every second
+    const timer = setInterval(() => {
+      setCountdown(calculateCountdown());
+    }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(timer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +97,7 @@ export default function EarlyAccess() {
         // Check if it's a duplicate email error
         if (error.code === '23505') {
           console.log('Duplicate email detected');
-          setMessage("You&apos;re already on our waitlist!");
+          setMessage("You're already on our waitlist!");
           setMessageType('info');
         } else {
           throw error;
@@ -124,7 +133,7 @@ export default function EarlyAccess() {
         
         {/* Countdown timer */}
         <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-md mx-auto backdrop-blur-sm">
-          <p className="text-center mb-2 font-bold text-xl">Launching Soon!</p>
+          <p className="text-center mb-2 font-bold text-xl">Launching March 27!</p>
           <div className="flex justify-center gap-6">
             <div className="text-center">
               <div className="text-5xl font-bold">{countdown.days}</div>
@@ -139,7 +148,7 @@ export default function EarlyAccess() {
               <div className="text-sm uppercase tracking-wide">Minutes</div>
             </div>
           </div>
-          <p className="text-center mt-4 italic font-medium">Why wait? Join the waitlist now!</p>
+          <p className="text-center mt-4 italic font-medium">Join the waitlist now!</p>
         </div>
         
         {/* Signup form */}

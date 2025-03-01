@@ -5,9 +5,9 @@ import HowItWorks from '@/components/HowItWorks';
 import CtaSection from '@/components/CtaSection';
 import Testimonials from '@/components/Testimonials';
 import AdventurePrescriptions from '@/components/AdventurePrescriptions';
-import EarlyAccess from '@/components/EarlyAccess';
 import BackToWorkTips from '@/components/BackToWorkTips';
 import Footer from '@/components/Footer';
+import EarlyAccess from '@/components/EarlyAccess';
 
 export const metadata = {
   title: 'Sick Day Sports Club | Connect with Local Outdoor Guides',
@@ -24,8 +24,8 @@ export default function HomePage() {
       <CtaSection />
       <Testimonials />
       <AdventurePrescriptions />
-      <EarlyAccess />
       <BackToWorkTips />
+      <EarlyAccess />
       <Footer />
     </main>
   );

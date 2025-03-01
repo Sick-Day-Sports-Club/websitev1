@@ -32,7 +32,7 @@ export default function BackToWorkTips() {
       <Container>
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 text-secondary">Back to Work Tips</h2>
-          <p className="text-xl text-gray-700">For a smooth return to the office</p>
+          <p className="text-xl text-gray-700">For a smooth return to the office after a sick day</p>
         </div>
         
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm">
