@@ -12,7 +12,7 @@ interface TimeLeft {
 }
 
 // March 27, 2024 at 9:00 AM PDT (16:00 UTC)
-const LAUNCH_DATE = new Date(Date.UTC(2024, 2, 27, 16, 0, 0));
+const LAUNCH_DATE = new Date('2024-03-27T16:00:00Z');
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
@@ -24,30 +24,18 @@ export default function CtaSection() {
       const now = new Date();
       const difference = LAUNCH_DATE.getTime() - now.getTime();
       
-      // Debug logging
-      console.log('Now:', now.toISOString());
-      console.log('Launch date:', LAUNCH_DATE.toISOString());
-      console.log('Time difference (ms):', difference);
-      
       if (difference > 0) {
-        // Calculate full days
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        // Calculate remaining hours after days
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        // Calculate remaining minutes after hours
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        // Calculate remaining seconds after minutes
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-        console.log('Time remaining:', { days, hours, minutes, seconds });
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        console.log('Launch date has passed');
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     }
 
-    // Calculate immediately and then every second
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
 
