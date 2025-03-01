@@ -192,7 +192,7 @@ export default function Hero() {
           Take A Sick Day. Make It Count.
         </h1>
         <p className="text-xl mb-8 max-w-[500px]">
-          Need a break from Zoom? Connect with expert local guides for short but epic action sports missions in your favorite adventure zones.
+          Need a break from Zoom? Connect with expert guides for epic action sports missions in your favorite local adventure zones.
         </p>
         <Link 
           href="#launch"
