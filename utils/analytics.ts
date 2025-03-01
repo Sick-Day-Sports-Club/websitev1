@@ -74,4 +74,8 @@ export const trackCTAClick = (ctaType: string) => {
 export function trackWaitlistSubmission(email: string) {
   // TODO: Implement actual analytics tracking
   console.log('Waitlist submission tracked:', email);
-} 
+}
+
+export const trackBetaSignup = (email: string) => {
+  trackEvent('beta_signup', 'conversion', 'Beta Signup', undefined);
+}; 
