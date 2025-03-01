@@ -10,8 +10,8 @@ interface TimeLeft {
   minutes: number;
 }
 
-// Ensure we're using the correct timezone for Bend, OR (PDT)
-const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00').getTime();
+// March 27, 2024 at 9:00 AM PDT
+const LAUNCH_DATE = new Date(2024, 2, 27, 9, 0, 0);
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
@@ -20,8 +20,8 @@ export default function CtaSection() {
 
   useEffect(() => {
     function calculateTimeLeft() {
-      const now = Date.now();
-      const difference = LAUNCH_DATE - now;
+      const now = new Date();
+      const difference = LAUNCH_DATE.getTime() - now.getTime();
 
       if (difference > 0) {
         // Calculate full days
@@ -67,6 +67,9 @@ export default function CtaSection() {
     }
   };
 
+  // Only show countdown if there's time left
+  const showCountdown = timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0;
+
   return (
     <section className="bg-gray-900 text-white py-20" id="launch">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -78,23 +81,25 @@ export default function CtaSection() {
         </p>
         
         {/* Countdown timer */}
-        <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-2xl mx-auto">
-          <p className="font-bold mb-4 text-center">Countdown to Launch</p>
-          <div className="flex justify-center gap-12 mb-4">
-            <div className="text-center">
-              <div className="text-5xl font-bold">{String(timeLeft.days).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide mt-2">Days</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide mt-2">Hours</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide mt-2">Minutes</div>
+        {showCountdown && (
+          <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-2xl mx-auto">
+            <p className="font-bold mb-4 text-center">Countdown to Launch</p>
+            <div className="flex justify-center gap-12 mb-4">
+              <div className="text-center">
+                <div className="text-5xl font-bold">{String(timeLeft.days).padStart(2, '0')}</div>
+                <div className="text-sm uppercase tracking-wide mt-2">Days</div>
+              </div>
+              <div className="text-center">
+                <div className="text-5xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
+                <div className="text-sm uppercase tracking-wide mt-2">Hours</div>
+              </div>
+              <div className="text-center">
+                <div className="text-5xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
+                <div className="text-sm uppercase tracking-wide mt-2">Minutes</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
