@@ -5,10 +5,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { trackCarouselInteraction, trackCTAClick } from '@/utils/analytics';
 
-const heroImages = [
-  '/images/hero-background.jpg',
-  '/images/hero-background2.jpg',
-];
+// Import the optimized image data
+import heroImagesData from '../public/images/hero-images.json';
+
+interface HeroImage {
+  original: string;
+  blurDataURL: string;
+  responsive: Array<{
+    width: number;
+    path: string;
+  }>;
+}
+
+const heroImages = heroImagesData as HeroImage[];
 
 export default function Hero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -48,7 +57,7 @@ export default function Hero() {
         prevImage();
       } else if (e.key === 'ArrowRight') {
         nextImage();
-      } else if (e.key >= '1' && e.key <= '2') {
+      } else if (e.key >= '1' && e.key <= '7') {
         const index = parseInt(e.key) - 1;
         if (index < heroImages.length) {
           goToImage(index);
@@ -71,9 +80,9 @@ export default function Hero() {
       aria-roledescription="carousel"
       aria-label="Hero image carousel"
     >
-      {heroImages.map((src, index) => (
+      {heroImages.map((image, index) => (
         <div
-          key={src}
+          key={image.original}
           className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentImageIndex ? 'opacity-100' : 'opacity-0'
           }`}
@@ -82,15 +91,27 @@ export default function Hero() {
           aria-label={`Slide ${index + 1} of ${heroImages.length}`}
           aria-hidden={index !== currentImageIndex}
         >
-          <Image
-            src={src}
-            alt={`Adventure background ${index + 1}`}
-            fill
-            priority={index === 0}
-            className="object-cover"
-            sizes="100vw"
-            quality={90}
-          />
+          <picture>
+            {image.responsive.map((size) => (
+              <source
+                key={size.width}
+                srcSet={size.path}
+                media={`(min-width: ${size.width}px)`}
+                type="image/webp"
+              />
+            ))}
+            <Image
+              src={image.original}
+              alt={`Adventure background ${index + 1}`}
+              fill
+              priority={index === 0}
+              className="object-cover"
+              sizes="100vw"
+              quality={90}
+              placeholder="blur"
+              blurDataURL={image.blurDataURL}
+            />
+          </picture>
         </div>
       ))}
       

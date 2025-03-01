@@ -1,0 +1,240 @@
+[
+  {
+    "original": "/images/hero-background.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAHAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAMH/8QAIBAAAQMEAgMAAAAAAAAAAAAAAwABEQIFBjEHIRUXQf/EABQBAQAAAAAAAAAAAAAAAAAAAAT/xAAaEQACAgMAAAAAAAAAAAAAAAABAwAyAgQR/9oADAMBAAIRAxEAPwDULVx/jJqBkHbz6l2IVqtt9ZU9d4/T142Y6lybRE7LYb2xhwhYFRP/2Q==",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background-2048.webp"
+      }
+    ]
+  },
+  {
+    "original": "/images/hero-background2.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAHAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUG/8QAIhAAAgEDBAIDAAAAAAAAAAAAAgMBAAQRBRIhMQYUMmGB/8QAFQEBAQAAAAAAAAAAAAAAAAAAAgT/xAAYEQADAQEAAAAAAAAAAAAAAAABAhEAA//aAAwDAQACEQMRAD8AwGoaDZpRZIQQ3INt2sg4GQlRDyOc95wUT3+VOHx1BjB+20d3O2WTmPr40pUXA1acO6hGi7//2Q==",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background2-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background2-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background2-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background2-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background2-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background2-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background2-2048.webp"
+      }
+    ]
+  },
+  {
+    "original": "/images/hero-background3.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAQH/8QAIhAAAgAFAwUAAAAAAAAAAAAAAQIAAwQREgUxcRMUFiFB/8QAFQEBAQAAAAAAAAAAAAAAAAAAAgP/xAAWEQEBAQAAAAAAAAAAAAAAAAAAAQL/2gAMAwEAAhEDEQA/AM41KuK6ahkue26SokqdlsFUXHwC5NuDCJ6p28bVsmyKKpN/ZF9uIRHMKv/Z",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background3-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background3-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background3-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background3-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background3-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background3-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background3-2048.webp"
+      }
+    ]
+  },
+  {
+    "original": "/images/hero-background4.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAGAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAHxAAAAUEAwAAAAAAAAAAAAAAAAECAxEEBSExIkGx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAVEQEBAAAAAAAAAAAAAAAAAAAAAv/aAAwDAQACEQMRAD8Ayu+U7VM84hpBcFQU5iPd9icVs4wQAFEv/9k=",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background4-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background4-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background4-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background4-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background4-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background4-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background4-2048.webp"
+      }
+    ]
+  },
+  {
+    "original": "/images/hero-background5.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAcDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAhEAABAwMEAwAAAAAAAAAAAAABAgMEAAURBhIhMRQiQf/EABUBAQEAAAAAAAAAAAAAAAAAAAED/8QAGREAAgMBAAAAAAAAAAAAAAAAABEBAhIx/9oADAMBAAIRAxEAPwCzcLjfo+s4kaA+qRFXGW45FddVuykgAgg9ew+8kGlU4AB1KysgFXiLTk943p4pUd2XRUH/2Q==",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background5-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background5-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background5-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background5-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background5-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background5-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background5-2048.webp"
+      }
+    ]
+  },
+  {
+    "original": "/images/hero-background6.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAGAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAHxAAAQMEAwEAAAAAAAAAAAAAAgABBAMFBxETIWEx/8QAFAEBAAAAAAAAAAAAAAAAAAAAA//EABgRAAMBAQAAAAAAAAAAAAAAAAABAhEx/9oADAMBAAIRAxEAPwDLImYp9O00Yky0QJNUN7kacCNvWbpSjyFcTMiGjFESfbDwt159REkylwK3p//Z",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background6-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background6-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background6-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background6-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background6-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background6-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background6-2048.webp"
+      }
+    ]
+  },
+  {
+    "original": "/images/hero-background7.jpg",
+    "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAHAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAHxAAAgICAQUAAAAAAAAAAAAAAhEBAwAFEgQGE0FR/8QAFAEBAAAAAAAAAAAAAAAAAAAAA//EABcRAAMBAAAAAAAAAAAAAAAAAAABEQL/2gAMAwEAAhEDEQA/AMg0ukG7tazqBvuIxaELOAzCU+n8cNTksWupEpjwzKlPljGDRVlQ/9k=",
+    "responsive": [
+      {
+        "width": 640,
+        "path": "/images/optimized/hero-background7-640.webp"
+      },
+      {
+        "width": 750,
+        "path": "/images/optimized/hero-background7-750.webp"
+      },
+      {
+        "width": 828,
+        "path": "/images/optimized/hero-background7-828.webp"
+      },
+      {
+        "width": 1080,
+        "path": "/images/optimized/hero-background7-1080.webp"
+      },
+      {
+        "width": 1200,
+        "path": "/images/optimized/hero-background7-1200.webp"
+      },
+      {
+        "width": 1920,
+        "path": "/images/optimized/hero-background7-1920.webp"
+      },
+      {
+        "width": 2048,
+        "path": "/images/optimized/hero-background7-2048.webp"
+      }
+    ]
+  }
+]
