@@ -189,7 +189,7 @@ export default function Hero() {
       {/* Content */}
       <div className="max-w-[600px] px-12 text-white relative z-10">
         <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-5">
-          Take That Sick Day. Make It Count.
+          Take A Sick Day. Make It Count.
         </h1>
         <p className="text-xl mb-8 max-w-[500px]">
           Need a break from Zoom? Connect with expert local guides for short but epic action sports missions in your favorite adventure zones.
