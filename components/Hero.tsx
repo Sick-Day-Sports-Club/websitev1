@@ -8,16 +8,32 @@ import { trackCarouselInteraction, trackCTAClick } from '@/utils/analytics';
 // Import the optimized image data
 import heroImagesData from '../public/images/hero-images.json';
 
+interface ResponsiveImage {
+  size: string;
+  width: number;
+  path: string;
+}
+
 interface HeroImage {
   original: string;
+  originalWidth: number;
+  originalHeight: number;
   blurDataURL: string;
-  responsive: Array<{
-    width: number;
-    path: string;
-  }>;
+  responsive: ResponsiveImage[];
 }
 
 const heroImages = heroImagesData as HeroImage[];
+
+// Helper function to get the appropriate image size
+function getImageSizes() {
+  return `
+    (max-width: 640px) 640px,
+    (max-width: 1024px) 1024px,
+    (max-width: 1920px) 1920px,
+    (max-width: 2560px) 2560px,
+    3840px
+  `;
+}
 
 export default function Hero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -80,40 +96,49 @@ export default function Hero() {
       aria-roledescription="carousel"
       aria-label="Hero image carousel"
     >
-      {heroImages.map((image, index) => (
-        <div
-          key={image.original}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-          }`}
-          role="group"
-          aria-roledescription="slide"
-          aria-label={`Slide ${index + 1} of ${heroImages.length}`}
-          aria-hidden={index !== currentImageIndex}
-        >
-          <picture>
-            {image.responsive.slice().reverse().map((size) => (
-              <source
-                key={size.width}
-                srcSet={size.path}
-                media={`(max-width: ${size.width}px)`}
-                type="image/webp"
+      {heroImages.map((image, index) => {
+        // Get the highest quality image that's not larger than the original
+        const bestImage = image.responsive
+          .filter(img => img.width <= image.originalWidth)
+          .reduce((prev, curr) => prev.width > curr.width ? prev : curr);
+
+        return (
+          <div
+            key={image.original}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`Slide ${index + 1} of ${heroImages.length}`}
+            aria-hidden={index !== currentImageIndex}
+          >
+            <picture>
+              {image.responsive
+                .sort((a, b) => b.width - a.width) // Sort by width descending
+                .map((size) => (
+                  <source
+                    key={size.size}
+                    srcSet={size.path}
+                    media={`(max-width: ${size.width}px)`}
+                    type="image/webp"
+                  />
+                ))}
+              <Image
+                src={bestImage.path}
+                alt={`Adventure background ${index + 1}`}
+                fill
+                priority={index === 0}
+                className="object-cover"
+                sizes={getImageSizes()}
+                quality={95}
+                placeholder="blur"
+                blurDataURL={image.blurDataURL}
               />
-            ))}
-            <Image
-              src={image.responsive[image.responsive.length - 1].path}
-              alt={`Adventure background ${index + 1}`}
-              fill
-              priority={index === 0}
-              className="object-cover"
-              sizes="100vw"
-              quality={90}
-              placeholder="blur"
-              blurDataURL={image.blurDataURL}
-            />
-          </picture>
-        </div>
-      ))}
+            </picture>
+          </div>
+        );
+      })}
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent z-0"></div>

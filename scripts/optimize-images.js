@@ -12,9 +12,16 @@ const HERO_IMAGES = [
   'hero-background7.jpg'
 ];
 
-// Adjusted sizes to better match common desktop resolutions
-const SIZES = [640, 1080, 1440, 1920, 2560, 3840];
-const QUALITY = 90; // Increased quality for better desktop display
+// Optimized for modern displays
+const SIZES = {
+  sm: 640,    // Mobile
+  md: 1024,   // Tablet/Small laptop
+  lg: 1920,   // Full HD
+  xl: 2560,   // 2K/QHD
+  '2xl': 3840 // 4K/UHD
+};
+
+const QUALITY = 95; // Maximum quality for sharp images
 
 async function generateBlurPlaceholder(inputPath) {
   const buffer = await sharp(inputPath)
@@ -31,30 +38,42 @@ async function optimizeImage(filename) {
   // Create output directory if it doesn't exist
   await fs.mkdir(outputDir, { recursive: true });
   
+  // Get original image metadata
+  const metadata = await sharp(inputPath).metadata();
+  
   // Generate blur placeholder
   const blurDataURL = await generateBlurPlaceholder(inputPath);
   
   // Generate responsive sizes
   const responsiveImages = await Promise.all(
-    SIZES.map(async (width) => {
-      const outputPath = path.join(outputDir, `${path.parse(filename).name}-${width}.webp`);
+    Object.entries(SIZES).map(async ([size, width]) => {
+      // Don't upscale images beyond their original size
+      const targetWidth = Math.min(width, metadata.width || width);
+      
+      const outputPath = path.join(outputDir, `${path.parse(filename).name}-${size}.webp`);
       await sharp(inputPath)
-        .resize(width, null, { 
+        .resize(targetWidth, null, { 
           fit: 'cover',
-          withoutEnlargement: true // Prevent upscaling beyond original size
+          withoutEnlargement: true
         })
-        .webp({ quality: QUALITY })
+        .webp({ 
+          quality: QUALITY,
+          effort: 6 // Maximum compression effort
+        })
         .toFile(outputPath);
       
       return {
-        width,
-        path: `/images/optimized/${path.parse(filename).name}-${width}.webp`
+        size,
+        width: targetWidth,
+        path: `/images/optimized/${path.parse(filename).name}-${size}.webp`
       };
     })
   );
   
   return {
     original: `/images/${filename}`,
+    originalWidth: metadata.width,
+    originalHeight: metadata.height,
     blurDataURL,
     responsive: responsiveImages
   };

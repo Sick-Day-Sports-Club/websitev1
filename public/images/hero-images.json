@@ -1,211 +1,232 @@
 [
   {
     "original": "/images/hero-background.jpg",
+    "originalWidth": 6000,
+    "originalHeight": 4000,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABwME/8QAIhAAAQEIAgMAAAAAAAAAAAAAAgEAAwQFERIhkQcTMVKB/8QAFQEBAQAAAAAAAAAAAAAAAAAABAX/xAAZEQACAwEAAAAAAAAAAAAAAAAAAQMEMhH/2gAMAwEAAhEDEQA/AEaH4tkruIckkV2glbgeu1RC+iuGifFMvvK2KoNcJd4TTIsqAVDIjpt9g+o6ag7kyegqqxcyf//Z",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background-640.webp"
+        "path": "/images/optimized/hero-background-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background-1920.webp"
+        "path": "/images/optimized/hero-background-lg.webp"
       },
       {
+        "size": "xl",
         "width": 2560,
-        "path": "/images/optimized/hero-background-2560.webp"
+        "path": "/images/optimized/hero-background-xl.webp"
       },
       {
+        "size": "2xl",
         "width": 3840,
-        "path": "/images/optimized/hero-background-3840.webp"
+        "path": "/images/optimized/hero-background-2xl.webp"
       }
     ]
   },
   {
     "original": "/images/hero-background2.jpg",
+    "originalWidth": 1920,
+    "originalHeight": 1280,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABQYH/8QAJBAAAgIBAgUFAAAAAAAAAAAAAQIDEQUABAYSITFBExUikaH/xAAVAQEBAAAAAAAAAAAAAAAAAAACBP/EABkRAQEAAwEAAAAAAAAAAAAAAAECAAMRUf/aAAwDAQACEQMRAD8AzzK4KP3Z8TvEXbZB9us8BaxTWfjyV1seT+6H2+O200EcoyaRh1DcjCyti6PXVvkJHk41kmkdnlRQFdjbKPRTsfHc/ehVijCgCNAAO1ai1BUi+YLmdbwM/9k=",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background2-640.webp"
+        "path": "/images/optimized/hero-background2-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background2-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background2-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background2-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background2-1920.webp"
+        "path": "/images/optimized/hero-background2-lg.webp"
       },
       {
-        "width": 2560,
-        "path": "/images/optimized/hero-background2-2560.webp"
+        "size": "xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background2-xl.webp"
       },
       {
-        "width": 3840,
-        "path": "/images/optimized/hero-background2-3840.webp"
+        "size": "2xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background2-2xl.webp"
       }
     ]
   },
   {
     "original": "/images/hero-background3.jpg",
+    "originalWidth": 1920,
+    "originalHeight": 2400,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABgf/xAAhEAEAAgIBAwUAAAAAAAAAAAABAgMEEQASIUEFMTOBgv/EABUBAQEAAAAAAAAAAAAAAAAAAAID/8QAFhEBAQEAAAAAAAAAAAAAAAAAAQAC/9oADAMBAAIRAxEAPwCd3ZULMWm/Hm4kY111QJVfJqL1S37aE1+jhmXqGTJUuiD38cV4ylOADocW7t9PB9sRtmoL1Pjkcklv/9k=",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background3-640.webp"
+        "path": "/images/optimized/hero-background3-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background3-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background3-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background3-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background3-1920.webp"
+        "path": "/images/optimized/hero-background3-lg.webp"
       },
       {
-        "width": 2560,
-        "path": "/images/optimized/hero-background3-2560.webp"
+        "size": "xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background3-xl.webp"
       },
       {
-        "width": 3840,
-        "path": "/images/optimized/hero-background3-3840.webp"
+        "size": "2xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background3-2xl.webp"
       }
     ]
   },
   {
     "original": "/images/hero-background4.jpg",
+    "originalWidth": 1920,
+    "originalHeight": 1080,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAwQFB//EACMQAAEEAQEJAAAAAAAAAAAAAAEAAgQRAyEiMTNRYXGBwdH/xAAVAQEBAAAAAAAAAAAAAAAAAAABA//EABURAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIRAxEAPwDI50fEGZXEHG86sYxuyOYsmxXlAExgFCFCrrjv2m5nDHb4pR3lKcf/2Q==",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background4-640.webp"
+        "path": "/images/optimized/hero-background4-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background4-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background4-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background4-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background4-1920.webp"
+        "path": "/images/optimized/hero-background4-lg.webp"
       },
       {
-        "width": 2560,
-        "path": "/images/optimized/hero-background4-2560.webp"
+        "size": "xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background4-xl.webp"
       },
       {
-        "width": 3840,
-        "path": "/images/optimized/hero-background4-3840.webp"
+        "size": "2xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background4-2xl.webp"
       }
     ]
   },
   {
     "original": "/images/hero-background5.jpg",
+    "originalWidth": 1920,
+    "originalHeight": 2877,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAgQFBv/EACIQAAIBBAEEAwAAAAAAAAAAAAECAwAEESEFBgcSIzFRof/EABUBAQEAAAAAAAAAAAAAAAAAAAIE/8QAGBEBAQADAAAAAAAAAAAAAAAAAQARElH/2gAMAwEAAhEDEQA/AB7u2E8/HwSwSvaXEcqQs2FZ5EkdPUo+tM5zrQFWmuusbdjCYbq4MZ8DMpOJMa8hhsb+aW7jKpuemlKgqeSiyMaOZIgfythISJGAJABIAFT7YAm9v//Z",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background5-640.webp"
+        "path": "/images/optimized/hero-background5-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background5-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background5-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background5-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background5-1920.webp"
+        "path": "/images/optimized/hero-background5-lg.webp"
       },
       {
-        "width": 2560,
-        "path": "/images/optimized/hero-background5-2560.webp"
+        "size": "xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background5-xl.webp"
       },
       {
-        "width": 3840,
-        "path": "/images/optimized/hero-background5-3840.webp"
+        "size": "2xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background5-2xl.webp"
       }
     ]
   },
   {
     "original": "/images/hero-background6.jpg",
+    "originalWidth": 1920,
+    "originalHeight": 1080,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAQMFCP/EAB8QAAEDBAMBAAAAAAAAAAAAAAECAxEABAYSByGhUv/EABQBAQAAAAAAAAAAAAAAAAAAAAH/xAAaEQACAgMAAAAAAAAAAAAAAAABAgADEUFC/9oADAMBAAIRAxEAPwBN9yPg71nbFl51pRGrqVoJUD9ER4JqMrN8U2MXKyJ6Oo79rPKiZPdChayvRgWzqf/Z",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background6-640.webp"
+        "path": "/images/optimized/hero-background6-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background6-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background6-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background6-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background6-1920.webp"
+        "path": "/images/optimized/hero-background6-lg.webp"
       },
       {
-        "width": 2560,
-        "path": "/images/optimized/hero-background6-2560.webp"
+        "size": "xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background6-xl.webp"
       },
       {
-        "width": 3840,
-        "path": "/images/optimized/hero-background6-3840.webp"
+        "size": "2xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background6-2xl.webp"
       }
     ]
   },
   {
     "original": "/images/hero-background7.jpg",
+    "originalWidth": 1920,
+    "originalHeight": 1275,
     "blurDataURL": "data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAKAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABgf/xAAmEAABAwIEBgMAAAAAAAAAAAABAgMRAAQFEiEiBhMVIzFBUYHR/8QAFAEBAAAAAAAAAAAAAAAAAAAAA//EABcRAAMBAAAAAAAAAAAAAAAAAAABAhH/2gAMAwEAAhEDEQA/AJIcDueiW92rFHEIQkpAZZLSkNwSQpUiRJI9n6oqcHzGQ2uDqNp/ardh3eHm+ZvlhU5tfigKicx1Pmg0VQj/2Q==",
     "responsive": [
       {
+        "size": "sm",
         "width": 640,
-        "path": "/images/optimized/hero-background7-640.webp"
+        "path": "/images/optimized/hero-background7-sm.webp"
       },
       {
-        "width": 1080,
-        "path": "/images/optimized/hero-background7-1080.webp"
+        "size": "md",
+        "width": 1024,
+        "path": "/images/optimized/hero-background7-md.webp"
       },
       {
-        "width": 1440,
-        "path": "/images/optimized/hero-background7-1440.webp"
-      },
-      {
+        "size": "lg",
         "width": 1920,
-        "path": "/images/optimized/hero-background7-1920.webp"
+        "path": "/images/optimized/hero-background7-lg.webp"
       },
       {
-        "width": 2560,
-        "path": "/images/optimized/hero-background7-2560.webp"
+        "size": "xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background7-xl.webp"
       },
       {
-        "width": 3840,
-        "path": "/images/optimized/hero-background7-3840.webp"
+        "size": "2xl",
+        "width": 1920,
+        "path": "/images/optimized/hero-background7-2xl.webp"
       }
     ]
   }
