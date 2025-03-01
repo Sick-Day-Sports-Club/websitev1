@@ -109,7 +109,7 @@ export default function Hero() {
           Take That Sick Day. Make It Count.
         </h1>
         <p className="text-xl mb-8 max-w-[500px]">
-          Connect with expert local guides for short but epic adventures in action sports and outdoor activities when you need a break from Zoom.
+          Need a break from Zoom? Connect with expert local guides for short but epic action sports missions in your favorite adventure zones.
         </p>
         <div className="flex flex-wrap gap-4">
           <Link 

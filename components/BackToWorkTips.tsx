@@ -51,7 +51,7 @@ export default function BackToWorkTips() {
             </li>
             <li className="pl-8 relative text-secondary">
               <span className="absolute left-0 top-1 text-primary">✓</span>
-              <strong>Wash up</strong> - Lingering chalk dust and mud splatters on your pants are dead giveaways and trail grime in your hair is just gross.
+              <strong>Wash Up</strong> - Lingering chalk dust and mud splatters on your pants are dead giveaways and trail grime in your hair is just gross.
             </li>
           </ul>
           

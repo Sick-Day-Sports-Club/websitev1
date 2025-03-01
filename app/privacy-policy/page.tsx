@@ -69,8 +69,8 @@ export default function PrivacyPolicy() {
             <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
             <p className="mb-4">
               If you have any questions about our Privacy Policy or how we handle your data, please contact us at{' '}
-              <a href="mailto:privacy@sickdaysportsclub.com" className="text-[#4a7729] hover:underline">
-                privacy@sickdaysportsclub.com
+              <a href="mailto:info@sickdaysports.club" className="text-[#4a7729] hover:underline">
+                info@sickdaysports.club
               </a>
             </p>
           </section>
