@@ -12,7 +12,7 @@ interface TimeLeft {
 }
 
 // March 27, 2024 at 9:00 AM PDT (16:00 UTC)
-const LAUNCH_TIMESTAMP = new Date('2024-03-27T16:00:00Z').getTime();
+const LAUNCH_DATE = new Date(2024, 2, 27, 9, 0, 0); // Month is 0-based, so 2 = March
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
@@ -21,14 +21,9 @@ export default function CtaSection() {
 
   useEffect(() => {
     function calculateTimeLeft() {
-      const now = Date.now();
-      const difference = LAUNCH_TIMESTAMP - now;
+      const now = new Date();
+      const difference = LAUNCH_DATE.getTime() - now.getTime();
       
-      // Log for debugging
-      console.log('Current timestamp:', now);
-      console.log('Launch timestamp:', LAUNCH_TIMESTAMP);
-      console.log('Time difference (ms):', difference);
-
       if (difference > 0) {
         // Calculate full days
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -39,10 +34,8 @@ export default function CtaSection() {
         // Calculate remaining seconds after minutes
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-        console.log('Time remaining:', { days, hours, minutes, seconds });
         setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        console.log('Launch date has passed');
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     }
