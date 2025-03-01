@@ -85,7 +85,7 @@ export default function Hero() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [nextImage, prevImage, goToImage]);
 
-  const handleCTAClick = (ctaType: 'beta_access' | 'waitlist' | 'learn_more') => {
+  const handleCTAClick = (ctaType: 'beta_access' | 'waitlist') => {
     trackCTAClick(ctaType);
   };
 
@@ -194,29 +194,20 @@ export default function Hero() {
         <p className="text-xl mb-8 max-w-[500px]">
           Need a break from Zoom? Connect with expert local guides for short but epic action sports missions in your favorite adventure zones.
         </p>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-4">
-            <Link 
-              href="/onboarding"
-              className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
-              onClick={() => handleCTAClick('beta_access')}
-            >
-              Join Now (Beta Access)
-            </Link>
-            <Link 
-              href="#how" 
-              className="bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
-              onClick={() => handleCTAClick('learn_more')}
-            >
-              Learn More
-            </Link>
-          </div>
-          <Link
+        <div className="flex flex-wrap gap-4">
+          <Link 
+            href="/beta-signup"
+            className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-[#4a7729] hover:border-[#3d6222]"
+            onClick={() => handleCTAClick('beta_access')}
+          >
+            Apply for Beta Access
+          </Link>
+          <Link 
             href="/waitlist"
-            className="text-white/80 hover:text-white text-sm font-medium transition-colors underline underline-offset-4 decoration-white/30 hover:decoration-white/60"
+            className="bg-transparent hover:bg-white/10 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-white"
             onClick={() => handleCTAClick('waitlist')}
           >
-            Not ready for beta? Join the waitlist for updates
+            Join Waitlist
           </Link>
         </div>
       </div>
