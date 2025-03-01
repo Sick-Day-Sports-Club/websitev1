@@ -8,6 +8,7 @@ interface TimeLeft {
   days: number;
   hours: number;
   minutes: number;
+  seconds: number;
 }
 
 // March 27, 2024 at 9:00 AM PDT (16:00 UTC)
@@ -16,7 +17,7 @@ const LAUNCH_TIMESTAMP = 1711555200000; // new Date('2024-03-27T16:00:00.000Z').
 export default function CtaSection() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0 });
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     function calculateTimeLeft() {
@@ -31,22 +32,24 @@ export default function CtaSection() {
       if (difference > 0) {
         // Calculate full days
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        // Calculate remaining hours
+        // Calculate remaining hours after days
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        // Calculate remaining minutes
+        // Calculate remaining minutes after hours
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        // Calculate remaining seconds after minutes
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-        console.log('Time remaining:', { days, hours, minutes });
-        setTimeLeft({ days, hours, minutes });
+        console.log('Time remaining:', { days, hours, minutes, seconds });
+        setTimeLeft({ days, hours, minutes, seconds });
       } else {
         console.log('Launch date has passed');
-        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     }
 
-    // Calculate immediately and then every minute
+    // Calculate immediately and then every second
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000);
+    const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
   }, []);
