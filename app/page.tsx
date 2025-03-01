@@ -5,7 +5,6 @@ import HowItWorks from '@/components/HowItWorks';
 import CtaSection from '@/components/CtaSection';
 import Testimonials from '@/components/Testimonials';
 import AdventurePrescriptions from '@/components/AdventurePrescriptions';
-import BackToWorkTips from '@/components/BackToWorkTips';
 import Footer from '@/components/Footer';
 import FAQ from '@/components/FAQ';
 import ContactForm from '@/components/ContactForm';
@@ -25,7 +24,6 @@ export default function HomePage() {
       <CtaSection />
       <Testimonials />
       <AdventurePrescriptions />
-      <BackToWorkTips />
       <FAQ />
       <ContactForm />
       <Footer />

@@ -10,7 +10,8 @@ interface TimeLeft {
   minutes: number;
 }
 
-const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00'); // 9 AM PDT on March 27th
+// Ensure we're using the correct timezone for Bend, OR (PDT)
+const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00').getTime();
 
 export default function CtaSection() {
   const [email, setEmail] = useState('');
@@ -18,23 +19,29 @@ export default function CtaSection() {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0 });
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const difference = LAUNCH_DATE.getTime() - now.getTime();
+    function calculateTimeLeft() {
+      const now = Date.now();
+      const difference = LAUNCH_DATE - now;
 
       if (difference > 0) {
+        // Calculate full days
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        // Calculate remaining hours
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        // Calculate remaining minutes
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        
+
         setTimeLeft({ days, hours, minutes });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0 });
       }
-    };
+    }
 
+    // Calculate immediately
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute
+    
+    // Then update every minute
+    const timer = setInterval(calculateTimeLeft, 60000);
 
     return () => clearInterval(timer);
   }, []);
