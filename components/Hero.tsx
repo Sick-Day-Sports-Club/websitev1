@@ -92,16 +92,16 @@ export default function Hero() {
           aria-hidden={index !== currentImageIndex}
         >
           <picture>
-            {image.responsive.map((size) => (
+            {image.responsive.slice().reverse().map((size) => (
               <source
                 key={size.width}
                 srcSet={size.path}
-                media={`(min-width: ${size.width}px)`}
+                media={`(max-width: ${size.width}px)`}
                 type="image/webp"
               />
             ))}
             <Image
-              src={image.original}
+              src={image.responsive[image.responsive.length - 1].path}
               alt={`Adventure background ${index + 1}`}
               fill
               priority={index === 0}

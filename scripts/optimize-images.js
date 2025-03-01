@@ -12,12 +12,13 @@ const HERO_IMAGES = [
   'hero-background7.jpg'
 ];
 
-const SIZES = [640, 750, 828, 1080, 1200, 1920, 2048];
-const QUALITY = 80;
+// Adjusted sizes to better match common desktop resolutions
+const SIZES = [640, 1080, 1440, 1920, 2560, 3840];
+const QUALITY = 90; // Increased quality for better desktop display
 
 async function generateBlurPlaceholder(inputPath) {
   const buffer = await sharp(inputPath)
-    .resize(10, 10, { fit: 'inside' })
+    .resize(10, 10, { fit: 'cover' })
     .toBuffer();
   
   return `data:image/jpeg;base64,${buffer.toString('base64')}`;
@@ -38,7 +39,10 @@ async function optimizeImage(filename) {
     SIZES.map(async (width) => {
       const outputPath = path.join(outputDir, `${path.parse(filename).name}-${width}.webp`);
       await sharp(inputPath)
-        .resize(width, null, { fit: 'contain' })
+        .resize(width, null, { 
+          fit: 'cover',
+          withoutEnlargement: true // Prevent upscaling beyond original size
+        })
         .webp({ quality: QUALITY })
         .toFile(outputPath);
       
