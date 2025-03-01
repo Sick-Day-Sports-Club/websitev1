@@ -8,7 +8,7 @@ export default function Navbar() {
   return (
     <div className="container mx-auto px-4">
       <nav className="flex justify-between items-center py-5">
-        <Link href="/" className="text-2xl font-bold text-black">
+        <Link href="/" className="text-2xl font-bold text-black hover:text-[#4a7729] transition-colors">
           Sick Day Sports Club
         </Link>
         
@@ -26,13 +26,13 @@ export default function Navbar() {
 
         {/* Desktop menu */}
         <div className="hidden md:flex">
-          <Link href="#how" className="text-gray-800 font-medium ml-8">
+          <Link href="#how" className="text-black font-semibold ml-8 hover:text-[#4a7729] transition-colors">
             How It Works
           </Link>
-          <Link href="#testimonials" className="text-gray-800 font-medium ml-8">
+          <Link href="#testimonials" className="text-black font-semibold ml-8 hover:text-[#4a7729] transition-colors">
             Testimonials
           </Link>
-          <Link href="#signup" className="text-gray-800 font-medium ml-8">
+          <Link href="#signup" className="text-black font-semibold ml-8 hover:text-[#4a7729] transition-colors">
             Early Access
           </Link>
         </div>
@@ -43,21 +43,21 @@ export default function Navbar() {
             <div className="flex flex-col space-y-4">
               <Link 
                 href="#how" 
-                className="text-gray-800 font-medium"
+                className="text-black font-semibold hover:text-[#4a7729] transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 How It Works
               </Link>
               <Link 
                 href="#testimonials" 
-                className="text-gray-800 font-medium"
+                className="text-black font-semibold hover:text-[#4a7729] transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Testimonials
               </Link>
               <Link 
                 href="#signup" 
-                className="text-gray-800 font-medium"
+                className="text-black font-semibold hover:text-[#4a7729] transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Early Access
