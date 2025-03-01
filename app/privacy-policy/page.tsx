@@ -2,6 +2,7 @@ import Container from '@/components/Container';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Sick Day Sports Club',
@@ -9,8 +10,26 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPolicy() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Privacy Policy',
+    description: 'Learn how Sick Day Sports Club collects, uses, and protects your personal information.',
+    publisher: {
+      '@type': 'Organization',
+      name: 'Sick Day Sports Club',
+      url: 'https://sickdaysports.club'
+    },
+    dateModified: '2024-02-28',
+  };
+
   return (
     <>
+      <Script
+        id="privacy-policy-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       <main className="py-16 bg-white min-h-[calc(100vh-80px)]">
         <Container>
