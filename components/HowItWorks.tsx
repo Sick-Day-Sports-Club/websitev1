@@ -1,7 +1,9 @@
+import Container from './Container';
+
 export default function HowItWorks() {
   return (
     <section className="py-20 bg-gray-50" id="how">
-      <div className="container mx-auto px-4">
+      <Container>
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4 text-gray-900">How It Works</h2>
           <p className="text-xl text-gray-700">Optimizing your days off has never been easier</p>
@@ -26,7 +28,7 @@ export default function HowItWorks() {
             <p className="text-gray-700">Meet your guide at the designated spot, enjoy the adventure then get back to work. We&apos;ll only share proof on social if you post first.</p>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 } 

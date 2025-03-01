@@ -1,7 +1,9 @@
+import Container from './Container';
+
 export default function Testimonials() {
   return (
     <section className="py-20 bg-white" id="testimonials">
-      <div className="container mx-auto px-4">
+      <Container>
         <div className="text-center mb-16">
           <h2 className="text-4xl mb-4">What Our Beta Users Say</h2>
           <p className="text-xl text-gray-600">Early feedback from our test community</p>
@@ -23,7 +25,7 @@ export default function Testimonials() {
             <div className="font-semibold">— Alex W., Bellingham</div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Container from './Container';
 
 export default function BackToWorkTips() {
   const [count, setCount] = useState(127);
@@ -29,7 +30,7 @@ export default function BackToWorkTips() {
 
   return (
     <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
+      <Container>
         <div className="text-center mb-12">
           <h2 className="text-4xl mb-4">Back to Work Tips</h2>
           <p className="text-xl text-gray-600">For a smooth return to the office</p>
@@ -61,7 +62,7 @@ export default function BackToWorkTips() {
             </p>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

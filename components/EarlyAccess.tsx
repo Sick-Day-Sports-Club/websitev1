@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import Container from './Container';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -86,7 +87,7 @@ export default function EarlyAccess() {
 
   return (
     <section className="py-20 bg-[#4a7729] text-white text-center" id="signup">
-      <div className="container">
+      <Container>
         <h2 className="text-4xl mb-5">Get Early Access</h2>
         <p className="text-xl max-w-[700px] mx-auto mb-8">
           Be among the first to try Sick Day Sports Club when we launch. Enter your email below for early access or the waitlist and start banking those wellness days.
@@ -146,7 +147,7 @@ export default function EarlyAccess() {
             {message}
           </div>
         )}
-      </div>
+      </Container>
     </section>
   );
 } 

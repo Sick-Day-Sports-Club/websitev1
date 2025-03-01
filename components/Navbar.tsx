@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
+import Container from './Container';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="bg-[#2c2c2c]">
-      <div className="container mx-auto px-4">
+      <Container>
         <nav className="flex justify-between items-center py-5">
           <Link href="/" className="text-2xl font-bold text-white hover:text-[#4a7729] transition-colors">
             Sick Day Sports Club
@@ -67,7 +68,7 @@ export default function Navbar() {
             </div>
           )}
         </nav>
-      </div>
+      </Container>
     </div>
   );
 } 
