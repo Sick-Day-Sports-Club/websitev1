@@ -9,6 +9,8 @@ interface TimeLeft {
   minutes: number;
 }
 
+const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00'); // 9 AM PDT on March 27th
+
 export default function EarlyAccess() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,21 +18,24 @@ export default function EarlyAccess() {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const launchDate = new Date('2024-03-27T00:00:00');
       const now = new Date();
-      const difference = launchDate.getTime() - now.getTime();
+      const difference = LAUNCH_DATE.getTime() - now.getTime();
 
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60)
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
         });
+      } else {
+        // If we're past the launch date, show zeros
+        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
       }
     };
 
+    // Calculate immediately and then every minute
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute
+    const timer = setInterval(calculateTimeLeft, 60000);
 
     return () => clearInterval(timer);
   }, []);
@@ -62,19 +67,19 @@ export default function EarlyAccess() {
         
         {/* Countdown timer */}
         <div className="mb-8 bg-white/10 p-6 rounded-lg max-w-md mx-auto">
-          <p className="font-bold mb-4">Launching March 27!</p>
+          <p className="font-bold mb-4">Launching in Bend March 27!</p>
           <div className="flex justify-center gap-12 mb-4">
             <div className="text-center">
               <div className="text-5xl font-bold">{timeLeft.days}</div>
-              <div>DAYS</div>
+              <div className="text-sm uppercase tracking-wide">Days</div>
             </div>
             <div className="text-center">
               <div className="text-5xl font-bold">{timeLeft.hours}</div>
-              <div>HOURS</div>
+              <div className="text-sm uppercase tracking-wide">Hours</div>
             </div>
             <div className="text-center">
               <div className="text-5xl font-bold">{timeLeft.minutes}</div>
-              <div>MINUTES</div>
+              <div className="text-sm uppercase tracking-wide">Minutes</div>
             </div>
           </div>
         </div>
