@@ -7,9 +7,6 @@ export default function Footer() {
       <Container className="max-w-4xl">
         <div className="mb-6 flex justify-center flex-wrap gap-8">
           <Link href="#" className="text-white hover:text-gray-300">
-            About Us
-          </Link>
-          <Link href="#" className="text-white hover:text-gray-300">
             For Guides
           </Link>
           <Link href="#" className="text-white hover:text-gray-300">

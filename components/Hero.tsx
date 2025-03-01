@@ -5,23 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { trackCarouselInteraction, trackCTAClick } from '@/utils/analytics';
 
-// Temporary type definition until the image optimization script runs
-interface HeroImage {
-  src: string;
-  blurDataURL: string;
-}
-
-// Temporary heroImages array until the image optimization script runs
-const heroImages: HeroImage[] = [
-  {
-    src: '/images/hero-background.jpg',
-    blurDataURL: ''
-  },
-  {
-    src: '/images/hero-background2.jpg',
-    blurDataURL: ''
-  },
-  // Add other images here
+const heroImages = [
+  '/images/hero-background.jpg',
+  '/images/hero-background2.jpg',
 ];
 
 export default function Hero() {
@@ -62,7 +48,7 @@ export default function Hero() {
         prevImage();
       } else if (e.key === 'ArrowRight') {
         nextImage();
-      } else if (e.key >= '1' && e.key <= '7') {
+      } else if (e.key >= '1' && e.key <= '2') {
         const index = parseInt(e.key) - 1;
         if (index < heroImages.length) {
           goToImage(index);
@@ -85,9 +71,9 @@ export default function Hero() {
       aria-roledescription="carousel"
       aria-label="Hero image carousel"
     >
-      {heroImages.map((image: HeroImage, index: number) => (
+      {heroImages.map((src, index) => (
         <div
-          key={image.src}
+          key={src}
           className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentImageIndex ? 'opacity-100' : 'opacity-0'
           }`}
@@ -96,30 +82,15 @@ export default function Hero() {
           aria-label={`Slide ${index + 1} of ${heroImages.length}`}
           aria-hidden={index !== currentImageIndex}
         >
-          <picture>
-            <source
-              srcSet={`${image.src.replace('.jpg', '-1920.webp')} 1920w,
-                      ${image.src.replace('.jpg', '-1200.webp')} 1200w,
-                      ${image.src.replace('.jpg', '-1080.webp')} 1080w,
-                      ${image.src.replace('.jpg', '-828.webp')} 828w,
-                      ${image.src.replace('.jpg', '-750.webp')} 750w,
-                      ${image.src.replace('.jpg', '-640.webp')} 640w`}
-              sizes="100vw"
-              type="image/webp"
-            />
-            <Image
-              src={image.src}
-              alt={`Adventure background ${index + 1}`}
-              fill
-              priority={index === 0}
-              className="object-cover"
-              sizes="100vw"
-              quality={90}
-              placeholder="blur"
-              blurDataURL={image.blurDataURL}
-              loading={index === 0 ? 'eager' : 'lazy'}
-            />
-          </picture>
+          <Image
+            src={src}
+            alt={`Adventure background ${index + 1}`}
+            fill
+            priority={index === 0}
+            className="object-cover"
+            sizes="100vw"
+            quality={90}
+          />
         </div>
       ))}
       
@@ -152,7 +123,7 @@ export default function Hero() {
         role="tablist"
         aria-label="Choose image to display"
       >
-        {heroImages.map((_: HeroImage, index: number) => (
+        {heroImages.map((_, index) => (
           <button
             key={index}
             onClick={() => goToImage(index)}
