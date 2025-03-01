@@ -26,7 +26,7 @@ export default function CtaSection() {
             Apply for Beta Access
           </Link>
           <Link 
-            href="/waitlist"
+            href="#signup"
             className="bg-transparent hover:bg-white/10 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-white"
             onClick={() => handleCTAClick('waitlist')}
           >

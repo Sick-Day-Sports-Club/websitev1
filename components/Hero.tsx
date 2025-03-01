@@ -195,7 +195,7 @@ export default function Hero() {
           Need a break from Zoom? Connect with expert local guides for short but epic action sports missions in your favorite adventure zones.
         </p>
         <Link 
-          href="#launch"
+          href="#signup"
           className="inline-flex items-center text-white hover:text-[#4a7729] transition-colors"
         >
           <span className="mr-2 font-semibold">Learn More</span>
