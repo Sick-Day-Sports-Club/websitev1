@@ -69,4 +69,9 @@ export const trackCTAClick = (ctaType: string) => {
     'conversion',
     ctaType
   );
-}; 
+};
+
+export function trackWaitlistSubmission(email: string) {
+  // TODO: Implement actual analytics tracking
+  console.log('Waitlist submission tracked:', email);
+} 

@@ -1,33 +1,39 @@
+'use client';
+
 import Link from 'next/link';
-import Container from './Container';
+import { trackCTAClick } from '@/utils/analytics';
 
 export default function CtaSection() {
+  const handleCTAClick = (ctaType: 'beta_access' | 'waitlist') => {
+    trackCTAClick(ctaType);
+  };
+
   return (
-    <section className="py-24 text-center text-white relative">
-      <div className="absolute inset-0 bg-black/70 z-0"></div>
-      
-      {/* When you have an image, use this:
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/cta-background.jpg"
-          alt="Adventure background"
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-black/70 z-0"></div>
-      </div>
-      */}
-      
-      <Container className="relative z-10">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">We&apos;re Launching Soon</h2>
-        <p className="text-xl max-w-4xl mx-auto mb-8">
-          Sick Day Sports Club built a global adventure guide network and is launching in Bend, OR this spring with plans for other top adventure towns through 2025. Save those sick days and join our waitlist to be the first to know when we launch near you!
+    <section className="bg-gray-900 text-white py-20">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">
+          We're Launching March 27th
+        </h2>
+        <p className="text-xl max-w-4xl mx-auto mb-8 text-center">
+          Sick Day Sports Club is launching in Bend, OR this spring with plans for other top adventure towns through 2025. Save those sick days and be the first to experience the club.
         </p>
-        <Link href="#signup" className="btn-primary inline-block py-4 px-8 rounded bg-white text-black font-semibold hover:bg-gray-100 transition-colors">
-          Join the Waitlist
-        </Link>
-      </Container>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link 
+            href="/beta-signup" 
+            className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-[#4a7729] hover:border-[#3d6222]"
+            onClick={() => handleCTAClick('beta_access')}
+          >
+            Apply for Beta Access
+          </Link>
+          <Link 
+            href="/waitlist"
+            className="bg-transparent hover:bg-white/10 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-white"
+            onClick={() => handleCTAClick('waitlist')}
+          >
+            Join Waitlist
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

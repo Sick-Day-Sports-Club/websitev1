@@ -194,22 +194,15 @@ export default function Hero() {
         <p className="text-xl mb-8 max-w-[500px]">
           Need a break from Zoom? Connect with expert local guides for short but epic action sports missions in your favorite adventure zones.
         </p>
-        <div className="flex flex-wrap gap-4">
-          <Link 
-            href="/beta-signup"
-            className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-[#4a7729] hover:border-[#3d6222]"
-            onClick={() => handleCTAClick('beta_access')}
-          >
-            Apply for Beta Access
-          </Link>
-          <Link 
-            href="/waitlist"
-            className="bg-transparent hover:bg-white/10 text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-white"
-            onClick={() => handleCTAClick('waitlist')}
-          >
-            Join Waitlist
-          </Link>
-        </div>
+        <Link 
+          href="#launch"
+          className="inline-flex items-center text-white hover:text-[#4a7729] transition-colors"
+        >
+          <span className="mr-2 font-semibold">Learn More</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+          </svg>
+        </Link>
       </div>
     </section>
   );

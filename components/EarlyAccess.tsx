@@ -1,194 +1,104 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import Container from './Container';
+import { trackWaitlistSubmission } from '@/utils/analytics';
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// Validate environment variables
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing environment variables for Supabase configuration');
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
 }
-
-// Create Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: false // Since this is just for the waitlist, we don't need to persist the session
-  }
-});
 
 export default function EarlyAccess() {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0 });
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0 });
 
   useEffect(() => {
-    const calculateCountdown = () => {
-      // Force current date to be correct
+    const calculateTimeLeft = () => {
+      const launchDate = new Date('2024-03-27T00:00:00');
       const now = new Date();
-      now.setFullYear(2024);
-      now.setMonth(1); // February (0-based)
-      
-      // Set target date
-      const target = new Date();
-      target.setFullYear(2024);
-      target.setMonth(2); // March (0-based)
-      target.setDate(27);
-      target.setHours(0, 0, 0, 0);
-      
-      const diff = target.getTime() - now.getTime();
-      
-      if (diff > 0) {
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        return { days, hours, minutes };
+      const difference = launchDate.getTime() - now.getTime();
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60)
+        });
       }
-      
-      return { days: 0, hours: 0, minutes: 0 };
     };
 
-    // Calculate immediately
-    setCountdown(calculateCountdown());
-
-    // Update every second
-    const timer = setInterval(() => {
-      setCountdown(calculateCountdown());
-    }, 1000);
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute
 
     return () => clearInterval(timer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email.trim()) return;
-    
     setIsLoading(true);
-    setMessage('');
-    
-    try {
-      console.log('Submitting email:', email);
-      console.log('Supabase URL:', supabaseUrl?.substring(0, 10) + '...');
-      console.log('Supabase Key exists:', !!supabaseKey);
-      
-      // Validate Supabase connection
-      console.log('Checking Supabase connection...');
-      const { error: healthCheckError } = await supabase.from('waitlist').select('count').limit(0);
-      if (healthCheckError) {
-        console.error('Health check failed:', healthCheckError);
-        throw new Error('Unable to connect to the waitlist service');
-      }
-      console.log('Connection check passed');
 
-      console.log('Attempting to insert email into waitlist...');
-      const { error } = await supabase
-        .from('waitlist')
-        .insert([{ email: email.trim() }]);
-      
-      if (error) {
-        console.error('Supabase error:', error);
-        
-        // Check if it's a duplicate email error
-        if (error.code === '23505') {
-          console.log('Duplicate email detected');
-          setMessage("You're already on our waitlist!");
-          setMessageType('info');
-        } else {
-          throw error;
-        }
-      } else {
-        console.log('Submission successful');
-        setMessage('Thanks for joining our waitlist!');
-        setMessageType('success');
-        setEmail('');
-      }
+    try {
+      // TODO: Implement actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
+      trackWaitlistSubmission(email);
+      setEmail('');
+      alert('Thanks for joining our waitlist! We\'ll keep you updated.');
     } catch (error) {
-      console.error('Error details:', error);
-      setMessage(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
-      setMessageType('error');
+      alert('Something went wrong. Please try again.');
     } finally {
-      console.log('Request completed, loading state cleared');
       setIsLoading(false);
-      
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setMessage('');
-      }, 3000);
     }
   };
 
   return (
     <section className="py-20 bg-[#4a7729] text-white text-center" id="signup">
-      <Container>
-        <h2 className="text-4xl font-bold mb-5">Get Early Access</h2>
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl mb-5">Join Our Waitlist</h2>
         <p className="text-xl max-w-[700px] mx-auto mb-8">
-          Be among the first to try the Club when we launch. Enter your email below for early access and start banking those wellness days.
+          Be among the first to know when we launch in your area.
         </p>
         
         {/* Countdown timer */}
-        <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-md mx-auto backdrop-blur-sm">
-          <p className="text-center mb-2 font-bold text-xl">Launching March 27!</p>
-          <div className="flex justify-center gap-6">
+        <div className="mb-8 bg-white/10 p-6 rounded-lg max-w-md mx-auto">
+          <p className="font-bold mb-4">Launching March 27!</p>
+          <div className="flex justify-center gap-12 mb-4">
             <div className="text-center">
-              <div className="text-5xl font-bold">{countdown.days}</div>
-              <div className="text-sm uppercase tracking-wide">Days</div>
+              <div className="text-5xl font-bold">{timeLeft.days}</div>
+              <div>DAYS</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold">{countdown.hours}</div>
-              <div className="text-sm uppercase tracking-wide">Hours</div>
+              <div className="text-5xl font-bold">{timeLeft.hours}</div>
+              <div>HOURS</div>
             </div>
             <div className="text-center">
-              <div className="text-5xl font-bold">{countdown.minutes}</div>
-              <div className="text-sm uppercase tracking-wide">Minutes</div>
+              <div className="text-5xl font-bold">{timeLeft.minutes}</div>
+              <div>MINUTES</div>
             </div>
           </div>
-          <p className="text-center mt-4 italic font-medium">Join the waitlist now!</p>
         </div>
         
-        {/* Signup form */}
-        <div className="flex justify-center">
-          <form onSubmit={handleSubmit} className="flex w-full max-w-md relative">
-            <div className="absolute -inset-1 bg-white/30 rounded-lg blur"></div>
-            <div className="relative flex w-full bg-white rounded-lg p-1">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address"
-                className="flex-1 p-4 rounded-l-md text-black min-w-0 focus:outline-none focus:ring-2 focus:ring-[#4a7729] placeholder:text-gray-500"
-                required
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                className="px-6 py-4 bg-[#2c2c2c] text-white font-semibold rounded-md hover:bg-[#1a1a1a] transition-all duration-300 whitespace-nowrap transform hover:scale-105 shadow-lg"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Submitting...' : 'Join Waitlist'}
-              </button>
-            </div>
-          </form>
-        </div>
-        
-        {/* Form message */}
-        {message && (
-          <div 
-            className={`mt-6 text-lg font-bold ${
-              messageType === 'success' ? 'text-white' : 
-              messageType === 'error' ? 'text-red-200' :
-              'text-blue-200'
-            }`}
+        {/* Waitlist form */}
+        <form onSubmit={handleSubmit} className="flex max-w-md mx-auto">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Your email address"
+            className="flex-1 p-4 border-none rounded-l-md text-black"
+            required
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors"
+            disabled={isLoading}
           >
-            {message}
-          </div>
-        )}
-      </Container>
+            {isLoading ? 'Submitting...' : 'Join Waitlist'}
+          </button>
+        </form>
+      </div>
     </section>
   );
 } 
