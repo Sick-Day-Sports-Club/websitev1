@@ -25,7 +25,7 @@ export default function ValueProp() {
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
             <div className="text-5xl mb-4">💊</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">No Hidden Fees</h3>
-            <p className="text-gray-700">Our club keeps costs low by charging a subscription instead of a commission so your dollars go straight to the guide. Equipment and gear is DIY but we can help fill any gaps in your quiver.</p>
+            <p className="text-gray-700">We charge a subscription instead of a commission so your dollars go straight to the guide. Equipment and gear is DIY but we can help fill any gaps in your quiver.</p>
           </div>
         </div>
       </Container>
