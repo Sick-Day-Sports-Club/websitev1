@@ -2,10 +2,30 @@
 
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import PaymentForm from '@/components/PaymentForm';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+console.log('Supabase URL loaded:', !!supabaseUrl);
+console.log('Supabase key loaded:', !!supabaseKey);
+
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Add this function to check the connection
+const checkSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase.from('beta_applications').select('count').limit(1);
+    console.log('Supabase connection test:', { data, error });
+  } catch (err) {
+    console.error('Supabase connection error:', err);
+  }
+};
+
+// Call it once when component loads
+if (typeof window !== 'undefined') {
+  checkSupabaseConnection();
+}
 
 interface Activity {
   type: string;
@@ -132,25 +152,44 @@ export default function BetaSignupForm() {
     setError('');
     
     try {
-      console.log('Submitting form data:', formData);
+      // Transform the data to match database column names
+      const submissionData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || null,
+        location: formData.location,
+        referral_source: formData.referralSource || null,
+        additional_info: formData.additionalInfo || null,
+        availability: formData.availability,
+        activities: formData.activities,
+        status: 'pending'
+      };
+
+      console.log('Submitting form data:', submissionData);
       
       // Insert into 'beta_applications' table
       const { data, error } = await supabase
         .from('beta_applications')
-        .insert([formData])
+        .insert([submissionData])
         .select();
       
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
       
       console.log('Successfully submitted application:', data);
       setSuccess(true);
       window.scrollTo(0, 0);
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      setError('There was a problem submitting your application. Please try again.');
+    } catch (error: any) {
+      console.error('Full error object:', error);
+      setError(error?.message || 'There was a problem submitting your application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -500,6 +539,16 @@ export default function BetaSignupForm() {
           </div>
         )}
       </form>
+
+      <PaymentForm 
+        amount={100} // Amount in dollars
+        onSuccess={() => {
+          // Handle successful payment
+        }}
+        onError={(error) => {
+          // Handle payment error
+        }}
+      />
     </div>
   );
 } 
