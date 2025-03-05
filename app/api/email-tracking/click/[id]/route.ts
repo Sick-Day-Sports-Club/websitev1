@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -6,19 +6,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-type RouteParams = {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
 export async function GET(
-  request: Request,
-  context: RouteParams
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const trackingId = context.params.id;
-    const { searchParams } = new URL(request.url);
-    const destination = searchParams.get('destination');
+    const trackingId = params.id;
+    const destination = request.nextUrl.searchParams.get('destination');
 
     if (!destination) {
       return new NextResponse(null, { status: 400 });
