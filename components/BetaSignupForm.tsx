@@ -665,6 +665,8 @@ export default function BetaSignupForm() {
     setIsSubmitting(true);
     setError('');
     
+    console.log('Form submission started with join type:', joinType);
+    
     try {
       if (!joinType) {
         throw new Error('Please select how you would like to join');
@@ -694,6 +696,8 @@ export default function BetaSignupForm() {
         join_type: joinType
       };
 
+      console.log('Submitting data to API...');
+      
       try {
         // Always use the beta-signup endpoint for both waitlist and paid memberships
         const response = await fetch('/api/beta-signup', {
@@ -704,10 +708,13 @@ export default function BetaSignupForm() {
           body: JSON.stringify(submissionData),
         });
 
+        console.log('API response status:', response.status);
+        
         let result;
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           result = await response.json();
+          console.log('API response data:', result);
         } else {
           // If response is not JSON, get the text and throw an error
           const text = await response.text();
@@ -732,6 +739,7 @@ export default function BetaSignupForm() {
 
         // For waitlist, set success immediately
         if (joinType === 'waitlist') {
+          console.log('Waitlist signup successful');
           setSuccess(true);
           
           // Attempt to send confirmation email
@@ -754,6 +762,7 @@ export default function BetaSignupForm() {
           }
         } else {
           // For paid memberships, show the payment form
+          console.log('Paid membership signup successful, showing payment form');
           setShowPayment(true);
         }
         
@@ -954,9 +963,13 @@ export default function BetaSignupForm() {
           amount={finalAmount}
           couponCode={appliedDiscount?.code}
           onSuccess={() => {
+            console.log('Payment successful, setting success state');
             setSuccess(true);
+            // Scroll to top to ensure user sees the success message
+            window.scrollTo(0, 0);
           }}
           onError={(error) => {
+            console.error('Payment error:', error);
             setError(error);
             setShowPayment(false);
           }}
@@ -1594,10 +1607,68 @@ export default function BetaSignupForm() {
                     ? 'opacity-50 cursor-not-allowed' 
                     : 'hover:bg-opacity-90'
                 }`}
+                onClick={() => {
+                  console.log('Complete Profile button clicked');
+                  // The form's onSubmit handler will be called automatically
+                }}
               >
                 {isSubmitting ? 'Submitting...' : 'Complete Profile'}
               </button>
             </div>
+            
+            {/* Debug button - only visible in development */}
+            {process.env.NODE_ENV !== 'production' && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      console.log('Testing API connectivity...');
+                      
+                      // Test the debug API
+                      const response = await fetch('/api/debug-form', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          test: true,
+                          timestamp: new Date().toISOString(),
+                          formState: {
+                            currentStep,
+                            joinType,
+                            hasErrors: !!error
+                          }
+                        }),
+                      });
+                      
+                      const data = await response.json();
+                      console.log('Debug API response:', data);
+                      
+                      // Test Stripe API
+                      const stripeResponse = await fetch('/api/create-payment-intent', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ amount: 99 }),
+                      });
+                      
+                      const stripeData = await stripeResponse.json();
+                      console.log('Stripe API response:', stripeData);
+                      
+                      alert('Debug tests completed. Check console for results.');
+                    } catch (err) {
+                      console.error('Debug test error:', err);
+                      alert('Error during debug test. Check console.');
+                    }
+                  }}
+                  className="w-full py-2 px-4 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+                >
+                  Debug Form Submission
+                </button>
+              </div>
+            )}
           </div>
         )}
       </form>

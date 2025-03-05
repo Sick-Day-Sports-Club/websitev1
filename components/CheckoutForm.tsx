@@ -16,30 +16,41 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ amount, onSuccess, onError 
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    console.log('Form submission started');
 
     if (!stripe || !elements) {
+      console.error('Stripe or Elements not initialized');
+      setErrorMessage('Payment system not fully loaded. Please try again.');
       return;
     }
 
     setIsProcessing(true);
+    console.log('Processing payment...');
 
     try {
-      const { error } = await stripe.confirmSetup({
+      console.log('Confirming setup with Stripe...');
+      const result = await stripe.confirmSetup({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/confirmation`,
         },
       });
+      
+      console.log('Stripe confirmation result:', JSON.stringify(result));
 
-      if (error) {
-        setErrorMessage(error.message);
-        onError?.(error.message);
+      if (result.error) {
+        console.error('Stripe error:', result.error);
+        setErrorMessage(result.error.message);
+        onError?.(result.error.message);
       } else {
+        console.log('Payment setup successful');
         onSuccess?.();
       }
-    } catch (err) {
-      setErrorMessage('An unexpected error occurred.');
-      onError?.('An unexpected error occurred.');
+    } catch (err: any) {
+      console.error('Exception during payment processing:', err);
+      const errorMsg = err.message || 'An unexpected error occurred.';
+      setErrorMessage(errorMsg);
+      onError?.(errorMsg);
     } finally {
       setIsProcessing(false);
     }

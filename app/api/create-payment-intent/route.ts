@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, {
-      apiVersion: '2025-02-24.acacia',
+      apiVersion: '2023-10-16',
     });
     
     console.log('Stripe initialized successfully');

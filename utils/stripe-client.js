@@ -11,6 +11,8 @@ const HARDCODED_KEYS = {
 
 // Function to get the Stripe publishable key from various sources
 export function getStripeKey() {
+  console.log('Getting Stripe key...');
+  
   // Try to get from Next.js environment
   const envKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
   
@@ -43,10 +45,12 @@ let stripePromise = null;
 
 export function getStripePromise() {
   if (stripePromise !== null) {
+    console.log('Returning existing Stripe promise');
     return stripePromise;
   }
   
   if (typeof window === 'undefined') {
+    console.log('Window not defined, cannot initialize Stripe');
     return null;
   }
   
@@ -59,11 +63,20 @@ export function getStripePromise() {
   
   try {
     console.log('Initializing Stripe with key starting with:', stripeKey.substring(0, 7) + '...');
+    
+    // Force clear any previous instances
+    stripePromise = null;
+    
+    // Create a new Stripe instance
     stripePromise = loadStripe(stripeKey);
+    
+    // Add error handling
     stripePromise.catch(error => {
       console.error('Error loading Stripe:', error);
       stripePromise = null;
     });
+    
+    console.log('Stripe initialization started');
     return stripePromise;
   } catch (error) {
     console.error('Exception during Stripe initialization:', error);
