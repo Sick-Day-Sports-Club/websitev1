@@ -135,9 +135,52 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         <p className="text-yellow-700 mb-2">
           The payment system is currently in demo mode. In a real deployment, this would connect to Stripe for payment processing.
         </p>
-        <p className="text-sm text-yellow-600">
+        <p className="text-sm text-yellow-600 mb-3">
           For now, please use the free tier option or contact support for assistance.
         </p>
+        
+        {/* Debug button - only visible in development */}
+        {process.env.NODE_ENV !== 'production' && (
+          <button 
+            className="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs"
+            onClick={async () => {
+              try {
+                console.log('Checking server environment variables...');
+                const response = await fetch('/api/debug-env', {
+                  headers: {
+                    'x-debug-auth': 'sickday-debug-2024'
+                  }
+                });
+                const data = await response.json();
+                console.log('Server environment:', data);
+                
+                // Also check client environment
+                console.log('Client environment:');
+                console.log('- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'not set');
+                console.log('- window.STRIPE_PUBLISHABLE_KEY:', typeof window !== 'undefined' ? window.STRIPE_PUBLISHABLE_KEY || 'not set' : 'N/A');
+                
+                // Check API response
+                console.log('Testing API response...');
+                const testResponse = await fetch('/api/create-payment-intent', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ amount: 99 }),
+                });
+                const testData = await testResponse.json();
+                console.log('API response:', testData);
+                
+                alert('Debug info logged to console. Press F12 to view.');
+              } catch (error) {
+                console.error('Debug error:', error);
+                alert('Error during debug. Check console.');
+              }
+            }}
+          >
+            Debug Environment
+          </button>
+        )}
       </div>
     );
   }
