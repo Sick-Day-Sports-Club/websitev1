@@ -4,11 +4,20 @@ import React, { useEffect, useState } from 'react';
 import BetaSignupForm from './BetaSignupForm';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { getStripeKey } from '../utils/stripe-client';
+
+// Add type declaration for window.STRIPE_PUBLISHABLE_KEY
+declare global {
+  interface Window {
+    STRIPE_PUBLISHABLE_KEY?: string;
+  }
+}
 
 export default function BetaSignupPage() {
   const [envVars, setEnvVars] = useState({
     stripeKey: '',
     stripeKeyValue: '',
+    stripeKeySource: '',
     supabaseUrl: '',
     supabaseKey: '',
     buildTime: '',
@@ -16,7 +25,7 @@ export default function BetaSignupPage() {
   });
   const [showDebug, setShowDebug] = useState(true); // Auto-show debug by default
   
-  useEffect(() => {
+  const checkEnvironmentVars = () => {
     // Always log environment variables to help with debugging
     console.log('Client-side environment variables check:');
     const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'Not set';
@@ -29,25 +38,44 @@ export default function BetaSignupPage() {
     console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseKey);
     console.log('NODE_ENV:', nodeEnv);
     
+    // Get Stripe key from our utility
+    const utilityStripeKey = getStripeKey();
+    let stripeKeySource = 'Not available';
+    
+    if (utilityStripeKey) {
+      if (utilityStripeKey === stripeKey && stripeKey !== 'Not set') {
+        stripeKeySource = 'Environment variable';
+      } else if (typeof window !== 'undefined' && window.STRIPE_PUBLISHABLE_KEY === utilityStripeKey) {
+        stripeKeySource = 'Window object (injected)';
+      } else {
+        stripeKeySource = 'Hardcoded fallback';
+      }
+    }
+    
     // Check if Stripe key starts with pk_
-    const isStripeKeyValid = stripeKey.startsWith('pk_');
+    const isStripeKeyValid = utilityStripeKey.startsWith('pk_');
     if (!isStripeKeyValid) {
       console.error('CRITICAL ERROR: Stripe publishable key is invalid or not set correctly. It should start with "pk_"');
     }
     
     // Show a masked version of the key for debugging (first 8 chars)
-    const maskedKey = stripeKey !== 'Not set' 
-      ? `${stripeKey.substring(0, 8)}...` 
+    const maskedKey = utilityStripeKey 
+      ? `${utilityStripeKey.substring(0, 8)}...` 
       : 'Not set';
     
     setEnvVars({
-      stripeKey: stripeKey === 'Not set' ? 'Not set' : (isStripeKeyValid ? 'Valid (starts with pk_)' : 'INVALID (does not start with pk_)'),
+      stripeKey: utilityStripeKey ? (isStripeKeyValid ? 'Valid (starts with pk_)' : 'INVALID (does not start with pk_)') : 'Not set',
       stripeKeyValue: maskedKey,
+      stripeKeySource: stripeKeySource,
       supabaseUrl: supabaseUrl === 'Not set' ? 'Not set' : 'Set (hidden for security)',
       supabaseKey: supabaseKey === 'Not set' ? 'Not set' : 'Set (hidden for security)',
       buildTime: new Date().toISOString(),
       nodeEnv: nodeEnv
     });
+  };
+  
+  useEffect(() => {
+    checkEnvironmentVars();
   }, []);
 
   return (
@@ -79,11 +107,22 @@ export default function BetaSignupPage() {
               <ul className="text-sm">
                 <li>Stripe Key Status: {envVars.stripeKey}</li>
                 <li>Stripe Key Value: {envVars.stripeKeyValue}</li>
+                <li>Stripe Key Source: {envVars.stripeKeySource}</li>
                 <li>Supabase URL: {envVars.supabaseUrl}</li>
                 <li>Supabase Key: {envVars.supabaseKey}</li>
                 <li>Node Environment: {envVars.nodeEnv}</li>
                 <li>Build Time: {envVars.buildTime}</li>
               </ul>
+              
+              <div className="mt-4 flex justify-center">
+                <button 
+                  onClick={checkEnvironmentVars}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Refresh Debug Info
+                </button>
+              </div>
+              
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded">
                 <p className="text-sm font-bold">Troubleshooting Tips:</p>
                 <ul className="text-xs list-disc pl-4 mt-1">

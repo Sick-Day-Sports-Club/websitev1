@@ -2,10 +2,12 @@
 
 import { loadStripe } from '@stripe/stripe-js';
 
-// Fallback key for development only - NEVER use in production
-const FALLBACK_KEY = process.env.NODE_ENV === 'development' 
-  ? 'pk_test_51Q4lGEKOdg5wedYdr7mBGug4P1J24uqyWM0IotNenW2gvSdWzjiS9XjsiTjt9oCEYEqwKVVsMisHI3ZfypPguBcD00vFOjAK6h' 
-  : '';
+// Hardcoded keys - this is a temporary solution
+// Publishable keys are meant to be public, but this should be replaced with proper env vars
+const HARDCODED_KEYS = {
+  development: 'pk_test_51Q4lGEKOdg5wedYdr7mBGug4P1J24uqyWM0IotNenW2gvSdWzjiS9XjsiTjt9oCEYEqwKVVsMisHI3ZfypPguBcD00vFOjAK6h',
+  production: 'pk_test_51Q4lGEKOdg5wedYdr7mBGug4P1J24uqyWM0IotNenW2gvSdWzjiS9XjsiTjt9oCEYEqwKVVsMisHI3ZfypPguBcD00vFOjAK6h'
+};
 
 // Function to get the Stripe publishable key from various sources
 export function getStripeKey() {
@@ -23,10 +25,13 @@ export function getStripeKey() {
     return window.STRIPE_PUBLISHABLE_KEY;
   }
   
-  // Use fallback key in development only
-  if (process.env.NODE_ENV === 'development' && FALLBACK_KEY) {
-    console.log('Using fallback Stripe key (development only)');
-    return FALLBACK_KEY;
+  // Use hardcoded key as last resort
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const hardcodedKey = HARDCODED_KEYS[nodeEnv] || HARDCODED_KEYS.development;
+  
+  if (hardcodedKey) {
+    console.log(`Using hardcoded Stripe key for ${nodeEnv} environment (TEMPORARY SOLUTION)`);
+    return hardcodedKey;
   }
   
   console.error('No valid Stripe publishable key found');
@@ -53,6 +58,7 @@ export function getStripePromise() {
   }
   
   try {
+    console.log('Initializing Stripe with key starting with:', stripeKey.substring(0, 7) + '...');
     stripePromise = loadStripe(stripeKey);
     stripePromise.catch(error => {
       console.error('Error loading Stripe:', error);
