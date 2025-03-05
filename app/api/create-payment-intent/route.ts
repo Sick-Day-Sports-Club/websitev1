@@ -1,55 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
 
-// Initialize Stripe with fallback for development/testing
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
-const stripe = stripeSecretKey 
-  ? new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' as any }) 
-  : null;
-
-// Validation schema for the request body
-const createSetupIntentSchema = z.object({
-  amount: z.number().min(1).max(1000),
-  couponCode: z.string().optional(),
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-02-24.acacia',
 });
+
+// Initialize Supabase
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function POST(request: NextRequest) {
   try {
-    // If Stripe isn't initialized, return a graceful error
-    if (!stripe) {
-      console.error('Stripe API key is not configured');
-      return NextResponse.json(
-        { error: 'Payment service is not configured' },
-        { status: 503 }
-      );
+    const { amount, couponCode } = await request.json();
+    
+    // Validate input
+    if (!amount || typeof amount !== 'number') {
+      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
-
-    const { amount, currency = 'usd', description } = await request.json();
-
-    if (!amount) {
-      return NextResponse.json(
-        { error: 'Amount is required' },
-        { status: 400 }
-      );
-    }
-
-    // Create a PaymentIntent with the specified amount and currency
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency,
-      description,
-      automatic_payment_methods: {
-        enabled: true,
+    
+    // Create a customer
+    const customer = await stripe.customers.create({
+      metadata: {
+        amount: amount.toString(),
+        couponCode: couponCode || 'none',
       },
     });
-
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    
+    // Create a SetupIntent
+    const setupIntent = await stripe.setupIntents.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      metadata: {
+        amount: amount.toString(),
+        couponCode: couponCode || 'none',
+      },
+    });
+    
+    return NextResponse.json({ clientSecret: setupIntent.client_secret });
   } catch (error) {
-    console.error('Error creating payment intent:', error);
-    return NextResponse.json(
-      { error: 'Failed to create payment intent' },
-      { status: 500 }
-    );
+    console.error('Error creating setup intent:', error);
+    return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 });
   }
-} 
+}
+  
