@@ -1,11 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { z } from 'zod';
 
-// Initialize Stripe with API key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia'
-});
+// Initialize Stripe with fallback for development/testing
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
+const stripe = stripeSecretKey 
+  ? new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' as any }) 
+  : null;
 
 // Validation schema for the request body
 const createSetupIntentSchema = z.object({
@@ -13,61 +14,41 @@ const createSetupIntentSchema = z.object({
   couponCode: z.string().optional(),
 });
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    
-    // Validate request body
-    const validatedData = createSetupIntentSchema.parse(body);
-    
-    // Create metadata object
-    const metadata: Record<string, string> = {
-      type: 'beta_deposit',
-      amount: validatedData.amount.toString(),
-    };
-
-    // If coupon code is provided, validate it first
-    if (validatedData.couponCode) {
-      try {
-        const coupon = await stripe.coupons.retrieve(validatedData.couponCode);
-        if (coupon.valid) {
-          metadata.coupon_code = validatedData.couponCode;
-          
-          // Calculate discounted amount
-          let finalAmount = validatedData.amount;
-          if (coupon.percent_off) {
-            finalAmount = finalAmount * (1 - coupon.percent_off / 100);
-          }
-          if (coupon.amount_off) {
-            finalAmount = Math.max(0, finalAmount - (coupon.amount_off / 100));
-          }
-          metadata.discounted_amount = finalAmount.toString();
-        }
-      } catch (error) {
-        // If coupon is invalid, just proceed without it
-        console.warn('Invalid coupon code:', error);
-      }
+    // If Stripe isn't initialized, return a graceful error
+    if (!stripe) {
+      console.error('Stripe API key is not configured');
+      return NextResponse.json(
+        { error: 'Payment service is not configured' },
+        { status: 503 }
+      );
     }
 
-    // Create a SetupIntent
-    const setupIntent = await stripe.setupIntents.create({
-      payment_method_types: ['card'],
-      metadata
-    });
+    const { amount, currency = 'usd', description } = await request.json();
 
-    return NextResponse.json({ clientSecret: setupIntent.client_secret });
-  } catch (error) {
-    console.error('Error creating setup intent:', error);
-    
-    if (error instanceof z.ZodError) {
+    if (!amount) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Amount is required' },
         { status: 400 }
       );
     }
-    
+
+    // Create a PaymentIntent with the specified amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      description,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
     return NextResponse.json(
-      { error: 'Error setting up payment method' },
+      { error: 'Failed to create payment intent' },
       { status: 500 }
     );
   }
