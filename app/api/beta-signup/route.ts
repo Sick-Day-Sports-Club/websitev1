@@ -131,7 +131,6 @@ export async function POST(request: NextRequest) {
       referral_source: referralSource || null,
       additional_info: additionalInfo || null,
       join_type: joinType || 'waitlist',
-      referral_code: referralCode || null,
       status: joinType === 'paid' ? 'pending_payment' : 'waitlist',
       created_at: new Date().toISOString()
     };
