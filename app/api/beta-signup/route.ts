@@ -68,8 +68,9 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     console.log('Received data:', data);
     
-    // Extract fields from the request
+    // Extract fields from the request, supporting both camelCase and snake_case
     const { 
+      // camelCase fields (from frontend form)
       firstName, 
       lastName, 
       email, 
@@ -86,11 +87,28 @@ export async function POST(request: NextRequest) {
       referralSource,
       additionalInfo,
       joinType,
-      referralCode
+      // snake_case fields (from direct API calls)
+      first_name,
+      last_name,
+      activity_experience,
+      adventure_style,
+      social_preferences,
+      equipment_status,
+      weekday_preference,
+      time_of_day,
+      referral_source,
+      additional_info,
+      join_type
     } = data;
 
+    // Use camelCase fields if available, otherwise use snake_case fields
+    const firstNameValue = firstName || first_name;
+    const lastNameValue = lastName || last_name;
+    const emailValue = email;
+    const joinTypeValue = joinType || join_type || 'waitlist';
+
     // Validate required fields
-    if (!firstName || !lastName || !email) {
+    if (!firstNameValue || !lastNameValue || !emailValue) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -98,7 +116,7 @@ export async function POST(request: NextRequest) {
     const { data: existingUser, error: lookupError } = await supabaseAdmin
       .from('beta_applications')
       .select('id, email, status')
-      .eq('email', email)
+      .eq('email', emailValue)
       .single();
 
     if (lookupError && lookupError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
@@ -115,23 +133,23 @@ export async function POST(request: NextRequest) {
 
     // Prepare application data with snake_case field names for the database
     const applicationData = {
-      first_name: firstName,
-      last_name: lastName,
-      email,
+      first_name: firstNameValue,
+      last_name: lastNameValue,
+      email: emailValue,
       phone: phone || null,
       location: location || null,
       activities: activities || null,
-      activity_experience: activityExperience || null,
-      adventure_style: adventureStyle || null,
-      social_preferences: socialPreferences || null,
-      equipment_status: equipmentStatus || null,
+      activity_experience: activityExperience || activity_experience || null,
+      adventure_style: adventureStyle || adventure_style || null,
+      social_preferences: socialPreferences || social_preferences || null,
+      equipment_status: equipmentStatus || equipment_status || null,
       availability: availability || null,
-      weekday_preference: weekdayPreference || null,
-      time_of_day: timeOfDay || null,
-      referral_source: referralSource || null,
-      additional_info: additionalInfo || null,
-      join_type: joinType || 'waitlist',
-      status: joinType === 'paid' ? 'pending_payment' : 'waitlist',
+      weekday_preference: weekdayPreference || weekday_preference || null,
+      time_of_day: timeOfDay || time_of_day || null,
+      referral_source: referralSource || referral_source || null,
+      additional_info: additionalInfo || additional_info || null,
+      join_type: joinTypeValue,
+      status: joinTypeValue === 'paid' ? 'pending_payment' : 'waitlist',
       created_at: new Date().toISOString()
     };
 
@@ -151,12 +169,12 @@ export async function POST(request: NextRequest) {
     console.log('Successfully inserted data, response:', userData);
 
     // Send confirmation email based on join type
-    if (joinType === 'waitlist') {
+    if (joinTypeValue === 'waitlist') {
       try {
         await sendWaitlistConfirmationEmail({
-          email,
-          firstName,
-          lastName
+          email: emailValue,
+          firstName: firstNameValue,
+          lastName: lastNameValue
         });
         console.log('Waitlist confirmation email sent');
       } catch (emailError) {
@@ -172,9 +190,9 @@ export async function POST(request: NextRequest) {
     } else {
       try {
         await sendBetaConfirmationEmail({
-          email,
-          firstName,
-          lastName
+          email: emailValue,
+          firstName: firstNameValue,
+          lastName: lastNameValue
         });
         console.log('Beta confirmation email sent');
       } catch (emailError) {
