@@ -6,12 +6,18 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: Props
 ) {
   try {
-    const trackingId = params.id;
+    const trackingId = props.params.id;
 
     // Get the original email record to get the email type
     const { data: originalEmail } = await supabase
