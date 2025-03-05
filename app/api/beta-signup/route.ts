@@ -11,13 +11,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// TODO: For production, use a service role key for admin operations
-// This will require setting up SUPABASE_SERVICE_ROLE_KEY in your environment variables
-// const supabaseAdmin = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.SUPABASE_SERVICE_ROLE_KEY!
-// );
-
 // Initialize Supabase admin client with service role key for bypassing RLS
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -75,28 +68,29 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     console.log('Received data:', data);
     
-    // Extract basic fields
+    // Extract fields from the request
     const { 
-      first_name, 
-      last_name, 
+      firstName, 
+      lastName, 
       email, 
-      phone, 
-      location, 
+      phone,
+      location,
       activities,
-      activity_experience,
-      adventure_style,
-      social_preferences,
-      equipment_status,
+      activityExperience,
+      adventureStyle,
+      socialPreferences,
+      equipmentStatus,
       availability,
-      weekday_preference,
-      time_of_day,
-      referral_source,
-      additional_info,
-      join_type
+      weekdayPreference,
+      timeOfDay,
+      referralSource,
+      additionalInfo,
+      joinType,
+      referralCode
     } = data;
 
     // Validate required fields
-    if (!first_name || !last_name || !email) {
+    if (!firstName || !lastName || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -113,66 +107,65 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Email already registered', status: existingUser.status },
-        { status: 400 }
-      );
+      return NextResponse.json({ 
+        error: 'This email is already registered',
+        status: existingUser.status
+      }, { status: 400 });
     }
 
-    // Prepare application data
+    // Prepare application data with snake_case field names for the database
     const applicationData = {
-      first_name,
-      last_name,
+      first_name: firstName,
+      last_name: lastName,
       email,
       phone: phone || null,
       location: location || null,
       activities: activities || null,
-      activity_experience: activity_experience || null,
-      adventure_style: adventure_style || null,
-      social_preferences: social_preferences || null,
-      equipment_status: equipment_status || null,
+      activity_experience: activityExperience || null,
+      adventure_style: adventureStyle || null,
+      social_preferences: socialPreferences || null,
+      equipment_status: equipmentStatus || null,
       availability: availability || null,
-      weekday_preference: weekday_preference || null,
-      time_of_day: time_of_day || null,
-      referral_source: referral_source || null,
-      additional_info: additional_info || null,
-      join_type: join_type || 'waitlist',
-      status: join_type === 'paid' ? 'pending_payment' : 'waitlist',
-      created_at: new Date().toISOString(),
+      weekday_preference: weekdayPreference || null,
+      time_of_day: timeOfDay || null,
+      referral_source: referralSource || null,
+      additional_info: additionalInfo || null,
+      join_type: joinType || 'waitlist',
+      referral_code: referralCode || null,
+      status: joinType === 'paid' ? 'pending_payment' : 'waitlist',
+      created_at: new Date().toISOString()
     };
 
     console.log('Inserting application data:', applicationData);
 
-    // Use supabaseAdmin to bypass RLS policies
+    // Insert data into beta_applications table using admin client
     const { data: userData, error: insertError } = await supabaseAdmin
       .from('beta_applications')
       .insert([applicationData])
       .select();
 
     if (insertError) {
-      console.error('Error saving user data:', insertError);
-      return NextResponse.json(
-        { error: 'Failed to save user data', details: insertError },
-        { status: 500 }
-      );
+      console.error('Error inserting user data:', insertError);
+      return NextResponse.json({ error: 'Failed to save user data', details: insertError }, { status: 500 });
     }
 
     console.log('Successfully inserted data, response:', userData);
 
     // Send confirmation email based on join type
-    if (join_type === 'waitlist') {
+    if (joinType === 'waitlist') {
       try {
         await sendWaitlistConfirmationEmail({
           email,
-          firstName: first_name,
-          lastName: last_name
+          firstName,
+          lastName
         });
+        console.log('Waitlist confirmation email sent');
       } catch (emailError) {
-        console.error('Error sending waitlist confirmation email:', emailError);
+        console.error('Failed to send waitlist confirmation email:', emailError);
         // Continue despite email error
       }
-
-      return NextResponse.json({ 
+      
+      return NextResponse.json({
         success: true,
         message: 'Successfully joined the waitlist',
         userId: userData[0].id
@@ -181,16 +174,16 @@ export async function POST(request: NextRequest) {
       try {
         await sendBetaConfirmationEmail({
           email,
-          firstName: first_name,
-          lastName: last_name,
-          amount: 99 // $99 deposit
+          firstName,
+          lastName
         });
+        console.log('Beta confirmation email sent');
       } catch (emailError) {
-        console.error('Error sending beta confirmation email:', emailError);
+        console.error('Failed to send beta confirmation email:', emailError);
         // Continue despite email error
       }
-
-      return NextResponse.json({ 
+      
+      return NextResponse.json({
         success: true,
         message: 'Successfully joined the beta program',
         userId: userData[0].id
@@ -198,9 +191,6 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Error in beta signup API:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error', 
-      details: error instanceof Error ? error.message : String(error) 
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
