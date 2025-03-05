@@ -6,7 +6,6 @@ import GoogleAnalytics from '../components/GoogleAnalytics';
 import CookieConsent from '../components/CookieConsent';
 import BackToTop from '../components/BackToTop';
 import SkipToContent from '../components/SkipToContent';
-import ReCaptchaProvider from '../components/ReCaptchaProvider';
 import { initScrollDepthTracking } from '../utils/analytics';
 
 const geistSans = Geist({
@@ -37,9 +36,7 @@ export default function ClientLayout({
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
-        <ReCaptchaProvider>
-          {children}
-        </ReCaptchaProvider>
+        {children}
         <CookieConsent />
         <BackToTop />
       </body>

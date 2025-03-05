@@ -6,12 +6,17 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+type RouteParams = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
-    const trackingId = params.id;
+    const trackingId = context.params.id;
     const { searchParams } = new URL(request.url);
     const destination = searchParams.get('destination');
 

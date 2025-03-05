@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { trackCTAClick, trackWaitlistSubmission } from '../utils/analytics';
 
 interface TimeLeft {
@@ -21,7 +21,6 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const { executeRecaptcha } = useGoogleReCaptcha();
 
   useEffect(() => {
     function calculateTimeLeft() {
@@ -51,55 +50,50 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!executeRecaptcha) {
-      console.error('reCAPTCHA not yet available');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      // Get reCAPTCHA token
-      const token = await executeRecaptcha('email_signup');
-
-      // Verify token with our backend
-      const verifyResponse = await fetch('/api/verify-recaptcha', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const verifyResult = await verifyResponse.json();
-
-      if (!verifyResponse.ok || !verifyResult.success) {
-        throw new Error(verifyResult.error || 'Failed to verify reCAPTCHA');
-      }
-
-      // TODO: Implement actual email signup API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // TODO: Implement actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
       trackWaitlistSubmission(email);
       setEmail('');
       alert('Thanks for joining our waitlist! We\'ll keep you updated.');
     } catch (error) {
-      console.error('Form submission error:', error);
       alert('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
-    <section className="py-20 bg-[#4a7729] text-white">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-4xl font-bold mb-4">Join Our Community</h2>
-        <p className="text-xl mb-8">
-          Get early access and exclusive updates about our launch.
+    <section className="bg-gray-900 text-white py-20" id="launch">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">
+          We're Launching March 27th
+        </h2>
+        <p className="text-xl max-w-4xl mx-auto mb-8 text-center">
+          Sick Day Sports Club is launching in Bend, OR this spring with plans for other top adventure towns through 2025. Save those sick days and be the first to experience the club.
         </p>
+        
+        {/* Countdown timer */}
+        <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-2xl mx-auto">
+          <p className="font-bold mb-4 text-center">Countdown to Launch</p>
+          <div className="flex justify-center gap-12 mb-4">
+            <div className="text-center">
+              <div className="text-5xl font-bold">{String(timeLeft.days).padStart(2, '0')}</div>
+              <div className="text-sm uppercase tracking-wide mt-2">Days</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
+              <div className="text-sm uppercase tracking-wide mt-2">Hours</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
+              <div className="text-sm uppercase tracking-wide mt-2">Minutes</div>
+            </div>
+          </div>
+        </div>
 
+        {/* CTA Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           <Link 
             href="/beta-signup" 
@@ -139,6 +133,6 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
       </div>
     </section>
   );
-};
+}
 
 export default CtaSection;
