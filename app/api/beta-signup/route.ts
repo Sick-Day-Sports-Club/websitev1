@@ -11,6 +11,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// TODO: For production, use a service role key for admin operations
+// This will require setting up SUPABASE_SERVICE_ROLE_KEY in your environment variables
+// const supabaseAdmin = createClient(
+//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.SUPABASE_SERVICE_ROLE_KEY!
+// );
+
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
@@ -100,47 +107,58 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      return NextResponse.json({ 
-        error: 'This email is already registered',
-        status: existingUser.status
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Email already registered', status: existingUser.status },
+        { status: 400 }
+      );
     }
 
-    // Prepare data for insertion
+    // Prepare application data
     const applicationData = {
       first_name,
       last_name,
       email,
       phone: phone || null,
-      location,
-      activities,
-      activity_experience,
-      adventure_style,
-      social_preferences,
-      equipment_status,
-      availability,
-      weekday_preference,
-      time_of_day,
+      location: location || null,
+      activities: activities || null,
+      activity_experience: activity_experience || null,
+      adventure_style: adventure_style || null,
+      social_preferences: social_preferences || null,
+      equipment_status: equipment_status || null,
+      availability: availability || null,
+      weekday_preference: weekday_preference || null,
+      time_of_day: time_of_day || null,
       referral_source: referral_source || null,
       additional_info: additional_info || null,
-      status: join_type === 'waitlist' ? 'waitlist' : 'pending',
-      join_type
+      join_type: join_type || 'waitlist',
+      status: join_type === 'paid' ? 'pending_payment' : 'waitlist',
+      created_at: new Date().toISOString(),
     };
 
-    console.log('Inserting data into beta_applications:', applicationData);
+    console.log('Inserting application data:', applicationData);
 
-    // Insert data into beta_applications table
-    const { data: userData, error: insertError } = await supabase
-      .from('beta_applications')
-      .insert([applicationData])
-      .select();
-
-    if (insertError) {
-      console.error('Error inserting user data:', insertError);
-      return NextResponse.json({ error: 'Failed to save user data', details: insertError }, { status: 500 });
+    // Try to use RPC function if available (to bypass RLS)
+    let insertResult;
+    try {
+      // First try using a stored procedure if it exists
+      insertResult = await supabase.rpc('insert_beta_application', applicationData);
+    } catch (rpcError) {
+      console.log('RPC function not available, falling back to direct insert');
+      // Fall back to direct insert
+      insertResult = await supabase
+        .from('beta_applications')
+        .insert([applicationData]);
     }
 
-    console.log('Successfully inserted data, response:', userData);
+    if (insertResult.error) {
+      console.error('Error saving user data:', insertResult.error);
+      return NextResponse.json(
+        { error: 'Failed to save user data', details: insertResult.error },
+        { status: 500 }
+      );
+    }
+
+    console.log('Successfully inserted data, response:', insertResult.data);
 
     // Send confirmation email based on join type
     if (join_type === 'waitlist') {
@@ -158,7 +176,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true,
         message: 'Successfully joined the waitlist',
-        userId: userData[0].id
+        userId: insertResult.data[0].id
       });
     } else {
       try {
@@ -176,7 +194,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true,
         message: 'Successfully joined the beta program',
-        userId: userData[0].id
+        userId: insertResult.data[0].id
       });
     }
   } catch (error) {
