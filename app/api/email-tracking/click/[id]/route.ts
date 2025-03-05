@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import type { NextApiRequest, NextApiResponse } from 'next';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,23 +15,23 @@ export async function GET(
     const destination = request.nextUrl.searchParams.get('destination');
 
     if (!destination) {
-      return new NextResponse(null, { status: 400 });
+      return NextResponse.json({ error: 'Destination not provided' }, { status: 400 });
     }
 
     // Get the original email record to get the email type
-    const { data: originalEmail } = await supabase
+    const { data: originalEmail, error } = await supabase
       .from('email_tracking')
       .select('email_type')
       .eq('email_id', trackingId)
       .eq('status', 'sent')
       .single();
 
-    if (!originalEmail) {
-      return new NextResponse(null, { status: 404 });
+    if (error || !originalEmail) {
+      return NextResponse.json({ error: 'Email not found' }, { status: 404 });
     }
 
     // Record the click event
-    await supabase
+    const { error: insertError } = await supabase
       .from('email_tracking')
       .insert([{
         email_id: trackingId,
@@ -42,10 +41,14 @@ export async function GET(
         created_at: new Date().toISOString()
       }]);
 
+    if (insertError) {
+      return NextResponse.json({ error: 'Failed to record click event' }, { status: 500 });
+    }
+
     // Redirect to the destination URL
     return NextResponse.redirect(destination);
   } catch (error) {
     console.error('Error tracking email click:', error);
-    return new NextResponse(null, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
