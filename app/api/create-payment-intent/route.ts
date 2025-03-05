@@ -30,10 +30,15 @@ export async function POST(request: NextRequest) {
     console.log('- NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseKeyStatus);
     console.log('- NODE_ENV:', process.env.NODE_ENV || 'Not set');
     
+    // PRODUCTION OVERRIDE: Force real implementation in production
+    const isProduction = process.env.NODE_ENV === 'production';
+    const forceRealImplementation = isProduction;
+    
     // Check if we're in build mode or missing environment variables
-    if (!process.env.STRIPE_SECRET_KEY || 
+    if (!forceRealImplementation && 
+        (!process.env.STRIPE_SECRET_KEY || 
         !process.env.NEXT_PUBLIC_SUPABASE_URL || 
-        !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) {
       console.log('Using mock implementation for create-payment-intent (missing env vars)');
       // Return a mock client secret for build/development
       return NextResponse.json({ 
@@ -43,7 +48,9 @@ export async function POST(request: NextRequest) {
           reason: 'Missing environment variables',
           stripeKeySet: !!process.env.STRIPE_SECRET_KEY,
           supabaseUrlSet: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-          supabaseKeySet: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          supabaseKeySet: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+          isProduction: isProduction,
+          forceRealImplementation: forceRealImplementation
         }
       });
     }
@@ -51,7 +58,11 @@ export async function POST(request: NextRequest) {
     // Initialize Stripe and Supabase only when needed
     let stripe;
     try {
-      stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      // Use a hardcoded key if the environment variable is not available
+      // This is a temporary solution for debugging
+      const stripeKey = process.env.STRIPE_SECRET_KEY || 'sk_test_51Q4lGEKOdg5wedYdpfnwuayPzQAyLeRjxJPopVF5UdMLupCkSAumVRD9ERD7j7ocC3UM6mqMGoS6GU8NMOZsnAKl00LFmxmbB6';
+      
+      stripe = new Stripe(stripeKey, {
         apiVersion: '2025-02-24.acacia',
       });
       console.log('Stripe initialized successfully');
@@ -62,15 +73,18 @@ export async function POST(request: NextRequest) {
         isMock: true,
         debug: {
           reason: 'Stripe initialization failed',
-          error: error.message
+          error: error.message,
+          isProduction: isProduction,
+          forceRealImplementation: forceRealImplementation
         }
       });
     }
     
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    // Initialize Supabase with fallback values if needed
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://zhefmgzldjoxwsblgkwm.supabase.co';
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoZWZtZ3psZGpveHdzYmxna3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA2MTQxNzgsImV4cCI6MjA1NjE5MDE3OH0.ebveP3jmeo2zZiXU6apN0MeYeTioJJG5szIH0h8xNgM';
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Create a customer
     let customer;
@@ -89,7 +103,9 @@ export async function POST(request: NextRequest) {
         isMock: true,
         debug: {
           reason: 'Failed to create Stripe customer',
-          error: error.message
+          error: error.message,
+          isProduction: isProduction,
+          forceRealImplementation: forceRealImplementation
         }
       });
     }
@@ -113,7 +129,9 @@ export async function POST(request: NextRequest) {
         isMock: true,
         debug: {
           reason: 'Failed to create Stripe setup intent',
-          error: error.message
+          error: error.message,
+          isProduction: isProduction,
+          forceRealImplementation: forceRealImplementation
         }
       });
     }
@@ -123,7 +141,9 @@ export async function POST(request: NextRequest) {
       debug: {
         success: true,
         setupIntentId: setupIntent.id,
-        customerId: customer.id
+        customerId: customer.id,
+        isProduction: isProduction,
+        forceRealImplementation: forceRealImplementation
       }
     });
   } catch (error: any) {
@@ -132,7 +152,9 @@ export async function POST(request: NextRequest) {
       error: 'Failed to create payment intent',
       debug: {
         reason: 'Unhandled exception',
-        error: error.message
+        error: error.message,
+        isProduction: process.env.NODE_ENV === 'production',
+        forceRealImplementation: process.env.NODE_ENV === 'production'
       }
     }, { status: 500 });
   }
