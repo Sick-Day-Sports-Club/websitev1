@@ -8,10 +8,10 @@ const supabase = createClient(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const trackingId = params.id;
+    const trackingId = context.params.id;
     const destination = request.nextUrl.searchParams.get('destination');
 
     if (!destination) {
