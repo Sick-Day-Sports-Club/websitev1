@@ -11,21 +11,6 @@ if (!fs.existsSync(backupDir)) {
 
 // Mock implementations for specific routes
 const mockImplementations = {
-  'create-payment-intent': `
-    import { NextResponse } from 'next/server';
-    
-    export async function POST(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({ 
-          clientSecret: 'mock_client_secret_for_build_process' 
-        });
-      } catch (error) {
-        console.error('Error in mock create-payment-intent:', error);
-        return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 });
-      }
-    }
-  `,
   'verify-payment': `
     import { NextResponse } from 'next/server';
     
@@ -128,6 +113,19 @@ const mockImplementations = {
   `
 };
 
+// Add create-payment-intent to the list of routes to keep enabled
+const routesToKeepEnabled = [
+  'create-payment-intent',
+  'beta-signup',
+  'verify-payment',
+  'email-tracking',
+  'email-tracking/click',
+  'email-tracking/click/[id]',
+  'email-tracking/pixel',
+  'email-tracking/pixel/[id]',
+  'validate-coupon'
+];
+
 // Default mock implementation for other routes
 const defaultMock = `
   import { NextResponse } from 'next/server';
@@ -199,18 +197,12 @@ function disableApiRoutes(dir) {
       const dirName = path.basename(filePath);
       const relativePath = path.relative(apiDir, filePath).replace(/\\/g, '/');
       
-      // Skip validate-coupon since we've already handled it
-      if (relativePath === 'validate-coupon') {
-        console.log(`Keeping API route enabled: ${relativePath}`);
-        return;
-      }
-      
-      // Check if we have a specific mock for this route or its parent
-      const mockKey = Object.keys(mockImplementations).find(key => 
-        relativePath === key || relativePath.startsWith(`${key}/`)
+      // Check if this route should be kept enabled
+      const shouldKeepEnabled = routesToKeepEnabled.some(route => 
+        relativePath === route || relativePath.startsWith(`${route}/`)
       );
       
-      if (mockKey) {
+      if (shouldKeepEnabled) {
         console.log(`Keeping API route enabled: ${relativePath}`);
         
         // Find the route.ts or route.js file in this directory
@@ -221,13 +213,13 @@ function disableApiRoutes(dir) {
         
         if (routeFiles.length > 0) {
           const routeFile = path.join(filePath, routeFiles[0]);
-          // If it's an exact match, use the specific mock
-          if (relativePath === mockKey) {
+          // If it's an exact match and has a mock implementation, use the mock
+          if (mockImplementations[relativePath]) {
             backupApiRoute(routeFile);
-            fs.writeFileSync(routeFile, mockImplementations[mockKey]);
+            fs.writeFileSync(routeFile, mockImplementations[relativePath]);
             console.log(`Applied mock implementation to: ${relativePath}`);
           } else {
-            // For nested routes under a parent with a mock, continue recursion
+            // For routes to keep enabled but without a specific mock, continue recursion
             disableApiRoutes(filePath);
           }
         } else {
@@ -241,18 +233,22 @@ function disableApiRoutes(dir) {
       const parentDir = path.basename(path.dirname(filePath));
       const relativePath = path.relative(apiDir, path.dirname(filePath)).replace(/\\/g, '/');
       
-      // Skip validate-coupon since we've already handled it
-      if (relativePath === 'validate-coupon') {
-        return;
-      }
-      
-      // Check if this route or its parent has a specific mock
-      const mockKey = Object.keys(mockImplementations).find(key => 
-        relativePath === key || relativePath.startsWith(`${key}/`)
+      // Check if this route should be kept enabled
+      const shouldKeepEnabled = routesToKeepEnabled.some(route => 
+        relativePath === route || relativePath.startsWith(`${route}/`)
       );
       
-      if (!mockKey) {
-        // Apply default mock to routes without specific mocks
+      if (shouldKeepEnabled) {
+        // If it has a mock implementation, use it
+        if (mockImplementations[relativePath]) {
+          backupApiRoute(filePath);
+          fs.writeFileSync(filePath, mockImplementations[relativePath]);
+          console.log(`Applied mock implementation to: ${relativePath}`);
+        } else {
+          console.log(`Keeping original implementation for: ${relativePath}`);
+        }
+      } else {
+        // For routes not in the keep-enabled list, apply the default mock
         backupApiRoute(filePath);
         fs.writeFileSync(filePath, defaultMock);
         console.log(`Applied default mock to: ${relativePath}`);
