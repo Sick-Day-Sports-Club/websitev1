@@ -8,10 +8,13 @@ import Footer from './Footer';
 export default function BetaSignupPage() {
   const [envVars, setEnvVars] = useState({
     stripeKey: '',
+    stripeKeyValue: '',
     supabaseUrl: '',
-    supabaseKey: ''
+    supabaseKey: '',
+    buildTime: '',
+    nodeEnv: ''
   });
-  const [showDebug, setShowDebug] = useState(false);
+  const [showDebug, setShowDebug] = useState(true); // Auto-show debug by default
   
   useEffect(() => {
     // Always log environment variables to help with debugging
@@ -19,10 +22,12 @@ export default function BetaSignupPage() {
     const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'Not set';
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set';
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'Not set';
+    const nodeEnv = process.env.NODE_ENV || 'Not set';
     
     console.log('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:', stripeKey);
     console.log('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl);
     console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseKey);
+    console.log('NODE_ENV:', nodeEnv);
     
     // Check if Stripe key starts with pk_
     const isStripeKeyValid = stripeKey.startsWith('pk_');
@@ -30,16 +35,19 @@ export default function BetaSignupPage() {
       console.error('CRITICAL ERROR: Stripe publishable key is invalid or not set correctly. It should start with "pk_"');
     }
     
+    // Show a masked version of the key for debugging (first 8 chars)
+    const maskedKey = stripeKey !== 'Not set' 
+      ? `${stripeKey.substring(0, 8)}...` 
+      : 'Not set';
+    
     setEnvVars({
       stripeKey: stripeKey === 'Not set' ? 'Not set' : (isStripeKeyValid ? 'Valid (starts with pk_)' : 'INVALID (does not start with pk_)'),
+      stripeKeyValue: maskedKey,
       supabaseUrl: supabaseUrl === 'Not set' ? 'Not set' : 'Set (hidden for security)',
-      supabaseKey: supabaseKey === 'Not set' ? 'Not set' : 'Set (hidden for security)'
+      supabaseKey: supabaseKey === 'Not set' ? 'Not set' : 'Set (hidden for security)',
+      buildTime: new Date().toISOString(),
+      nodeEnv: nodeEnv
     });
-    
-    // Auto-show debug if there's an issue with the Stripe key
-    if (!isStripeKeyValid) {
-      setShowDebug(true);
-    }
   }, []);
 
   return (
@@ -67,11 +75,14 @@ export default function BetaSignupPage() {
           {/* Debug section */}
           {showDebug && (
             <div className="mb-8 p-4 border border-red-300 bg-red-50 rounded-md">
-              <h3 className="font-bold text-red-700">Environment Debug Info:</h3>
+              <h3 className="font-bold text-red-700">Environment Debug Info (Updated):</h3>
               <ul className="text-sm">
-                <li>Stripe Key: {envVars.stripeKey}</li>
+                <li>Stripe Key Status: {envVars.stripeKey}</li>
+                <li>Stripe Key Value: {envVars.stripeKeyValue}</li>
                 <li>Supabase URL: {envVars.supabaseUrl}</li>
                 <li>Supabase Key: {envVars.supabaseKey}</li>
+                <li>Node Environment: {envVars.nodeEnv}</li>
+                <li>Build Time: {envVars.buildTime}</li>
               </ul>
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded">
                 <p className="text-sm font-bold">Troubleshooting Tips:</p>
@@ -79,6 +90,8 @@ export default function BetaSignupPage() {
                   <li>The Stripe publishable key should start with "pk_test_" or "pk_live_"</li>
                   <li>If using the secret key (starts with "sk_"), this is incorrect and needs to be changed</li>
                   <li>Check your Vercel environment variables settings</li>
+                  <li>Make sure to redeploy after updating environment variables</li>
+                  <li>Try clearing your browser cache or using incognito mode</li>
                 </ul>
               </div>
             </div>

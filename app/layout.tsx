@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
+// Import the env check utility to run during build
+import '../utils/env-check';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://sickdaysportsclub.com'),
   title: {
