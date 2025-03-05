@@ -11,6 +11,7 @@ export default function BetaSignupPage() {
     supabaseUrl: '',
     supabaseKey: ''
   });
+  const [showDebug, setShowDebug] = useState(false);
   
   useEffect(() => {
     // Always log environment variables to help with debugging
@@ -23,11 +24,22 @@ export default function BetaSignupPage() {
     console.log('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl);
     console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseKey);
     
+    // Check if Stripe key starts with pk_
+    const isStripeKeyValid = stripeKey.startsWith('pk_');
+    if (!isStripeKeyValid) {
+      console.error('CRITICAL ERROR: Stripe publishable key is invalid or not set correctly. It should start with "pk_"');
+    }
+    
     setEnvVars({
-      stripeKey: stripeKey === 'Not set' ? 'Not set' : 'Set (hidden for security)',
+      stripeKey: stripeKey === 'Not set' ? 'Not set' : (isStripeKeyValid ? 'Valid (starts with pk_)' : 'INVALID (does not start with pk_)'),
       supabaseUrl: supabaseUrl === 'Not set' ? 'Not set' : 'Set (hidden for security)',
       supabaseKey: supabaseKey === 'Not set' ? 'Not set' : 'Set (hidden for security)'
     });
+    
+    // Auto-show debug if there's an issue with the Stripe key
+    if (!isStripeKeyValid) {
+      setShowDebug(true);
+    }
   }, []);
 
   return (
@@ -42,9 +54,18 @@ export default function BetaSignupPage() {
             </p>
           </div>
           
-          {/* Debug section - only visible in development or with query param */}
-          {(process.env.NODE_ENV === 'development' || 
-            (typeof window !== 'undefined' && window.location.search.includes('debug=true'))) && (
+          {/* Debug toggle button */}
+          <div className="mb-4 text-center">
+            <button 
+              onClick={() => setShowDebug(!showDebug)}
+              className="text-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+            >
+              {showDebug ? 'Hide Debug Info' : 'Show Debug Info'}
+            </button>
+          </div>
+          
+          {/* Debug section */}
+          {showDebug && (
             <div className="mb-8 p-4 border border-red-300 bg-red-50 rounded-md">
               <h3 className="font-bold text-red-700">Environment Debug Info:</h3>
               <ul className="text-sm">
@@ -52,9 +73,14 @@ export default function BetaSignupPage() {
                 <li>Supabase URL: {envVars.supabaseUrl}</li>
                 <li>Supabase Key: {envVars.supabaseKey}</li>
               </ul>
-              <p className="text-xs mt-2 text-gray-500">
-                This debug info is only visible in development mode or with ?debug=true in the URL
-              </p>
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded">
+                <p className="text-sm font-bold">Troubleshooting Tips:</p>
+                <ul className="text-xs list-disc pl-4 mt-1">
+                  <li>The Stripe publishable key should start with "pk_test_" or "pk_live_"</li>
+                  <li>If using the secret key (starts with "sk_"), this is incorrect and needs to be changed</li>
+                  <li>Check your Vercel environment variables settings</li>
+                </ul>
+              </div>
             </div>
           )}
           
