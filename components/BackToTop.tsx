@@ -1,8 +1,11 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 
-export default function BackToTop() {
+interface BackToTopProps {}
+
+const BackToTop: React.FC<BackToTopProps> = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -54,4 +57,6 @@ export default function BackToTop() {
       </svg>
     </button>
   );
-} 
+};
+
+export default BackToTop; 

@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import GoogleAnalytics from '@/components/GoogleAnalytics';
-import CookieConsent from '@/components/CookieConsent';
-import BackToTop from '@/components/BackToTop';
-import SkipToContent from '@/components/SkipToContent';
-import { initScrollDepthTracking } from '@/utils/analytics';
+import GoogleAnalytics from '../components/GoogleAnalytics';
+import CookieConsent from '../components/CookieConsent';
+import BackToTop from '../components/BackToTop';
+import SkipToContent from '../components/SkipToContent';
+import { initScrollDepthTracking } from '../utils/analytics';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

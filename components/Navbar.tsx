@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import Link from 'next/link';
 import { useState } from 'react';
 import Container from './Container';
@@ -38,7 +39,7 @@ export default function Navbar() {
               FAQ
             </Link>
             <Link href="#launch" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
-              Launch Info
+              Join Now
             </Link>
           </div>
 
@@ -72,7 +73,7 @@ export default function Navbar() {
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Launch Info
+                  Join Now
                 </Link>
               </div>
             </div>

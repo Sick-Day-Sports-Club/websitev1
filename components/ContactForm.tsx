@@ -1,7 +1,8 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
-import { trackEvent } from '@/utils/analytics';
+import { trackEvent } from '../utils/analytics';
 
 export default function ContactForm() {
   const handleEmailClick = () => {
@@ -17,7 +18,7 @@ export default function ContactForm() {
         </p>
 
         <motion.a
-          href="mailto:info@sickdaysports.club?subject=Question about Sick Day Sports Club"
+          href="mailto:info@sickdaysportsclub.com?subject=Question about Sick Day Sports Club"
           onClick={handleEmailClick}
           className="inline-flex items-center px-8 py-3 rounded-md text-white font-semibold bg-[#4a7729] hover:bg-[#3d6222] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a7729]"
           whileHover={{ scale: 1.05 }}

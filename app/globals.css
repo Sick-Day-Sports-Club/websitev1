@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+.logo-fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.logo-fade-in {
+  opacity: 1;
+  transition: opacity 0.5s ease-in;
+}
+
+/* Remove old animation */
+/* Pause animation on hover */
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
 :root {
   /* Brand Colors */
   --color-primary: #4a7729;

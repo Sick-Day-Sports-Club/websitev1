@@ -1,13 +1,19 @@
-import Container from '@/components/Container';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import Breadcrumbs from '@/components/Breadcrumbs';
+import React from 'react';
+import Container from '../../components/Container';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import type { Metadata } from 'next';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Sick Day Sports Club',
-  description: 'Learn how Sick Day Sports Club collects, uses, and protects your personal information.',
+  title: 'Privacy Policy',
+  description: 'Privacy policy for Sick Day Sports Club',
+  openGraph: {
+    title: 'Privacy Policy | Sick Day Sports Club',
+    description: 'Privacy policy for Sick Day Sports Club',
+    url: 'https://sickdaysportsclub.com'
+  }
 };
 
 export default function PrivacyPolicy() {
@@ -104,9 +110,11 @@ export default function PrivacyPolicy() {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
               <p className="mb-4">
-                If you have any questions about our Privacy Policy or how we handle your data, please contact us at{' '}
-                <a href="mailto:info@sickdaysports.club" className="text-[#4a7729] hover:underline">
-                  info@sickdaysports.club
+                If you have any questions about this Privacy Policy, please contact us at:
+              </p>
+              <p>
+                <a href="mailto:info@sickdaysportsclub.com" className="text-[#4a7729] hover:underline">
+                  info@sickdaysportsclub.com
                 </a>
               </p>
             </section>

@@ -1,8 +1,11 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 
-export default function CookieConsent() {
+interface CookieConsentProps {}
+
+const CookieConsent: React.FC<CookieConsentProps> = () => {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
@@ -43,4 +46,6 @@ export default function CookieConsent() {
       </div>
     </div>
   );
-} 
+};
+
+export default CookieConsent; 

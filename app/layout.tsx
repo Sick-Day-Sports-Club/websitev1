@@ -4,24 +4,19 @@ import "./globals.css";
 import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
-  title: "Sick Day Sports Club",
-  description: "Turn your sick days into adventure days",
-  metadataBase: new URL('https://sickdaysports.club'),
+  metadataBase: new URL('https://sickdaysportsclub.com'),
+  title: {
+    template: '%s | Sick Day Sports Club',
+    default: 'Sick Day Sports Club | Book Outdoor Adventures',
+  },
+  description: 'Book outdoor adventures with local guides and outfitters.',
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://sickdaysports.club',
+    title: 'Sick Day Sports Club | Book Outdoor Adventures',
+    description: 'Book outdoor adventures with local guides and outfitters.',
+    url: 'https://sickdaysportsclub.com',
     siteName: 'Sick Day Sports Club',
-    title: 'Sick Day Sports Club',
-    description: 'Turn your sick days into adventure days',
-    images: [
-      {
-        url: '/images/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Sick Day Sports Club - Adventure Awaits'
-      }
-    ]
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',

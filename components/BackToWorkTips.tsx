@@ -1,9 +1,12 @@
 'use client';
 
+import React from 'react';
 import { useEffect, useState } from 'react';
 import Container from './Container';
 
-export default function BackToWorkTips() {
+interface BackToWorkTipsProps {}
+
+const BackToWorkTips: React.FC<BackToWorkTipsProps> = () => {
   const [count, setCount] = useState(0);
   
   useEffect(() => {
@@ -65,3 +68,5 @@ export default function BackToWorkTips() {
     </section>
   );
 }
+
+export default BackToWorkTips;

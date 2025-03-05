@@ -9,12 +9,12 @@ export default function ConfirmationPage() {
   const searchParams = useSearchParams();
   
   useEffect(() => {
-    const paymentIntent = searchParams.get('payment_intent');
-    const paymentIntentClientSecret = searchParams.get('payment_intent_client_secret');
+    const setupIntent = searchParams.get('setup_intent');
+    const setupIntentClientSecret = searchParams.get('setup_intent_client_secret');
     
-    if (paymentIntent) {
-      // Verify the payment status on the server
-      fetch(`/api/verify-payment?payment_intent=${paymentIntent}`)
+    if (setupIntent) {
+      // Verify the setup status on the server
+      fetch(`/api/verify-payment?setup_intent=${setupIntent}`)
         .then(res => res.json())
         .then(data => {
           setStatus(data.status === 'succeeded' ? 'success' : 'error');
@@ -31,8 +31,8 @@ export default function ConfirmationPage() {
             <div className="flex justify-center mb-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
-            <h1 className="text-xl font-bold text-center mb-2">Processing Payment</h1>
-            <p className="text-gray-600 text-center">Please wait while we confirm your payment...</p>
+            <h1 className="text-xl font-bold text-center mb-2">Processing</h1>
+            <p className="text-gray-600 text-center">Please wait while we confirm your payment method...</p>
           </>
         )}
 
@@ -45,8 +45,9 @@ export default function ConfirmationPage() {
                 </svg>
               </div>
             </div>
-            <h1 className="text-xl font-bold text-center mb-2">Payment Successful!</h1>
-            <p className="text-gray-600 text-center mb-6">Thank you for your deposit. We'll be in touch soon!</p>
+            <h1 className="text-xl font-bold text-center mb-2">Payment Method Saved!</h1>
+            <p className="text-gray-600 text-center mb-2">Your card has been securely saved for the beta program deposit.</p>
+            <p className="text-gray-600 text-center mb-6">We'll notify you before processing the payment when we launch.</p>
             <div className="text-center">
               <Link 
                 href="/"
@@ -67,8 +68,8 @@ export default function ConfirmationPage() {
                 </svg>
               </div>
             </div>
-            <h1 className="text-xl font-bold text-center mb-2">Payment Failed</h1>
-            <p className="text-gray-600 text-center mb-6">There was an issue processing your payment. Please try again.</p>
+            <h1 className="text-xl font-bold text-center mb-2">Setup Failed</h1>
+            <p className="text-gray-600 text-center mb-6">There was an issue saving your payment method. Please try again.</p>
             <div className="text-center">
               <Link 
                 href="/"

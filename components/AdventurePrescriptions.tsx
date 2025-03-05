@@ -1,5 +1,6 @@
 import Container from './Container';
 
+import React from 'react';
 export default function AdventurePrescriptions() {
   return (
     <section className="py-20 bg-white">

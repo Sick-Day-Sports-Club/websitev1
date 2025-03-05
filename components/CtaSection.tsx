@@ -1,8 +1,9 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { trackCTAClick, trackWaitlistSubmission } from '@/utils/analytics';
+import { trackCTAClick, trackWaitlistSubmission } from '../utils/analytics';
 
 interface TimeLeft {
   days: number;
@@ -11,10 +12,12 @@ interface TimeLeft {
   seconds: number;
 }
 
+interface CtaSectionProps {}
+
 // Set LAUNCH_DATE to March 27, 2025
 const LAUNCH_DATE = new Date('2025-03-27T00:00:00Z');
 
-export default function CtaSection() {
+const CtaSection: React.FC<CtaSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -22,27 +25,21 @@ export default function CtaSection() {
   useEffect(() => {
     function calculateTimeLeft() {
       const now = new Date();
-      console.log('Current Time:', now);
-      console.log('Launch Date:', LAUNCH_DATE);
       const difference = LAUNCH_DATE.getTime() - now.getTime();
-      console.log('Time Difference:', difference);
       
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-        console.log('Time Left:', { days, hours, minutes, seconds });
-
-        setTimeLeft({ days, hours, minutes, seconds });
+        setTimeLeft({ days, hours, minutes, seconds: 0 });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     }
 
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
+    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute instead of every second
 
     return () => clearInterval(timer);
   }, []);
@@ -67,7 +64,6 @@ export default function CtaSection() {
       setIsLoading(false);
     }
   };
-
   return (
     <section className="bg-gray-900 text-white py-20" id="launch">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -104,13 +100,13 @@ export default function CtaSection() {
             className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-semibold py-3 px-8 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white border-2 border-[#4a7729] hover:border-[#3d6222]"
             onClick={() => handleCTAClick('beta_access')}
           >
-            Apply for Bend Launch
+            Join Now
           </Link>
         </div>
 
         {/* Waitlist explainer */}
         <p className="text-center text-gray-300 mb-8">
-          Not ready to join or need more info? Join our waitlist below to stay updated
+          Not ready to join or need more info? Join our email list to stay updated
         </p>
 
         {/* Waitlist form */}
@@ -130,7 +126,7 @@ export default function CtaSection() {
               className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors"
               disabled={isLoading}
             >
-              {isLoading ? 'Submitting...' : 'Join Waitlist'}
+              {isLoading ? 'Submitting...' : 'Get Updates'}
             </button>
           </form>
         </div>
@@ -138,3 +134,5 @@ export default function CtaSection() {
     </section>
   );
 }
+
+export default CtaSection;

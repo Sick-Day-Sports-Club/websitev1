@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://sickdaysports.club';
+const baseUrl = 'https://sickdaysportsclub.com';
 
+export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: baseUrl,
@@ -11,16 +11,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date('2024-02-28'),
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.8,
     },
     {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date('2024-02-28'),
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.8,
     },
   ];
 } 

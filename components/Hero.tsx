@@ -1,9 +1,10 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { trackCarouselInteraction, trackCTAClick } from '@/utils/analytics';
+import { trackCarouselInteraction, trackCTAClick } from '../utils/analytics';
 
 // Import the optimized image data
 import heroImagesData from '../public/images/hero-images.json';
@@ -22,6 +23,8 @@ interface HeroImage {
   responsive: ResponsiveImage[];
 }
 
+interface HeroProps {}
+
 const heroImages = heroImagesData as HeroImage[];
 
 // Helper function to get the appropriate image size
@@ -35,7 +38,7 @@ function getImageSizes() {
   `;
 }
 
-export default function Hero() {
+const Hero: React.FC<HeroProps> = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const nextImage = useCallback(() => {
@@ -91,7 +94,7 @@ export default function Hero() {
 
   return (
     <section 
-      className="relative h-[90vh] flex items-center justify-start"
+      className="relative h-[90vh] w-full overflow-hidden"
       role="region"
       aria-roledescription="carousel"
       aria-label="Hero image carousel"
@@ -113,7 +116,7 @@ export default function Hero() {
             aria-label={`Slide ${index + 1} of ${heroImages.length}`}
             aria-hidden={index !== currentImageIndex}
           >
-            <picture>
+            <picture className="relative w-full h-full block">
               {image.responsive
                 .sort((a, b) => b.width - a.width) // Sort by width descending
                 .map((size) => (
@@ -187,24 +190,28 @@ export default function Hero() {
       </div>
       
       {/* Content */}
-      <div className="max-w-[600px] px-12 text-white relative z-10">
-        <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-5">
-          Take A Sick Day. Make It Count.
-        </h1>
-        <p className="text-xl mb-8 max-w-[500px]">
-          Need a break from Zoom? Connect with expert guides for epic action sports missions in your favorite local adventure zones.
-        </p>
-        <Link 
-          href="#launch"
-          className="inline-flex items-center text-white hover:text-[#4a7729] transition-colors"
-          onClick={() => trackCTAClick('learn_more')}
-        >
-          <span className="mr-2 font-semibold">Learn More</span>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
-          </svg>
-        </Link>
+      <div className="absolute inset-y-0 left-0 flex items-center max-w-[600px] px-12 text-white z-10">
+        <div>
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-5">
+            Take A Sick Day. Make It Count.
+          </h1>
+          <p className="text-xl mb-8 max-w-[500px]">
+            Unlock epic adventures with expert local guides, tailored to your skills and style. Join now for exclusive founding member rates!
+          </p>
+          <Link 
+            href="#launch"
+            className="inline-flex items-center text-white hover:text-[#4a7729] transition-colors"
+            onClick={() => trackCTAClick('join_now')}
+          >
+            <span className="mr-2 font-semibold">Join Now</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+            </svg>
+          </Link>
+        </div>
       </div>
     </section>
   );
-} 
+}
+
+export default Hero; 

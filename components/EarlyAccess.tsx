@@ -1,7 +1,8 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
-import { trackWaitlistSubmission } from '@/utils/analytics';
+import { trackWaitlistSubmission } from '../utils/analytics';
 
 interface TimeLeft {
   days: number;
@@ -10,9 +11,11 @@ interface TimeLeft {
   seconds: number;
 }
 
+interface EarlyAccessProps {}
+
 const LAUNCH_DATE = new Date('2024-03-27T09:00:00-07:00'); // 9 AM PDT on March 27th
 
-export default function EarlyAccess() {
+const EarlyAccess: React.FC<EarlyAccessProps> = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -27,7 +30,7 @@ export default function EarlyAccess() {
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
           minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+          seconds: 0
         });
       } else {
         // If we're past the launch date, show zeros
@@ -35,9 +38,9 @@ export default function EarlyAccess() {
       }
     };
 
-    // Calculate immediately and then every second
+    // Calculate immediately and then every minute
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
+    const timer = setInterval(calculateTimeLeft, 60000);
 
     return () => clearInterval(timer);
   }, []);
@@ -83,10 +86,6 @@ export default function EarlyAccess() {
               <div className="text-4xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
               <div className="text-sm uppercase tracking-wide">Minutes</div>
             </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold">{String(timeLeft.seconds).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide">Seconds</div>
-            </div>
           </div>
         </div>
         
@@ -112,4 +111,6 @@ export default function EarlyAccess() {
       </div>
     </section>
   );
-} 
+};
+
+export default EarlyAccess; 
