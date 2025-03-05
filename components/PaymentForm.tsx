@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { Stripe } from '@stripe/stripe-js';
 import {
   Elements,
   PaymentElement,
@@ -10,6 +10,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { useRouter } from 'next/navigation';
 import CheckoutForm from './CheckoutForm';
+import { getStripePromise } from '../utils/stripe-client';
 
 // Types
 interface PaymentFormProps {
@@ -27,48 +28,6 @@ interface DiscountInfo {
 interface SetupIntentResponse {
   clientSecret: string;
   error?: string;
-}
-
-// Initialize Stripe with better error handling and retry mechanism
-let stripePromise: Promise<Stripe | null> | null = null;
-let initializationAttempts = 0;
-const MAX_RETRY_ATTEMPTS = 3;
-
-const initializeStripe = () => {
-  if (typeof window === 'undefined') return null;
-  
-  const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  
-  if (!stripeKey) {
-    console.error('Stripe publishable key is not defined in environment variables');
-    return null;
-  }
-  
-  try {
-    const promise = loadStripe(stripeKey);
-    promise.catch(error => {
-      console.error('Error loading Stripe:', error);
-      console.error('Stripe publishable key:', stripeKey ? 'Provided but invalid' : 'Not provided');
-      
-      // Retry initialization if under max attempts
-      if (initializationAttempts < MAX_RETRY_ATTEMPTS) {
-        initializationAttempts++;
-        console.log(`Retrying Stripe initialization (attempt ${initializationAttempts}/${MAX_RETRY_ATTEMPTS})...`);
-        setTimeout(() => {
-          stripePromise = initializeStripe();
-        }, 1000); // Wait 1 second before retrying
-      }
-    });
-    return promise;
-  } catch (error) {
-    console.error('Exception during Stripe initialization:', error);
-    return null;
-  }
-};
-
-// Initialize on load
-if (typeof window !== 'undefined') {
-  stripePromise = initializeStripe();
 }
 
 // Discount Display Component
@@ -100,20 +59,25 @@ const DiscountDisplay: React.FC<{ amount: number; discountedAmount: number | nul
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const [clientSecret, setClientSecret] = useState<string>();
   const [error, setError] = useState<string>();
-  const [isStripeReady, setIsStripeReady] = useState<boolean>(!!stripePromise);
+  const [isStripeReady, setIsStripeReady] = useState<boolean>(false);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   
-  // Check if Stripe is initialized
+  // Initialize Stripe
   useEffect(() => {
-    if (!stripePromise && typeof window !== 'undefined') {
-      // Try to initialize again if it failed
-      stripePromise = initializeStripe();
-      setIsStripeReady(!!stripePromise);
-    }
+    const initStripe = async () => {
+      const promise = getStripePromise();
+      setStripePromise(promise);
+      setIsStripeReady(!!promise);
+    };
+    
+    initStripe();
   }, []);
 
   useEffect(() => {
-    // Create SetupIntent when component mounts
+    // Create SetupIntent when component mounts and Stripe is ready
     const createSetupIntent = async () => {
+      if (!isStripeReady) return;
+      
       try {
         const response = await fetch('/api/create-payment-intent', {
           method: 'POST',
@@ -141,9 +105,7 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
       }
     };
 
-    if (isStripeReady) {
-      createSetupIntent();
-    }
+    createSetupIntent();
   }, [props.amount, props.couponCode, isStripeReady]);
 
   if (error) {
@@ -157,8 +119,9 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         <button 
           className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
           onClick={() => {
-            stripePromise = initializeStripe();
-            setIsStripeReady(!!stripePromise);
+            const promise = getStripePromise();
+            setStripePromise(promise);
+            setIsStripeReady(!!promise);
           }}
         >
           Retry
@@ -194,8 +157,9 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           <button 
             className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             onClick={() => {
-              stripePromise = initializeStripe();
-              setIsStripeReady(!!stripePromise);
+              const promise = getStripePromise();
+              setStripePromise(promise);
+              setIsStripeReady(!!promise);
             }}
           >
             Retry
