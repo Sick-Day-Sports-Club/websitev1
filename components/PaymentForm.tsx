@@ -61,6 +61,7 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const [error, setError] = useState<string>();
   const [isStripeReady, setIsStripeReady] = useState<boolean>(false);
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [isMockSecret, setIsMockSecret] = useState<boolean>(false);
   
   // Initialize Stripe
   useEffect(() => {
@@ -98,6 +99,21 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         if (data.error) {
           throw new Error(data.error);
         }
+        
+        // Check if we got a mock client secret (from the build process)
+        if (data.clientSecret === 'mock_client_secret_for_build_process') {
+          console.log('Detected mock client secret - API is in mock mode');
+          setIsMockSecret(true);
+          return;
+        }
+        
+        // Validate that the client secret looks like a real Stripe secret
+        if (!data.clientSecret || !data.clientSecret.includes('_secret_')) {
+          console.error('Invalid client secret format:', data.clientSecret);
+          setError('Invalid client secret received from server');
+          return;
+        }
+        
         setClientSecret(data.clientSecret);
       } catch (err) {
         console.error('Error creating setup intent:', err);
@@ -110,6 +126,20 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
 
   if (error) {
     return <div className="text-red-600">{error}</div>;
+  }
+
+  if (isMockSecret) {
+    return (
+      <div className="p-4 border border-yellow-300 bg-yellow-50 rounded-md">
+        <h3 className="font-bold text-yellow-700 mb-2">Demo Mode</h3>
+        <p className="text-yellow-700 mb-2">
+          The payment system is currently in demo mode. In a real deployment, this would connect to Stripe for payment processing.
+        </p>
+        <p className="text-sm text-yellow-600">
+          For now, please use the free tier option or contact support for assistance.
+        </p>
+      </div>
+    );
   }
 
   if (!isStripeReady) {
