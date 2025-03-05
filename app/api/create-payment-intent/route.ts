@@ -2,26 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Stripe conditionally
-let stripe: Stripe | null = null;
-let supabase: any = null;
-
-// Only initialize if the environment variables are available
-// This prevents build errors when environment variables aren't set
-if (process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-02-24.acacia',
-  });
-}
-
-// Initialize Supabase conditionally
-if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-}
-
 export async function POST(request: NextRequest) {
   try {
     const { amount, couponCode } = await request.json();
@@ -32,14 +12,26 @@ export async function POST(request: NextRequest) {
     }
     
     // Check if we're in build mode or missing environment variables
-    if (!stripe || !supabase) {
-      console.log('Using mock implementation for create-payment-intent (build mode or missing env vars)');
+    if (!process.env.STRIPE_SECRET_KEY || 
+        !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+        !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.log('Using mock implementation for create-payment-intent (missing env vars)');
       // Return a mock client secret for build/development
       return NextResponse.json({ 
         clientSecret: 'mock_client_secret_for_build_process',
         isMock: true
       });
     }
+    
+    // Initialize Stripe and Supabase only when needed
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-02-24.acacia',
+    });
+    
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
     
     // Create a customer
     const customer = await stripe.customers.create({

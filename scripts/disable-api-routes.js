@@ -45,6 +45,22 @@ const mockImplementations = {
       }
     }
   `,
+  'create-payment-intent': `
+    import { NextResponse } from 'next/server';
+    
+    export async function POST(request: Request) {
+      try {
+        // Simple mock implementation without any dependencies
+        return NextResponse.json({ 
+          clientSecret: 'mock_client_secret_for_build_process',
+          isMock: true
+        });
+      } catch (error) {
+        console.error('Error in mock create-payment-intent:', error);
+        return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 });
+      }
+    }
+  `,
   'email-tracking': `
     import { NextResponse } from 'next/server';
     
