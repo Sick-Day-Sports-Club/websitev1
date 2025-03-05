@@ -34,10 +34,9 @@ export async function POST(request: Request) {
     if (!code) {
       return NextResponse.json({ error: 'Coupon code is required' }, { status: 400 });
     }
-
     // For development: Check test coupons first
-    if (process.env.NODE_ENV === 'development' && TEST_COUPONS[code]) {
-      const testCoupon = TEST_COUPONS[code];
+    if (process.env.NODE_ENV === 'development' && code in TEST_COUPONS) {
+      const testCoupon = TEST_COUPONS[code as keyof typeof TEST_COUPONS];
       return NextResponse.json({
         code: testCoupon.id,
         percentOff: testCoupon.percent_off || 0,
