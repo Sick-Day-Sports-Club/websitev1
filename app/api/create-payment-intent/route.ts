@@ -3,7 +3,15 @@ import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, couponCode } = await request.json();
+    // Check for force real header
+    const forceReal = request.headers.get('X-Force-Real') === 'true';
+    
+    // Parse request body
+    const body = await request.json();
+    const { amount, couponCode, forceReal: forceRealBody } = body;
+    
+    // Combine force real flags
+    const shouldForceReal = forceReal || forceRealBody;
     
     // Validate input
     if (!amount || typeof amount !== 'number') {
@@ -14,6 +22,7 @@ export async function POST(request: NextRequest) {
     console.log('CRITICAL: create-payment-intent API called');
     console.log('NODE_ENV:', process.env.NODE_ENV || 'Not set');
     console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Set (starts with ' + process.env.STRIPE_SECRET_KEY.substring(0, 6) + '...)' : 'Not set');
+    console.log('Force Real:', shouldForceReal ? 'Yes' : 'No');
     
     // PRODUCTION OVERRIDE: Always use real implementation
     // Use a hardcoded key if the environment variable is not available
@@ -35,6 +44,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         amount: amount.toString(),
         couponCode: couponCode || 'none',
+        forceReal: shouldForceReal ? 'true' : 'false'
       },
     });
     
@@ -48,6 +58,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         amount: amount.toString(),
         couponCode: couponCode || 'none',
+        forceReal: shouldForceReal ? 'true' : 'false'
       },
     });
     
@@ -60,7 +71,9 @@ export async function POST(request: NextRequest) {
         success: true,
         setupIntentId: setupIntent.id,
         customerId: customer.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        isMock: false,
+        forceReal: shouldForceReal
       }
     });
   } catch (error: any) {

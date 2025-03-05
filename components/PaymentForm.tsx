@@ -104,7 +104,8 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           },
           body: JSON.stringify({ 
             amount: props.amount,
-            couponCode: props.couponCode 
+            couponCode: props.couponCode,
+            forceReal: true // Add this flag to force real implementation
           }),
         });
 
@@ -126,7 +127,39 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         // Check if we got a mock client secret (from the build process)
         if (data.clientSecret === 'mock_client_secret_for_build_process') {
           console.log('Detected mock client secret - API is in mock mode');
-          setIsMockSecret(true);
+          console.log('Attempting to force real implementation...');
+          
+          // Try again with a different approach
+          const retryResponse = await fetch('/api/create-payment-intent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Force-Real': 'true' // Add a custom header to force real implementation
+            },
+            body: JSON.stringify({ 
+              amount: props.amount,
+              couponCode: props.couponCode,
+              forceReal: true,
+              timestamp: new Date().toISOString()
+            }),
+          });
+          
+          if (!retryResponse.ok) {
+            console.error('Retry API response not OK:', retryResponse.status);
+            setIsMockSecret(true);
+            return;
+          }
+          
+          const retryData = await retryResponse.json();
+          
+          if (retryData.clientSecret === 'mock_client_secret_for_build_process') {
+            console.log('Still getting mock client secret after retry, showing mock mode message');
+            setIsMockSecret(true);
+            return;
+          }
+          
+          console.log('Successfully got real client secret on retry');
+          setClientSecret(retryData.clientSecret);
           return;
         }
         

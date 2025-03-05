@@ -45,39 +45,6 @@ const mockImplementations = {
       }
     }
   `,
-  'create-payment-intent': `
-    import { NextResponse } from 'next/server';
-    
-    export async function POST(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        console.log('IMPORTANT: Using MOCK implementation for create-payment-intent from disable-api-routes.js');
-        console.log('This should NOT be used in production. Check your build process.');
-        
-        // Get the current environment
-        const nodeEnv = process.env.NODE_ENV || 'unknown';
-        console.log('Current NODE_ENV:', nodeEnv);
-        
-        // Check if we're in production
-        if (nodeEnv === 'production') {
-          console.warn('WARNING: Using mock implementation in production environment!');
-        }
-        
-        return NextResponse.json({ 
-          clientSecret: 'mock_client_secret_for_build_process',
-          isMock: true,
-          debug: {
-            source: 'disable-api-routes.js mock implementation',
-            environment: nodeEnv,
-            buildTime: new Date().toISOString()
-          }
-        });
-      } catch (error) {
-        console.error('Error in mock create-payment-intent:', error);
-        return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 });
-      }
-    }
-  `,
   'email-tracking': `
     import { NextResponse } from 'next/server';
     
