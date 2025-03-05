@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import {
   Elements,
   PaymentElement,
@@ -29,15 +29,28 @@ interface SetupIntentResponse {
   error?: string;
 }
 
-// Initialize Stripe with error handling
-const stripePromise = typeof window !== 'undefined' 
-  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '')
-    .catch(error => {
-      console.error('Error loading Stripe:', error);
-      console.error('Stripe publishable key:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-      throw new Error('Failed to initialize payment system');
-    })
-  : null;
+// Initialize Stripe with better error handling
+let stripePromise: Promise<Stripe | null> | null = null;
+
+if (typeof window !== 'undefined') {
+  const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  
+  if (stripeKey) {
+    try {
+      stripePromise = loadStripe(stripeKey);
+      stripePromise.catch(error => {
+        console.error('Error loading Stripe:', error);
+        console.error('Stripe publishable key:', stripeKey ? 'Provided but invalid' : 'Not provided');
+        stripePromise = null;
+      });
+    } catch (error) {
+      console.error('Exception during Stripe initialization:', error);
+      stripePromise = null;
+    }
+  } else {
+    console.error('Stripe publishable key is not defined in environment variables');
+  }
+}
 
 // Discount Display Component
 const DiscountDisplay: React.FC<{ amount: number; discountedAmount: number | null }> = ({ amount, discountedAmount }) => {

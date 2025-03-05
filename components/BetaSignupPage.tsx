@@ -1,18 +1,33 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import BetaSignupForm from './BetaSignupForm';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 export default function BetaSignupPage() {
+  const [envVars, setEnvVars] = useState({
+    stripeKey: '',
+    supabaseUrl: '',
+    supabaseKey: ''
+  });
+  
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Client-side environment variables check:');
-      console.log('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'Not set');
-      console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set');
-      console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'Not set');
-    }
+    // Always log environment variables to help with debugging
+    console.log('Client-side environment variables check:');
+    const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'Not set';
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set';
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'Not set';
+    
+    console.log('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:', stripeKey);
+    console.log('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl);
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseKey);
+    
+    setEnvVars({
+      stripeKey: stripeKey === 'Not set' ? 'Not set' : 'Set (hidden for security)',
+      supabaseUrl: supabaseUrl === 'Not set' ? 'Not set' : 'Set (hidden for security)',
+      supabaseKey: supabaseKey === 'Not set' ? 'Not set' : 'Set (hidden for security)'
+    });
   }, []);
 
   return (
@@ -26,6 +41,22 @@ export default function BetaSignupPage() {
               Sign up early to get founding member pricing and be among the first to experience Sick Day Sports Club.
             </p>
           </div>
+          
+          {/* Debug section - only visible in development or with query param */}
+          {(process.env.NODE_ENV === 'development' || 
+            (typeof window !== 'undefined' && window.location.search.includes('debug=true'))) && (
+            <div className="mb-8 p-4 border border-red-300 bg-red-50 rounded-md">
+              <h3 className="font-bold text-red-700">Environment Debug Info:</h3>
+              <ul className="text-sm">
+                <li>Stripe Key: {envVars.stripeKey}</li>
+                <li>Supabase URL: {envVars.supabaseUrl}</li>
+                <li>Supabase Key: {envVars.supabaseKey}</li>
+              </ul>
+              <p className="text-xs mt-2 text-gray-500">
+                This debug info is only visible in development mode or with ?debug=true in the URL
+              </p>
+            </div>
+          )}
           
           <BetaSignupForm />
         </div>
