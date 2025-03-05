@@ -23,11 +23,18 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "scripts/**/*",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "app/**/*",
+    "components/**/*",
+    "utils/**/*"
   ],
   "exclude": [
     "node_modules"

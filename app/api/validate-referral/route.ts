@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import supabase from '@/utils/supabase';
-import { isValidReferralCode } from '@/utils/referralCode';
+import supabase from '../../../utils/supabase';
+import { isValidReferralCode } from '../../../utils/referralCode';
 
 export async function POST(req: Request) {
   try {
