@@ -8,25 +8,25 @@ const supabase = createClient(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const trackingId = params.id;
+    const trackingId = context.params.id;
 
     // Get the original email record to get the email type
-    const { data: originalEmail } = await supabase
+    const { data: originalEmail, error } = await supabase
       .from('email_tracking')
       .select('email_type')
       .eq('email_id', trackingId)
       .eq('status', 'sent')
       .single();
 
-    if (!originalEmail) {
-      return new NextResponse(null, { status: 404 });
+    if (error || !originalEmail) {
+      return NextResponse.json({ error: 'Email not found' }, { status: 404 });
     }
 
     // Record the open event
-    await supabase
+    const { error: insertError } = await supabase
       .from('email_tracking')
       .insert([{
         email_id: trackingId,
@@ -34,6 +34,10 @@ export async function GET(
         status: 'opened',
         created_at: new Date().toISOString()
       }]);
+
+    if (insertError) {
+      return NextResponse.json({ error: 'Failed to record open event' }, { status: 500 });
+    }
 
     // Return a 1x1 transparent GIF
     return new NextResponse(
@@ -49,6 +53,6 @@ export async function GET(
     );
   } catch (error) {
     console.error('Error tracking email open:', error);
-    return new NextResponse(null, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
