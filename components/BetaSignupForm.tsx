@@ -696,7 +696,7 @@ export default function BetaSignupForm() {
         join_type: joinType
       };
 
-      console.log('Submitting data to API...');
+      console.log('Submitting data to API...', submissionData);
       
       try {
         // Always use the beta-signup endpoint for both waitlist and paid memberships
@@ -764,9 +764,10 @@ export default function BetaSignupForm() {
           // For paid memberships, show the payment form
           console.log('Paid membership signup successful, showing payment form');
           setShowPayment(true);
+          
+          // Scroll to top to ensure payment form is visible
+          window.scrollTo(0, 0);
         }
-        
-        window.scrollTo(0, 0);
       } catch (submitError) {
         console.error('Error during form submission:', submitError);
         throw new Error(submitError instanceof Error ? submitError.message : 'Failed to submit application. Please try again.');
@@ -774,6 +775,9 @@ export default function BetaSignupForm() {
     } catch (error) {
       console.error('Form submission error:', error);
       setError(error instanceof Error ? error.message : 'There was a problem submitting your application. Please try again.');
+      
+      // Ensure the user sees the error
+      window.scrollTo(0, 0);
     } finally {
       setIsSubmitting(false);
     }
@@ -972,6 +976,8 @@ export default function BetaSignupForm() {
             console.error('Payment error:', error);
             setError(error);
             setShowPayment(false);
+            // Scroll to top to ensure user sees the error message
+            window.scrollTo(0, 0);
           }}
         />
         <button
@@ -1607,9 +1613,9 @@ export default function BetaSignupForm() {
                     ? 'opacity-50 cursor-not-allowed' 
                     : 'hover:bg-opacity-90'
                 }`}
-                onClick={() => {
+                onClick={(e) => {
+                  // Don't need to do anything special here as the form's onSubmit handler will be called
                   console.log('Complete Profile button clicked');
-                  // The form's onSubmit handler will be called automatically
                 }}
               >
                 {isSubmitting ? 'Submitting...' : 'Complete Profile'}

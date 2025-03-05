@@ -66,9 +66,21 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   // Initialize Stripe
   useEffect(() => {
     const initStripe = async () => {
-      const promise = getStripePromise();
-      setStripePromise(promise);
-      setIsStripeReady(!!promise);
+      try {
+        console.log('Initializing Stripe in PaymentForm...');
+        const promise = getStripePromise();
+        setStripePromise(promise);
+        setIsStripeReady(!!promise);
+        
+        if (!promise) {
+          console.error('Failed to get Stripe promise');
+        } else {
+          console.log('Stripe promise obtained successfully');
+        }
+      } catch (error) {
+        console.error('Error initializing Stripe:', error);
+        setError('Failed to initialize payment system');
+      }
     };
     
     initStripe();
@@ -77,7 +89,12 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   useEffect(() => {
     // Create SetupIntent when component mounts and Stripe is ready
     const createSetupIntent = async () => {
-      if (!isStripeReady) return;
+      if (!isStripeReady) {
+        console.log('Stripe not ready yet, skipping setup intent creation');
+        return;
+      }
+      
+      console.log('Creating setup intent...');
       
       try {
         const response = await fetch('/api/create-payment-intent', {
@@ -91,12 +108,18 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           }),
         });
 
+        console.log('Setup intent API response status:', response.status);
+
         if (!response.ok) {
+          console.error('API response not OK:', response.status);
           throw new Error('Failed to create payment intent');
         }
 
         const data: SetupIntentResponse = await response.json();
+        console.log('Setup intent API response:', data);
+        
         if (data.error) {
+          console.error('Error in API response:', data.error);
           throw new Error(data.error);
         }
         
@@ -114,6 +137,7 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           return;
         }
         
+        console.log('Valid client secret received, length:', data.clientSecret.length);
         setClientSecret(data.clientSecret);
       } catch (err) {
         console.error('Error creating setup intent:', err);

@@ -40,8 +40,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ amount, onSuccess, onError 
 
       if (result.error) {
         console.error('Stripe error:', result.error);
-        setErrorMessage(result.error.message);
-        onError?.(result.error.message);
+        setErrorMessage(result.error.message || 'Payment setup failed');
+        if (result.error.message) {
+          onError?.(result.error.message);
+        } else {
+          onError?.('Payment setup failed');
+        }
       } else {
         console.log('Payment setup successful');
         onSuccess?.();
