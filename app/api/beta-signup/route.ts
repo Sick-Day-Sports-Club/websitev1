@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Beta signup API called');
+    
     // Apply rate limiting if configured
     if (ratelimit) {
       const ip = request.headers.get('x-forwarded-for') || 'anonymous';
@@ -58,16 +60,36 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { firstName, lastName, email, referralCode, membershipType, paymentMethod } = data;
+    console.log('Received data:', data);
+    
+    // Extract basic fields
+    const { 
+      first_name, 
+      last_name, 
+      email, 
+      phone, 
+      location, 
+      activities,
+      activity_experience,
+      adventure_style,
+      social_preferences,
+      equipment_status,
+      availability,
+      weekday_preference,
+      time_of_day,
+      referral_source,
+      additional_info,
+      join_type
+    } = data;
 
     // Validate required fields
-    if (!firstName || !lastName || !email) {
+    if (!first_name || !last_name || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if email already exists
     const { data: existingUser, error: lookupError } = await supabase
-      .from('beta_users')
+      .from('beta_applications')
       .select('id, email, status')
       .eq('email', email)
       .single();
@@ -84,90 +106,84 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Process based on membership type
-    if (membershipType === 'beta' && paymentMethod) {
-      // Save payment method for future charging
+    // Prepare data for insertion
+    const applicationData = {
+      first_name,
+      last_name,
+      email,
+      phone: phone || null,
+      location,
+      activities,
+      activity_experience,
+      adventure_style,
+      social_preferences,
+      equipment_status,
+      availability,
+      weekday_preference,
+      time_of_day,
+      referral_source: referral_source || null,
+      additional_info: additional_info || null,
+      status: join_type === 'waitlist' ? 'waitlist' : 'pending',
+      join_type
+    };
+
+    console.log('Inserting data into beta_applications:', applicationData);
+
+    // Insert data into beta_applications table
+    const { data: userData, error: insertError } = await supabase
+      .from('beta_applications')
+      .insert([applicationData])
+      .select();
+
+    if (insertError) {
+      console.error('Error inserting user data:', insertError);
+      return NextResponse.json({ error: 'Failed to save user data', details: insertError }, { status: 500 });
+    }
+
+    console.log('Successfully inserted data, response:', userData);
+
+    // Send confirmation email based on join type
+    if (join_type === 'waitlist') {
       try {
-        // Store user data in Supabase
-        const { data: userData, error: insertError } = await supabase
-          .from('beta_users')
-          .insert([
-            { 
-              first_name: firstName,
-              last_name: lastName,
-              email,
-              referral_code: referralCode || null,
-              membership_type: membershipType,
-              payment_method_id: paymentMethod.id,
-              status: 'active'
-            }
-          ])
-          .select();
-
-        if (insertError) {
-          console.error('Error inserting user data:', insertError);
-          return NextResponse.json({ error: 'Failed to save user data' }, { status: 500 });
-        }
-
-        // Send confirmation email
-        await sendBetaConfirmationEmail({
-          email,
-          firstName,
-          lastName,
-          amount: 99 // $99 deposit
-        });
-
-        return NextResponse.json({ 
-          success: true,
-          message: 'Successfully joined the beta program',
-          userId: userData[0].id
-        });
-      } catch (error) {
-        console.error('Error processing beta signup:', error);
-        return NextResponse.json({ error: 'Failed to process beta signup' }, { status: 500 });
-      }
-    } else {
-      // Waitlist signup (no payment)
-      try {
-        // Store user data in Supabase
-        const { data: userData, error: insertError } = await supabase
-          .from('beta_users')
-          .insert([
-            { 
-              first_name: firstName,
-              last_name: lastName,
-              email,
-              referral_code: referralCode || null,
-              membership_type: 'waitlist',
-              status: 'waitlist'
-            }
-          ])
-          .select();
-
-        if (insertError) {
-          console.error('Error inserting waitlist user data:', insertError);
-          return NextResponse.json({ error: 'Failed to save user data' }, { status: 500 });
-        }
-
-        // Send confirmation email
         await sendWaitlistConfirmationEmail({
           email,
-          firstName,
-          lastName
+          firstName: first_name,
+          lastName: last_name
         });
-
-        return NextResponse.json({ 
-          success: true,
-          message: 'Successfully joined the waitlist',
-          userId: userData[0].id
-        });
-      } catch (error) {
-        console.error('Error processing waitlist signup:', error);
-        return NextResponse.json({ error: 'Failed to process waitlist signup' }, { status: 500 });
+      } catch (emailError) {
+        console.error('Error sending waitlist confirmation email:', emailError);
+        // Continue despite email error
       }
+
+      return NextResponse.json({ 
+        success: true,
+        message: 'Successfully joined the waitlist',
+        userId: userData[0].id
+      });
+    } else {
+      try {
+        await sendBetaConfirmationEmail({
+          email,
+          firstName: first_name,
+          lastName: last_name,
+          amount: 99 // $99 deposit
+        });
+      } catch (emailError) {
+        console.error('Error sending beta confirmation email:', emailError);
+        // Continue despite email error
+      }
+
+      return NextResponse.json({ 
+        success: true,
+        message: 'Successfully joined the beta program',
+        userId: userData[0].id
+      });
     }
   } catch (error) {
     console.error('Error in beta signup API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, { status: 500 });
   }
 }
