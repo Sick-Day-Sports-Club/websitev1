@@ -29,27 +29,46 @@ interface SetupIntentResponse {
   error?: string;
 }
 
-// Initialize Stripe with better error handling
+// Initialize Stripe with better error handling and retry mechanism
 let stripePromise: Promise<Stripe | null> | null = null;
+let initializationAttempts = 0;
+const MAX_RETRY_ATTEMPTS = 3;
 
-if (typeof window !== 'undefined') {
+const initializeStripe = () => {
+  if (typeof window === 'undefined') return null;
+  
   const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
   
-  if (stripeKey) {
-    try {
-      stripePromise = loadStripe(stripeKey);
-      stripePromise.catch(error => {
-        console.error('Error loading Stripe:', error);
-        console.error('Stripe publishable key:', stripeKey ? 'Provided but invalid' : 'Not provided');
-        stripePromise = null;
-      });
-    } catch (error) {
-      console.error('Exception during Stripe initialization:', error);
-      stripePromise = null;
-    }
-  } else {
+  if (!stripeKey) {
     console.error('Stripe publishable key is not defined in environment variables');
+    return null;
   }
+  
+  try {
+    const promise = loadStripe(stripeKey);
+    promise.catch(error => {
+      console.error('Error loading Stripe:', error);
+      console.error('Stripe publishable key:', stripeKey ? 'Provided but invalid' : 'Not provided');
+      
+      // Retry initialization if under max attempts
+      if (initializationAttempts < MAX_RETRY_ATTEMPTS) {
+        initializationAttempts++;
+        console.log(`Retrying Stripe initialization (attempt ${initializationAttempts}/${MAX_RETRY_ATTEMPTS})...`);
+        setTimeout(() => {
+          stripePromise = initializeStripe();
+        }, 1000); // Wait 1 second before retrying
+      }
+    });
+    return promise;
+  } catch (error) {
+    console.error('Exception during Stripe initialization:', error);
+    return null;
+  }
+};
+
+// Initialize on load
+if (typeof window !== 'undefined') {
+  stripePromise = initializeStripe();
 }
 
 // Discount Display Component
@@ -81,6 +100,16 @@ const DiscountDisplay: React.FC<{ amount: number; discountedAmount: number | nul
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const [clientSecret, setClientSecret] = useState<string>();
   const [error, setError] = useState<string>();
+  const [isStripeReady, setIsStripeReady] = useState<boolean>(!!stripePromise);
+  
+  // Check if Stripe is initialized
+  useEffect(() => {
+    if (!stripePromise && typeof window !== 'undefined') {
+      // Try to initialize again if it failed
+      stripePromise = initializeStripe();
+      setIsStripeReady(!!stripePromise);
+    }
+  }, []);
 
   useEffect(() => {
     // Create SetupIntent when component mounts
@@ -112,11 +141,30 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
       }
     };
 
-    createSetupIntent();
-  }, [props.amount, props.couponCode]);
+    if (isStripeReady) {
+      createSetupIntent();
+    }
+  }, [props.amount, props.couponCode, isStripeReady]);
 
   if (error) {
     return <div className="text-red-600">{error}</div>;
+  }
+
+  if (!isStripeReady) {
+    return (
+      <div className="p-4 border border-yellow-300 bg-yellow-50 rounded-md">
+        <p className="text-yellow-700">Payment system is initializing. Please wait...</p>
+        <button 
+          className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          onClick={() => {
+            stripePromise = initializeStripe();
+            setIsStripeReady(!!stripePromise);
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   if (!clientSecret) {
@@ -140,8 +188,18 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           <CheckoutForm {...props} />
         </Elements>
       ) : (
-        <div className="text-red-600">
-          Payment system could not be initialized. Please try again later or contact support.
+        <div className="text-red-600 p-4 border border-red-300 bg-red-50 rounded-md">
+          <p>Payment system could not be initialized. Please try again later or contact support.</p>
+          <p className="text-sm mt-2">Error: Stripe publishable key may be missing or invalid.</p>
+          <button 
+            className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={() => {
+              stripePromise = initializeStripe();
+              setIsStripeReady(!!stripePromise);
+            }}
+          >
+            Retry
+          </button>
         </div>
       )}
     </div>
