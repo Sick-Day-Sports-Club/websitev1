@@ -1,10 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export async function GET(
   request: NextRequest,
@@ -31,19 +25,19 @@ export async function GET(
     }
 
     // Record the click event
-    const { error: insertError } = await supabase
-      .from('email_tracking')
-      .insert([{
-        email_id: trackingId,
-        email_type: originalEmail.email_type,
-        status: 'clicked',
-        metadata: { clicked_url: destination },
-        created_at: new Date().toISOString()
-      }]);
+    // const { error: insertError } = await supabase
+    //   .from('email_tracking')
+    //   .insert([{
+    //     email_id: trackingId,
+    //     email_type: originalEmail.email_type,
+    //     status: 'clicked',
+    //     metadata: { clicked_url: destination },
+    //     created_at: new Date().toISOString()
+    //   }]);
 
-    if (insertError) {
-      return NextResponse.json({ error: 'Failed to record click event' }, { status: 500 });
-    }
+    // if (insertError) {
+    //   return NextResponse.json({ error: 'Failed to record click event' }, { status: 500 });
+    // }
 
     // Redirect to the destination URL
     return NextResponse.redirect(destination);
