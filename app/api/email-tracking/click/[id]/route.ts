@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Initialize regular Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Initialize Supabase admin client with service role key for bypassing RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function GET(
@@ -19,7 +26,7 @@ export async function GET(
     }
 
     // Get the original email record to get the email type
-    const { data: originalEmail, error } = await supabase
+    const { data: originalEmail, error } = await supabaseAdmin
       .from('email_tracking')
       .select('email_type')
       .eq('email_id', trackingId)
@@ -31,7 +38,7 @@ export async function GET(
     }
 
     // Record the click event
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseAdmin
       .from('email_tracking')
       .insert([{
         email_id: trackingId,

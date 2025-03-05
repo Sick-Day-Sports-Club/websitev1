@@ -18,6 +18,12 @@ const supabase = createClient(
 //   process.env.SUPABASE_SERVICE_ROLE_KEY!
 // );
 
+// Initialize Supabase admin client with service role key for bypassing RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
@@ -95,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const { data: existingUser, error: lookupError } = await supabase
+    const { data: existingUser, error: lookupError } = await supabaseAdmin
       .from('beta_applications')
       .select('id, email, status')
       .eq('email', email)
@@ -137,28 +143,21 @@ export async function POST(request: NextRequest) {
 
     console.log('Inserting application data:', applicationData);
 
-    // Try to use RPC function if available (to bypass RLS)
-    let insertResult;
-    try {
-      // First try using a stored procedure if it exists
-      insertResult = await supabase.rpc('insert_beta_application', applicationData);
-    } catch (rpcError) {
-      console.log('RPC function not available, falling back to direct insert');
-      // Fall back to direct insert
-      insertResult = await supabase
-        .from('beta_applications')
-        .insert([applicationData]);
-    }
+    // Use supabaseAdmin to bypass RLS policies
+    const { data: userData, error: insertError } = await supabaseAdmin
+      .from('beta_applications')
+      .insert([applicationData])
+      .select();
 
-    if (insertResult.error) {
-      console.error('Error saving user data:', insertResult.error);
+    if (insertError) {
+      console.error('Error saving user data:', insertError);
       return NextResponse.json(
-        { error: 'Failed to save user data', details: insertResult.error },
+        { error: 'Failed to save user data', details: insertError },
         { status: 500 }
       );
     }
 
-    console.log('Successfully inserted data, response:', insertResult.data);
+    console.log('Successfully inserted data, response:', userData);
 
     // Send confirmation email based on join type
     if (join_type === 'waitlist') {
@@ -176,7 +175,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true,
         message: 'Successfully joined the waitlist',
-        userId: insertResult.data[0].id
+        userId: userData[0].id
       });
     } else {
       try {
@@ -194,7 +193,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true,
         message: 'Successfully joined the beta program',
-        userId: insertResult.data[0].id
+        userId: userData[0].id
       });
     }
   } catch (error) {
