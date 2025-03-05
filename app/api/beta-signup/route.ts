@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { z } from 'zod';
+import Stripe from 'stripe';
+import { sendBetaConfirmationEmail, sendWaitlistConfirmationEmail } from '@/utils/email';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -8,127 +11,163 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Activity type
-const ActivitySchema = z.object({
-  category: z.string(),
-  subcategory: z.string()
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-02-24.acacia',
 });
 
-// Validation schema for the form data
-const betaApplicationSchema = z.object({
-  first_name: z.string().min(1, "First name is required"),
-  last_name: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().nullable(),
-  location: z.string().min(1, "Location is required"),
-  activities: z.array(ActivitySchema).transform(activities => 
-    activities.map(a => `${a.category}|${a.subcategory}`)
-  ),
-  activity_experience: z.record(z.string()),
-  adventure_style: z.string(),
-  social_preferences: z.object({
-    groupSize: z.enum(['tiny', 'small', 'medium', 'large', 'no-preference']),
-    pace: z.number().min(1).max(5),
-    socialVibe: z.enum(['quiet', 'casual', 'social', 'no-preference'])
-  }),
-  equipment_status: z.record(z.string()),
-  availability: z.array(z.string()).min(1, "At least one availability option is required"),
-  weekday_preference: z.array(z.string()),
-  time_of_day: z.array(z.string()).min(1, "At least one time of day preference is required"),
-  referral_source: z.string().nullable(),
-  additional_info: z.string().nullable(),
-  status: z.enum(['pending', 'approved', 'rejected', 'waitlist']).optional().default('pending'),
-  join_type: z.enum(['beta-basic', 'beta-better', 'beta-bomber', 'waitlist'])
-});
+// Initialize rate limiter
+let ratelimit: Ratelimit | null = null;
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+  
+  ratelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1m'),
+    analytics: true,
+  });
+}
 
-export async function POST(request: Request) {
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ message: 'API disabled during build' }, { status: 503 });
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    console.log('Received data:', body); // Add logging
-    
-    // Validate the request body
-    const validatedData = betaApplicationSchema.parse(body);
-    console.log('Validated data:', validatedData); // Add logging
+    // Apply rate limiting if configured
+    if (ratelimit) {
+      const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+      const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+      
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          { 
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': reset.toString(),
+            }
+          }
+        );
+      }
+    }
 
-    // Check for existing application with same email
-    const { data: existingApplication } = await supabase
-      .from('beta_applications')
-      .select('id, email')
-      .eq('email', validatedData.email)
+    const data = await request.json();
+    const { firstName, lastName, email, referralCode, membershipType, paymentMethod } = data;
+
+    // Validate required fields
+    if (!firstName || !lastName || !email) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Check if email already exists
+    const { data: existingUser, error: lookupError } = await supabase
+      .from('beta_users')
+      .select('id, email, status')
+      .eq('email', email)
       .single();
 
-    if (existingApplication) {
-      return NextResponse.json(
-        { error: 'An application with this email already exists' },
-        { status: 409 }
-      );
+    if (lookupError && lookupError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      console.error('Error checking for existing user:', lookupError);
+      return NextResponse.json({ error: 'Failed to check for existing user' }, { status: 500 });
     }
 
-    // Map frontend join_type values to database-compatible values
-    let dbJoinType = 'waitlist';
-    if (validatedData.join_type === 'beta-basic' || 
-        validatedData.join_type === 'beta-better' || 
-        validatedData.join_type === 'beta-bomber') {
-      dbJoinType = 'beta';
+    if (existingUser) {
+      return NextResponse.json({ 
+        error: 'This email is already registered',
+        status: existingUser.status
+      }, { status: 400 });
     }
 
-    // Set status based on join type
-    const dataToInsert = {
-      ...validatedData,
-      join_type: dbJoinType,
-      status: validatedData.join_type === 'waitlist' ? 'waitlist' : 'pending'
-    };
+    // Process based on membership type
+    if (membershipType === 'beta' && paymentMethod) {
+      // Save payment method for future charging
+      try {
+        // Store user data in Supabase
+        const { data: userData, error: insertError } = await supabase
+          .from('beta_users')
+          .insert([
+            { 
+              first_name: firstName,
+              last_name: lastName,
+              email,
+              referral_code: referralCode || null,
+              membership_type: membershipType,
+              payment_method_id: paymentMethod.id,
+              status: 'active'
+            }
+          ])
+          .select();
 
-    // Insert the application
-    const { data, error } = await supabase
-      .from('beta_applications')
-      .insert([dataToInsert])
-      .select()
-      .single();
+        if (insertError) {
+          console.error('Error inserting user data:', insertError);
+          return NextResponse.json({ error: 'Failed to save user data' }, { status: 500 });
+        }
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json(
-        { error: 'Failed to submit application' },
-        { status: 500 }
-      );
+        // Send confirmation email
+        await sendBetaConfirmationEmail({
+          email,
+          firstName,
+          lastName,
+          amount: 99 // $99 deposit
+        });
+
+        return NextResponse.json({ 
+          success: true,
+          message: 'Successfully joined the beta program',
+          userId: userData[0].id
+        });
+      } catch (error) {
+        console.error('Error processing beta signup:', error);
+        return NextResponse.json({ error: 'Failed to process beta signup' }, { status: 500 });
+      }
+    } else {
+      // Waitlist signup (no payment)
+      try {
+        // Store user data in Supabase
+        const { data: userData, error: insertError } = await supabase
+          .from('beta_users')
+          .insert([
+            { 
+              first_name: firstName,
+              last_name: lastName,
+              email,
+              referral_code: referralCode || null,
+              membership_type: 'waitlist',
+              status: 'waitlist'
+            }
+          ])
+          .select();
+
+        if (insertError) {
+          console.error('Error inserting waitlist user data:', insertError);
+          return NextResponse.json({ error: 'Failed to save user data' }, { status: 500 });
+        }
+
+        // Send confirmation email
+        await sendWaitlistConfirmationEmail({
+          email,
+          firstName,
+          lastName
+        });
+
+        return NextResponse.json({ 
+          success: true,
+          message: 'Successfully joined the waitlist',
+          userId: userData[0].id
+        });
+      } catch (error) {
+        console.error('Error processing waitlist signup:', error);
+        return NextResponse.json({ error: 'Failed to process waitlist signup' }, { status: 500 });
+      }
     }
-
-    // Return different response for waitlist vs paid memberships
-    if (validatedData.join_type === 'waitlist') {
-      return NextResponse.json(
-        { 
-          message: 'Successfully joined waitlist',
-          data: data 
-        },
-        { status: 201 }
-      );
-    }
-
-    return NextResponse.json(
-      { 
-        message: 'Application submitted successfully',
-        data: data 
-      },
-      { status: 201 }
-    );
-
   } catch (error) {
-    console.error('Error processing request:', error);
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { 
-          error: 'Invalid application data',
-          details: error.errors 
-        },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Error in beta signup API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
