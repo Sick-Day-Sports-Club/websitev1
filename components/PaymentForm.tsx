@@ -30,10 +30,14 @@ interface SetupIntentResponse {
 }
 
 // Initialize Stripe with error handling
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!).catch(error => {
-  console.error('Error loading Stripe:', error);
-  throw new Error('Failed to initialize payment system');
-});
+const stripePromise = typeof window !== 'undefined' 
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '')
+    .catch(error => {
+      console.error('Error loading Stripe:', error);
+      console.error('Stripe publishable key:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+      throw new Error('Failed to initialize payment system');
+    })
+  : null;
 
 // Discount Display Component
 const DiscountDisplay: React.FC<{ amount: number; discountedAmount: number | null }> = ({ amount, discountedAmount }) => {
@@ -117,9 +121,17 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   };
 
   return (
-    <Elements stripe={stripePromise} options={options}>
-      <CheckoutForm {...props} />
-    </Elements>
+    <div>
+      {stripePromise ? (
+        <Elements stripe={stripePromise} options={options}>
+          <CheckoutForm {...props} />
+        </Elements>
+      ) : (
+        <div className="text-red-600">
+          Payment system could not be initialized. Please try again later or contact support.
+        </div>
+      )}
+    </div>
   );
 };
 

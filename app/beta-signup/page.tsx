@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import BetaSignupForm from '../../components/BetaSignupForm';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -9,6 +11,15 @@ export const metadata = {
 }
 
 export default function BetaSignup() {
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Client-side environment variables check:');
+      console.log('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'Not set');
+      console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set');
+      console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'Not set');
+    }
+  }, []);
+
   return (
     <>
       <Navbar />
