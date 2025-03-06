@@ -14,15 +14,36 @@ export default function AdminPortal() {
   const authenticate = async () => {
     try {
       setAuthError(null);
-      const { error } = await signIn(email, password);
+      console.log('Starting authentication process...');
+      
+      if (!email || !password) {
+        setAuthError('Email and password are required');
+        return;
+      }
+      
+      const { data, error } = await signIn(email, password);
       
       if (error) {
-        setAuthError('Invalid credentials. Please try again.');
-        console.error('Auth error:', error);
+        console.error('Auth error details:', error);
+        
+        if (error.message === 'Invalid login credentials') {
+          setAuthError('Invalid email or password. Please try again.');
+        } else {
+          setAuthError(`Authentication failed: ${error.message}`);
+        }
+      } else if (!data.user) {
+        setAuthError('No user returned from authentication');
+      } else if (!isAdmin) {
+        // If login was successful but user is not an admin
+        setAuthError('Your account does not have admin privileges');
+        // Sign out the user since they don't have admin access
+        await signOut();
+      } else {
+        console.log('Authentication successful!');
       }
     } catch (err) {
-      setAuthError('An error occurred during authentication.');
-      console.error('Auth error:', err);
+      console.error('Unexpected authentication error:', err);
+      setAuthError('An unexpected error occurred during authentication');
     }
   };
 

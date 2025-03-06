@@ -82,7 +82,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password });
+    try {
+      console.log(`Attempting to sign in with email: ${email}`);
+      const response = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (response.error) {
+        console.error('Authentication error:', response.error);
+      } else {
+        console.log('Authentication successful, checking admin status');
+        // Check if user has admin role after successful login
+        if (response.data.user) {
+          const { data, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', response.data.user.id)
+            .single();
+          
+          if (roleError) {
+            console.error('Error checking admin role:', roleError);
+          } else {
+            console.log('Role check result:', data);
+            setIsAdmin(data && data.role === 'admin');
+          }
+        }
+      }
+      
+      return response;
+    } catch (err) {
+      console.error('Unexpected error during authentication:', err);
+      throw err;
+    }
   };
 
   const signOut = async () => {

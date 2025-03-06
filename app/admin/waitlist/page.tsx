@@ -16,6 +16,7 @@ export default function WaitlistAdmin() {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     if (!user || !isAdmin) return;
@@ -51,11 +52,17 @@ export default function WaitlistAdmin() {
     fetchWaitlist();
   }, [user, isAdmin]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (isLoading) return;
+    
+    setAuthLoading(false);
+  }, [isLoading]);
+
+  if (isLoading || authLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-md">
         <h1 className="text-3xl font-bold mb-6 text-center">Waitlist Admin</h1>
-        <p className="text-center">Loading...</p>
+        <p className="text-center">Loading authentication status...</p>
       </div>
     );
   }
