@@ -102,12 +102,16 @@ function processDirectory(dirPath, isApiDir = false) {
   }
 }
 
+console.log('Restoring API routes...');
+
 function restoreApiRoutes() {
+  console.log('Checking if backup directory exists:', backupDir);
   if (fs.existsSync(backupDir)) {
     const backupFiles = [];
     
     function findBackupFiles(dir) {
       const files = fs.readdirSync(dir);
+      console.log('Found files in backup directory:', files);
       
       files.forEach(file => {
         const filePath = path.join(dir, file);
@@ -126,6 +130,7 @@ function restoreApiRoutes() {
     backupFiles.forEach(backupFile => {
       const relativePath = path.relative(backupDir, backupFile);
       const originalFile = path.join(apiDir, relativePath);
+      console.log('Restoring file:', originalFile);
       
       const originalDir = path.dirname(originalFile);
       if (!fs.existsSync(originalDir)) {
@@ -141,11 +146,13 @@ function restoreApiRoutes() {
     console.log('No API backups found. Nothing to restore.');
   }
 
+  console.log('Checking if pages backup directory exists:', pagesBackupDir);
   if (fs.existsSync(pagesBackupDir)) {
     const pageBackupFiles = [];
     
     function findPageBackupFiles(dir) {
       const files = fs.readdirSync(dir);
+      console.log('Found files in pages backup directory:', files);
       
       files.forEach(file => {
         const filePath = path.join(dir, file);
@@ -164,6 +171,7 @@ function restoreApiRoutes() {
     pageBackupFiles.forEach(backupFile => {
       const relativePath = path.relative(pagesBackupDir, backupFile);
       const originalFile = path.join(appDir, relativePath);
+      console.log('Restoring page file:', originalFile);
       
       const originalDir = path.dirname(originalFile);
       if (!fs.existsSync(originalDir)) {
@@ -179,6 +187,9 @@ function restoreApiRoutes() {
     console.log('No page backups found. Nothing to restore.');
   }
 }
+
+console.log('Environment:', process.env.NODE_ENV);
+console.log('Calling restoreApiRoutes() in development environment.');
 
 if (process.env.NODE_ENV === 'production') {
   processDirectory(appDir);
