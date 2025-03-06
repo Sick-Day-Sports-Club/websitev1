@@ -140,7 +140,6 @@ const ACTIVITY_CATEGORIES: Record<string, Array<{ name: string; available: boole
     { name: 'Bouldering', available: true },
     { name: 'Ice', available: true },
     { name: 'Mixed', available: true },
-    { name: 'Indoor', available: true },
     { name: 'Mountaineering', available: true },
     { name: 'Canyoneering', available: false }
   ],
@@ -1644,7 +1643,6 @@ export default function BetaSignupForm() {
                   onClick={async () => {
                     try {
                       console.log('Testing API connectivity...');
-                      
                       // Test the debug API
                       const response = await fetch('/api/debug-form', {
                         method: 'POST',
@@ -1661,10 +1659,8 @@ export default function BetaSignupForm() {
                           }
                         }),
                       });
-                      
                       const data = await response.json();
                       console.log('Debug API response:', data);
-                      
                       // Test Stripe API
                       const stripeResponse = await fetch('/api/create-payment-intent', {
                         method: 'POST',
@@ -1673,10 +1669,8 @@ export default function BetaSignupForm() {
                         },
                         body: JSON.stringify({ amount: 99 }),
                       });
-                      
                       const stripeData = await stripeResponse.json();
                       console.log('Stripe API response:', stripeData);
-                      
                       alert('Debug tests completed. Check console for results.');
                     } catch (err) {
                       console.error('Debug test error:', err);
@@ -1692,6 +1686,9 @@ export default function BetaSignupForm() {
           </div>
         )}
       </form>
+      <p className="text-sm text-gray-500 mt-4">
+        We proudly participate in Stripe's <a href="https://support.stripe.com/questions/climate-commitments-faq" className="text-blue-600 hover:underline">1% for Climate</a> program, contributing to carbon removal projects.
+      </p>
     </div>
   );
 }
