@@ -61,14 +61,19 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
         body: JSON.stringify({ email }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to join waitlist');
+        console.error('Waitlist submission failed:', result);
+        throw new Error(result.error || 'Failed to join waitlist');
       }
 
+      console.log('Waitlist submission successful:', result);
       trackWaitlistSubmission(email);
       setEmail('');
       alert('Thanks for joining our email list! We\'ll keep you updated.');
     } catch (error) {
+      console.error('Error submitting to waitlist:', error);
       alert('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
