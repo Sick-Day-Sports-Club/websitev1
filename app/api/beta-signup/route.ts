@@ -107,8 +107,22 @@ export async function POST(request: NextRequest) {
     const emailValue = email;
     const joinTypeValue = joinType || join_type || 'waitlist';
 
+    console.log('Extracted values:', { 
+      firstNameValue, 
+      lastNameValue, 
+      emailValue, 
+      joinTypeValue,
+      firstName,
+      first_name,
+      lastName,
+      last_name,
+      joinType,
+      join_type
+    });
+
     // Validate required fields
     if (!firstNameValue || !lastNameValue || !emailValue) {
+      console.error('Missing required fields:', { firstNameValue, lastNameValue, emailValue });
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -163,6 +177,7 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('Error inserting user data:', insertError);
+      console.error('Error details:', JSON.stringify(insertError, null, 2));
       return NextResponse.json({ error: 'Failed to save user data', details: insertError }, { status: 500 });
     }
 
@@ -173,8 +188,8 @@ export async function POST(request: NextRequest) {
       try {
         await sendWaitlistConfirmationEmail({
           email: emailValue,
-          firstName: firstNameValue,
-          lastName: lastNameValue
+          first_name: firstNameValue,
+          last_name: lastNameValue
         });
         console.log('Waitlist confirmation email sent');
       } catch (emailError) {
@@ -191,8 +206,8 @@ export async function POST(request: NextRequest) {
       try {
         await sendBetaConfirmationEmail({
           email: emailValue,
-          firstName: firstNameValue,
-          lastName: lastNameValue
+          first_name: firstNameValue,
+          last_name: lastNameValue
         });
         console.log('Beta confirmation email sent');
       } catch (emailError) {

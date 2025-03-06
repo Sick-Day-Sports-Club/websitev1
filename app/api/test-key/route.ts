@@ -1,11 +1,10 @@
-import { NextResponse } from 'next/server';
 
-export async function GET() {
-  const apiKey = process.env.RESEND_API_KEY;
+  import { NextResponse } from 'next/server';
   
-  return NextResponse.json({ 
-    keyPresent: !!apiKey,
-    keyLength: apiKey?.length || 0,
-    allEnvVars: Object.keys(process.env)
-  });
-} 
+  export async function GET(request) {
+    return NextResponse.json({ message: 'API disabled during build' }, { status: 503 });
+  }
+  
+  export async function POST(request) {
+    return NextResponse.json({ message: 'API disabled during build' }, { status: 503 });
+  }

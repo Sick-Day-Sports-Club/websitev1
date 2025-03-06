@@ -12,6 +12,13 @@ import { useRouter } from 'next/navigation';
 import CheckoutForm from './CheckoutForm';
 import { getStripePromise } from '../utils/stripe-client';
 
+// Add type declaration for window.STRIPE_PUBLISHABLE_KEY
+declare global {
+  interface Window {
+    STRIPE_PUBLISHABLE_KEY?: string;
+  }
+}
+
 // Types
 interface PaymentFormProps {
   amount: number;
@@ -227,11 +234,8 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
                 });
                 const testData = await testResponse.json();
                 console.log('API response:', testData);
-                
-                alert('Debug info logged to console. Press F12 to view.');
               } catch (error) {
                 console.error('Debug error:', error);
-                alert('Error during debug. Check console.');
               }
             }}
           >

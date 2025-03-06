@@ -5,8 +5,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface EmailData {
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   amount?: number;
 }
 
@@ -30,7 +30,7 @@ async function trackEmailEvent(event: EmailEvent) {
   }
 }
 
-export async function sendBetaConfirmationEmail({ email, firstName, lastName, amount }: EmailData) {
+export async function sendBetaConfirmationEmail({ email, first_name, last_name, amount }: EmailData) {
   try {
     const trackingId = `beta_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const trackingPixel = `${process.env.NEXT_PUBLIC_APP_URL}/api/email-tracking/pixel/${trackingId}`;
@@ -43,7 +43,7 @@ export async function sendBetaConfirmationEmail({ email, firstName, lastName, am
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #4a7729;">Welcome to Sick Day Sports Club Beta!</h1>
-          <p>Hi ${firstName},</p>
+          <p>Hi ${first_name},</p>
           <p>Thanks for joining our beta program! We're excited to have you on board.</p>
           ${amount ? `
           <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
@@ -84,7 +84,7 @@ export async function sendBetaConfirmationEmail({ email, firstName, lastName, am
   }
 }
 
-export async function sendWaitlistConfirmationEmail({ email, firstName, lastName }: EmailData) {
+export async function sendWaitlistConfirmationEmail({ email, first_name, last_name }: EmailData) {
   try {
     const trackingId = `waitlist_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const trackingPixel = `${process.env.NEXT_PUBLIC_APP_URL}/api/email-tracking/pixel/${trackingId}`;
@@ -93,11 +93,11 @@ export async function sendWaitlistConfirmationEmail({ email, firstName, lastName
     const { data: emailData, error } = await resend.emails.send({
       from: 'Sick Day Sports Club <info@sickdaysportsclub.com>',
       to: email,
-      subject: 'Welcome to the Sick Day Sports Club Waitlist!',
+      subject: 'You\'re on the Sick Day Sports Club Waitlist!',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #4a7729;">Welcome to the Waitlist!</h1>
-          <p>Hi ${firstName},</p>
+          <h1 style="color: #4a7729;">You're on the Waitlist!</h1>
+          <p>Hi ${first_name},</p>
           <p>Thanks for joining our waitlist! We're excited to have you interested in Sick Day Sports Club.</p>
           <p>What's next?</p>
           <ul>

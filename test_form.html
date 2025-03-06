@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4a7729;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Beta Signup Form</h1>
+    <form id="testForm">
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" required>
+        </div>
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="join_type">Join Type</label>
+            <select id="join_type" name="join_type" required>
+                <option value="waitlist">Waitlist</option>
+                <option value="beta-basic">Beta Basic</option>
+            </select>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                join_type: document.getElementById('join_type').value,
+                status: document.getElementById('join_type').value === 'waitlist' ? 'waitlist' : 'pending',
+                // Add minimal required fields
+                location: 'Test Location',
+                activities: [{ category: 'hiking', subcategory: 'day-hiking' }],
+                activity_experience: { hiking: 'intermediate' },
+                adventure_style: 'solo',
+                social_preferences: { groupSize: 'small', pace: 3, socialVibe: 'casual' },
+                equipment_status: { hiking: 'own' },
+                availability: ['weekends'],
+                weekday_preference: ['monday'],
+                time_of_day: ['morning']
+            };
+            
+            console.log('Submitting data:', formData);
+            
+            try {
+                const response = await fetch('/api/beta-signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('Response data:', result);
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<h3>Success!</h3><p>${result.message}</p><p>User ID: ${result.userId}</p>`;
+                    resultDiv.style.backgroundColor = '#e6ffe6';
+                } else {
+                    resultDiv.innerHTML = `<h3>Error</h3><p>${result.error || 'Unknown error'}</p>`;
+                    resultDiv.style.backgroundColor = '#ffe6e6';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<h3>Error</h3><p>${error.message}</p>`;
+                resultDiv.style.backgroundColor = '#ffe6e6';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -328,7 +328,8 @@ export default function BetaSignupForm() {
     formState: { errors }, 
     reset,
     setError: setFieldError,
-    clearErrors
+    clearErrors,
+    getValues
   } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: typeof window !== 'undefined' 
@@ -585,16 +586,23 @@ export default function BetaSignupForm() {
 
   // Update the validateCurrentStep function
   const validateCurrentStep = (): boolean => {
+    console.log('Validating current step:', currentStep);
+    const formValues = getValues();
+    console.log('Form values:', formValues);
+    
     const errors: Record<string, { type: string; message: string }> = {};
+
+    if (currentStep === 'personal') {
+      if (!formValues.firstName) errors.firstName = { type: 'required', message: 'First name is required' };
+      if (!formValues.lastName) errors.lastName = { type: 'required', message: 'Last name is required' };
+      if (!formValues.email) errors.email = { type: 'required', message: 'Email is required' };
+      else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
+        errors.email = { type: 'pattern', message: 'Please enter a valid email address' };
+      }
+      if (!formValues.location) errors.location = { type: 'required', message: 'Please select an adventure zone' };
+    }
     
     switch (currentStep) {
-      case 'personal':
-        if (!formValues.firstName) errors.firstName = { type: 'required', message: 'First name is required' };
-        if (!formValues.lastName) errors.lastName = { type: 'required', message: 'Last name is required' };
-        if (!formValues.email) errors.email = { type: 'required', message: 'Email is required' };
-        if (!formValues.location) errors.location = { type: 'required', message: 'Please select an adventure zone' };
-        break;
-        
       case 'adventure-preferences':
         if (!formValues.activities.length) {
           errors.activities = { type: 'required', message: 'Please select at least one activity' };
@@ -666,13 +674,14 @@ export default function BetaSignupForm() {
     setError('');
     
     console.log('Form submission started with join type:', joinType);
+    console.log('Form data:', data);
     
     try {
       if (!joinType) {
         throw new Error('Please select how you would like to join');
       }
 
-      // Transform the data to match database column names
+      // Transform the data to match database column names (using snake_case)
       const submissionData = {
         first_name: data.firstName.trim(),
         last_name: data.lastName.trim(),
@@ -697,6 +706,7 @@ export default function BetaSignupForm() {
       };
 
       console.log('Submitting data to API...', submissionData);
+      console.log('Stringified data:', JSON.stringify(submissionData));
       
       try {
         // Always use the beta-signup endpoint for both waitlist and paid memberships
@@ -712,6 +722,8 @@ export default function BetaSignupForm() {
         
         let result;
         const contentType = response.headers.get('content-type');
+        console.log('Response content type:', contentType);
+        
         if (contentType && contentType.includes('application/json')) {
           result = await response.json();
           console.log('API response data:', result);
@@ -723,6 +735,7 @@ export default function BetaSignupForm() {
         }
 
         if (!response.ok) {
+          console.error('Response not OK:', response.status, result);
           if (response.status === 409) {
             throw new Error('You have already submitted an application with this email address.');
           }
@@ -731,6 +744,7 @@ export default function BetaSignupForm() {
             const errorMessages = Array.isArray(result.details) 
               ? result.details.map((detail: { path: string; message: string }) => `${detail.path}: ${detail.message}`).join('\n')
               : result.details;
+            console.error('Error details:', errorMessages);
             throw new Error(errorMessages);
           }
           
@@ -752,8 +766,8 @@ export default function BetaSignupForm() {
               body: JSON.stringify({
                 type: 'waitlist',
                 email: data.email,
-                firstName: data.firstName,
-                lastName: data.lastName,
+                first_name: data.firstName,
+                last_name: data.lastName,
               }),
             });
           } catch (emailError) {
