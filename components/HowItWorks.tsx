@@ -14,19 +14,19 @@ export default function HowItWorks() {
           <div className="text-center p-6">
             <div className="text-5xl font-bold text-[#4a7729] mb-5">1</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Create Your Profile</h3>
-            <p className="text-gray-700">Share your adventure preferences including activities, experience levels, equipment needs, and schedule availability. Select from solo adventures, guided experiences, or self-guided group activities based on your preferred style.</p>
+            <p className="text-gray-700">Share your adventure preferences including activities, experience level, equipment needs, and availability. Select from solo adventures, guided experiences, or self-guided group activities.</p>
           </div>
           
           <div className="text-center p-6">
             <div className="text-5xl font-bold text-[#4a7729] mb-5">2</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Get Personalized Recommendations</h3>
-            <p className="text-gray-700">Each weekend, we'll offer a menu of adventure options for the week ahead matched to your preferences, skill level, and upcoming conditions. Simply select the adventures that appeal to you from your personalized list.</p>
+            <p className="text-gray-700">Every weekend, we'll offer a menu of adventure options for the week ahead matched to your preferences, skill level, and upcoming conditions. Simply select from your personalized list, book the time and go.</p>
           </div>
           
           <div className="text-center p-6">
             <div className="text-5xl font-bold text-[#4a7729] mb-5">3</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Enjoy Your Adventure</h3>
-            <p className="text-gray-700">Meet your guide at the designated spot, enjoy your 2-4 hour adventure, then get back to your day. With our focus on short but epic experiences, you can maximize your outdoor time without disrupting your entire schedule.</p>
+            <p className="text-gray-700">If you're headed to a shared adventure, meet your group or guide at the designated spot, send it, then get back to your day. With our focus on mashing up efficiency and epic experiences, you can maximize outdoor time and minimize hassle.</p>
           </div>
         </div>
       </Container>

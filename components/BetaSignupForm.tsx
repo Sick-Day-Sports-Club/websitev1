@@ -1143,7 +1143,7 @@ export default function BetaSignupForm() {
                 className="w-full p-2 border border-gray-300 rounded text-sm"
                 required
               >
-                <option value="">Select the areas you often use as basecamp</option>
+                <option value="">Select one or more areas you often use as basecamp</option>
                 {ADVENTURE_ZONES.map(zone => (
                   <option 
                     key={zone.value} 
@@ -1540,7 +1540,7 @@ export default function BetaSignupForm() {
                   </div>
                   <ul className="text-sm text-gray-600 list-disc pl-4 space-y-1">
                     <li>5 personalized solo adventures weekly</li>
-                    <li>3 guided or self-guided group adventures weekly</li>
+                    <li>up to 3 guided or self-guided group adventures weekly (depending on other member and guide availability)</li>
                   </ul>
                 </div>
 
@@ -1558,7 +1558,7 @@ export default function BetaSignupForm() {
                   </div>
                   <ul className="text-sm text-gray-600 list-disc pl-4 space-y-1">
                     <li>7 personalized solo adventures weekly</li>
-                    <li>5 guided or self-guided group adventures weekly</li>
+                    <li>up to 5 guided or self-guided group adventures weekly (depending on other member and guide availability)</li>
                     <li>Weekly gear shuttle service</li>
                   </ul>
                 </div>

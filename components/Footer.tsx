@@ -38,7 +38,7 @@ const Footer: React.FC<FooterProps> = () => {
             <div>
               <h3 className="font-semibold mb-2">About</h3>
               <ul className="space-y-1 text-gray-400">
-                <li><Link href="#" className="hover:text-white">Our Story</Link></li>
+                <li><Link href="/about" className="hover:text-white">Our Story</Link></li>
                 <li><a href="http://findadventureguides.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white">FindAdventureGuides.com</a></li>
               </ul>
             </div>

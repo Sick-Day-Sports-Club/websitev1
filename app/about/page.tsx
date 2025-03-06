@@ -24,24 +24,24 @@ export default function AboutPage() {
         {/* Content Section */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="prose prose-lg mx-auto">
-            <p className="text-xl text-gray-700 mb-8">
-              We're a team of technologists and builders. By day, we've traveled the globe scaling big products alongside some of the leading brands in travel, media and sports – but our hearts have always been on the trails, slopes, and waterways where the best adventures happen.
+            <p className="text-lg text-gray-700 mb-6">
+              We're a team of builders that includes guides, adventurers and technologists. We've traveled the globe to scale big objectives like mountain peaks and reef breaks and we've also scaled big products alongside some of the leading brands in travel, media and sports. Regardless of the journey we've always stayed focused on sharing outdoor adventures with great people.
             </p>
             
-            <p className="text-xl text-gray-700 mb-8">
-              Sick Day Sports Club was born to help our adventure community friends not only find more time for outdoor adventure but also maximize that time - even if it means calling in "sick" once in a while to meet an incredible local guide and go chase a story worth telling.
+            <p className="text-lg text-gray-700 mb-6">
+              Sick Day Sports Club was born to help our adventure community friends both find more time for outdoor adventure but also maximize that time - even if it means calling in "sick" once in a while to meet a crew of locals or follow an incredible pro guide and go chase a story worth telling.
             </p>
             
-            <p className="text-xl text-gray-700 mb-8">
-              We believe in the transformative power of adventure guides. A knowledgeable local can turn a routine outing into an unforgettable experience – whether that's finding untouched powder in the backcountry or discovering a hidden viewpoint on a familiar trail. Regardless of your sport or skill level, magic happens when passionate guides share their favorite spots with the right people.
+            <p className="text-lg text-gray-700 mb-6">
+              We're also rooted in the transformative power of adventure guides. Local knowledge can turn a routine outing into an unforgettable experience – whether that's finding untouched powder in a backcountry glade or discovering a hidden viewpoint on a familiar trail. Regardless of your sport or skill level, magic happens when passionate leaders share their favorite spots with the right people at the right time.
             </p>
             
-            <p className="text-xl text-gray-700 mb-8">
-              Our mission is to make those connections effortless. We're building technology that celebrates local guides while making it ridiculously easy for you to step away from your desk and into an adventure – even if just for a few hours.
+            <p className="text-lg text-gray-700 mb-6">
+              Our mission is to make those connections effortless. We're building technology that celebrates local guides while making it ridiculously easy for guests to step away from their desk and into an adventure – even if just for a few hours.
             </p>
             
-            <p className="text-xl text-gray-700">
-              We're starting small and focused because we believe in building community-first, but we're dreamers with big plans. This is just the beginning of our journey to build the world's first global adventure club and foster many more of the best kinds of sick days. We'd love for you to join us on the journey.
+            <p className="text-lg text-gray-700 mb-6">
+              We're starting small and focused because we believe in building community-first, but we're dreamers with big plans. This is just the beginning of our journey to build the world's first global adventure sports club and we hope to foster many more of the best kinds of sick days. We welcome you to join us on this new journey and promise to let you take the next set wave.
             </p>
           </div>
         </div>

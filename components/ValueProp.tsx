@@ -16,19 +16,19 @@ const ValueProp: React.FC<ValuePropProps> = () => {
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
             <div className="text-5xl mb-4">🌡️</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Personalized Adventures</h3>
-            <p className="text-gray-700">Weekly adventure options matched to your specific skills, adventure style, and social preferences. Choose from solo adventures or group experiences based on your mood.</p>
+            <p className="text-gray-700">Weekly adventure options matched to your adventure style. Choose from solo or group outings based on your mood.</p>
           </div>
           
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
             <div className="text-5xl mb-4">📋</div>
-            <h3 className="text-2xl font-semibold mb-4 text-gray-900">Expert Local Guides</h3>
-            <p className="text-gray-700">Connect with certified professionals who know the best local spots. Our guides prescribe the perfect adventure to treat your sick day symptoms, regardless of your experience level.</p>
+            <h3 className="text-2xl font-semibold mb-4 text-gray-900">Pro Guides</h3>
+            <p className="text-gray-700">Connect with certified pros who know all the secret stashes. Our guides prescribe the perfect adventure to treat your sick day symptoms.</p>
           </div>
           
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
             <div className="text-5xl mb-4">💊</div>
-            <h3 className="text-2xl font-semibold mb-4 text-gray-900">Flexible Membership Tiers</h3>
-            <p className="text-gray-700">Choose the membership that fits your adventure style. From our Basic tier with solo adventures to our premium Bomber tier with group experiences and gear shuttle service, we have options for every need.</p>
+            <h3 className="text-2xl font-semibold mb-4 text-gray-900">Flexible Membership</h3>
+            <p className="text-gray-700">Choose a membership that fits your adventure style. From our Basic tier with just solo mission recommendations to our Bomber tier with group experiences and gear shuttle service, we have options for every need.</p>
           </div>
         </div>
       </Container>
