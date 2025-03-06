@@ -131,6 +131,31 @@ const mockImplementations = {
         }, { status: 500 });
       }
     }
+  `,
+  'test-supabase-simple': `
+    import { NextResponse } from 'next/server';
+    
+    export async function GET(request: Request) {
+      try {
+        // Simple mock implementation without any dependencies
+        return NextResponse.json({ 
+          environment: {
+            NEXT_PUBLIC_SUPABASE_URL: 'https://mock-url-for-build.supabase.co',
+            NEXT_PUBLIC_SUPABASE_ANON_KEY: 'Set (masked)',
+            NODE_ENV: 'production'
+          },
+          connection: 'success',
+          query: 'success',
+          error: null
+        });
+      } catch (error) {
+        console.error('Error in mock test-supabase-simple:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Mock error for build process'
+        }, { status: 500 });
+      }
+    }
   `
 };
 
@@ -145,7 +170,8 @@ const routesToKeepEnabled = [
   'email-tracking/pixel',
   'email-tracking/pixel/[id]',
   'validate-coupon',
-  'test-supabase'
+  'test-supabase',
+  'test-supabase-simple'
 ];
 
 // Default mock implementation for other routes
