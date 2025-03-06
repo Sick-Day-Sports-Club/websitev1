@@ -53,8 +53,18 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to join waitlist');
+      }
+
       trackWaitlistSubmission(email);
       setEmail('');
       alert('Thanks for joining our waitlist! We\'ll keep you updated.');
