@@ -11,8 +11,6 @@ export default function AdminPortal() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [setupStatus, setSetupStatus] = useState<string | null>(null);
   const [isSettingUp, setIsSettingUp] = useState(false);
-  const [isCreatingTestUser, setIsCreatingTestUser] = useState(false);
-  const [testUserMessage, setTestUserMessage] = useState<string | null>(null);
 
   // Authentication function using Supabase
   const authenticate = async () => {
@@ -84,30 +82,6 @@ export default function AdminPortal() {
     }
   };
 
-  // Function to create a test user
-  const createTestUser = async () => {
-    try {
-      setIsCreatingTestUser(true);
-      setTestUserMessage('Creating test user...');
-      
-      const response = await fetch('/api/admin/create-test-user');
-      const data = await response.json();
-      
-      if (response.ok) {
-        setTestUserMessage(`Test user created: ${data.user.email} (Use password: Admin123!)`);
-        // Pre-fill the email field
-        setEmail(data.user.email);
-      } else {
-        setTestUserMessage(`Failed to create test user: ${data.error}`);
-      }
-    } catch (err) {
-      console.error('Error creating test user:', err);
-      setTestUserMessage('An error occurred while creating test user');
-    } finally {
-      setIsCreatingTestUser(false);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-md">
@@ -125,12 +99,6 @@ export default function AdminPortal() {
         {authError && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {authError}
-          </div>
-        )}
-        
-        {testUserMessage && (
-          <div className={`mb-4 p-4 rounded ${testUserMessage.includes('Failed') || testUserMessage.includes('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-            <p>{testUserMessage}</p>
           </div>
         )}
         
@@ -172,23 +140,6 @@ export default function AdminPortal() {
           >
             Login
           </button>
-          
-          {/* Development mode only: Create test user button */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">Development Tools</p>
-              <button
-                onClick={createTestUser}
-                disabled={isCreatingTestUser}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-              >
-                {isCreatingTestUser ? 'Creating...' : 'Create Test Admin User'}
-              </button>
-              <p className="text-xs text-gray-500 mt-1">
-                This will create a test admin user with email: admin@sickdaysportsclub.com
-              </p>
-            </div>
-          )}
         </div>
       </div>
     );
