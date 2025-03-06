@@ -1636,6 +1636,11 @@ export default function BetaSignupForm() {
               </button>
             </div>
             
+            {/* Stripe climate message - only visible on payment page */}
+            <p className="text-sm text-gray-500 mt-4">
+              We proudly participate in Stripe's <a href="https://support.stripe.com/questions/climate-commitments-faq" className="text-blue-600 hover:underline">1% for Climate</a> program, contributing to carbon removal projects.
+            </p>
+            
             {/* Debug button - only visible in development */}
             {process.env.NODE_ENV !== 'production' && (
               <div className="mt-4 pt-4 border-t border-gray-200">
@@ -1687,9 +1692,6 @@ export default function BetaSignupForm() {
           </div>
         )}
       </form>
-      <p className="text-sm text-gray-500 mt-4">
-        We proudly participate in Stripe's <a href="https://support.stripe.com/questions/climate-commitments-faq" className="text-blue-600 hover:underline">1% for Climate</a> program, contributing to carbon removal projects.
-      </p>
     </div>
   );
 }
