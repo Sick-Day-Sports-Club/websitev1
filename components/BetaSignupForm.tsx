@@ -1504,8 +1504,13 @@ export default function BetaSignupForm() {
             {/* Join Type Selection */}
             <div>
               <h3 className="text-lg font-semibold mb-3">How would you like to join?</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-gray-600 mb-2">
                 Choose a membership tier below to select the club services that matches your adventure needs.
+              </p>
+              
+              {/* Stripe climate message moved here */}
+              <p className="text-sm text-gray-500 mb-4">
+                We proudly participate in Stripe's <a href="https://support.stripe.com/questions/climate-commitments-faq" className="text-blue-600 hover:underline">1% for Climate</a> program, contributing to carbon removal projects.
               </p>
               
               <div className="grid grid-cols-1 gap-3 mb-6">
@@ -1643,11 +1648,6 @@ export default function BetaSignupForm() {
                 {isSubmitting ? 'Submitting...' : 'Complete Profile'}
               </button>
             </div>
-            
-            {/* Stripe climate message - only visible on payment page */}
-            <p className="text-sm text-gray-500 mt-4">
-              We proudly participate in Stripe's <a href="https://support.stripe.com/questions/climate-commitments-faq" className="text-blue-600 hover:underline">1% for Climate</a> program, contributing to carbon removal projects.
-            </p>
             
             {/* Debug button - only visible in development */}
             {process.env.NODE_ENV !== 'production' && (
