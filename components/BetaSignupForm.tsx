@@ -9,14 +9,22 @@ import { useMemo } from 'react';
 // Add this function to check the connection
 const checkSupabaseConnection = async () => {
   try {
+    console.log('Checking Supabase connection...');
+    console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    
     const { data, error } = await supabase
       .from('beta_applications')
       .select('*')
       .limit(1);
     
-    console.log('Supabase connection test:', { data, error });
+    if (error) {
+      console.error('Supabase connection error:', error);
+    } else {
+      console.log('Supabase connection successful:', { data });
+    }
   } catch (err) {
-    console.error('Supabase connection error:', err);
+    console.error('Supabase connection error (caught):', err);
   }
 };
 
