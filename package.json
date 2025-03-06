@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy-build": "node scripts/disable-api-routes.js && next build && node scripts/restore-api-routes.js"
+    "deploy-build": "node scripts/manage-api-routes.js && next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
