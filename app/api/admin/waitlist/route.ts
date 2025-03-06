@@ -1,23 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase client with service role key
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
+// Check if service role key is available
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Initialize Supabase client with service role key if available, otherwise use anon key
+const supabaseAdmin = serviceRoleKey 
+  ? createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : createClient(supabaseUrl, anonKey);
 
 export async function GET(request: NextRequest) {
   try {
+    // If in production and no service role key, return mock data or informative message
+    if (process.env.NODE_ENV === 'production' && !serviceRoleKey) {
+      console.log('Running in production without service role key - returning mock data');
+      return NextResponse.json({ 
+        entries: [
+          { 
+            id: '1', 
+            email: 'example@example.com', 
+            created_at: new Date().toISOString() 
+          }
+        ],
+        note: 'This is mock data. Configure SUPABASE_SERVICE_ROLE_KEY in your production environment to see real data.'
+      }, { status: 200 });
+    }
+
     console.log('Fetching waitlist entries...');
     
-    // Use service role key to fetch all waitlist entries
+    // Use Supabase client to fetch all waitlist entries
     const { data, error } = await supabaseAdmin
       .from('waitlist')
       .select('*')

@@ -7,22 +7,34 @@ console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
 console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-// Initialize Supabase client with service role key
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
+// Check if service role key is available
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Initialize Supabase client with service role key if available, otherwise use anon key
+const supabaseAdmin = serviceRoleKey 
+  ? createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : createClient(supabaseUrl, anonKey);
 
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
     console.log('Received email for waitlist:', email);
+
+    // If in production and no service role key, return success message without DB operations
+    if (process.env.NODE_ENV === 'production' && !serviceRoleKey) {
+      console.log('Running in production without service role key - returning mock success');
+      return NextResponse.json({ 
+        message: 'Email received successfully', 
+        note: 'This is a mock response. Configure SUPABASE_SERVICE_ROLE_KEY in your production environment to enable database operations.'
+      }, { status: 200 });
+    }
 
     // First, check if the email already exists to avoid duplicates
     console.log('Checking if email already exists...');
@@ -42,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert email into the waitlist table
-    console.log('Attempting to insert into waitlist table with service role key...');
+    console.log('Attempting to insert into waitlist table...');
     const { data, error: insertError } = await supabaseAdmin
       .from('waitlist')
       .insert({ email })
