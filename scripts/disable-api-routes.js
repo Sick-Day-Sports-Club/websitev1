@@ -110,6 +110,27 @@ const mockImplementations = {
         return NextResponse.json({ error: 'Failed to process beta signup' }, { status: 500 });
       }
     }
+  `,
+  'test-supabase': `
+    import { NextResponse } from 'next/server';
+    
+    export async function GET(request: Request) {
+      try {
+        // Simple mock implementation without any dependencies
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Mock Supabase connection test for build process',
+          count: 0,
+          fields: ['id', 'email', 'status']
+        });
+      } catch (error) {
+        console.error('Error in mock test-supabase:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Mock error for build process'
+        }, { status: 500 });
+      }
+    }
   `
 };
 
@@ -123,7 +144,8 @@ const routesToKeepEnabled = [
   'email-tracking/click/[id]',
   'email-tracking/pixel',
   'email-tracking/pixel/[id]',
-  'validate-coupon'
+  'validate-coupon',
+  'test-supabase'
 ];
 
 // Default mock implementation for other routes
