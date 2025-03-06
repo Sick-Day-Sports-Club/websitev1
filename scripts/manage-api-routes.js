@@ -14,6 +14,10 @@ console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_S
 console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 console.log('============================================');
 
+// Check if service role key is available
+const hasServiceRoleKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+console.log('Service role key available:', hasServiceRoleKey);
+
 // Routes to keep enabled
 const routesToKeep = [
   'beta-signup',
@@ -36,11 +40,18 @@ const routesToKeep = [
 ];
 
 // Routes to completely disable (will be replaced with mock implementation)
-const routesToDisable = [
-  'email-tracking',
-  'waitlist',
-  'admin/waitlist'
-];
+// If service role key is available, don't disable waitlist routes
+const routesToDisable = hasServiceRoleKey ? 
+  [
+    'email-tracking'
+  ] : 
+  [
+    'email-tracking',
+    'waitlist',
+    'admin/waitlist'
+  ];
+
+console.log('Routes to disable:', routesToDisable);
 
 // Pages to keep enabled
 const pagesToKeep = [
