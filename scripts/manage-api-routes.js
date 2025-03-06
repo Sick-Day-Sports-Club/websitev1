@@ -37,7 +37,8 @@ const routesToKeep = [
 
 // Routes to completely disable (will be replaced with mock implementation)
 const routesToDisable = [
-  'email-tracking'
+  'email-tracking',
+  'waitlist'
 ];
 
 // Pages to keep enabled
@@ -151,6 +152,44 @@ export async function POST(request) {
 }
 `;
 
+const waitlistMockImplementation = `
+export async function GET(request) {
+  return new Response(JSON.stringify({ message: 'Waitlist API is available (mock)' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+export async function POST(request) {
+  try {
+    // Parse the request body
+    const data = await request.json();
+    
+    // Extract email
+    const { email } = data;
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Email added to waitlist successfully (mock)',
+      mockData: {
+        email: email || 'user@example.com'
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ 
+      error: 'Mock error processing request',
+      message: 'This is a mock implementation for the waitlist API'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+`;
+
 const backupDir = path.join(process.cwd(), '.api-backups');
 const pagesBackupDir = path.join(process.cwd(), '.pages-backups');
 const apiDir = path.join(process.cwd(), 'app/api');
@@ -202,13 +241,15 @@ function processDirectory(dirPath, isApiDir = false) {
             mockImplementation = emailTrackingMockImplementation;
           } else if (entry.name === 'beta-signup') {
             mockImplementation = betaSignupMockImplementation;
+          } else if (entry.name === 'waitlist') {
+            mockImplementation = waitlistMockImplementation;
           }
           
           fs.writeFileSync(routeFile, mockImplementation);
         }
         
         // Process subdirectories to disable all nested routes
-        processSubdirectories(fullPath, backupPath, entry.name === 'email-tracking', entry.name === 'beta-signup');
+        processSubdirectories(fullPath, backupPath, entry.name === 'email-tracking', entry.name === 'beta-signup', entry.name === 'waitlist');
       } else if (isApiRoute) {
         const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
         const backupPath = path.join(backupDir, relativePathFromApi);
@@ -258,7 +299,7 @@ function processDirectory(dirPath, isApiDir = false) {
 }
 
 // Helper function to process all subdirectories and disable all routes
-function processSubdirectories(dirPath, backupPath, isEmailTracking = false, isBetaSignup = false) {
+function processSubdirectories(dirPath, backupPath, isEmailTracking = false, isBetaSignup = false, isWaitlist = false) {
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   
   for (const entry of entries) {
@@ -293,13 +334,15 @@ function processSubdirectories(dirPath, backupPath, isEmailTracking = false, isB
           mockImplementation = emailTrackingMockImplementation;
         } else if (isBetaSignup || entry.name === 'beta-signup') {
           mockImplementation = betaSignupMockImplementation;
+        } else if (isWaitlist || entry.name === 'waitlist') {
+          mockImplementation = waitlistMockImplementation;
         }
         
         fs.writeFileSync(routeFile, mockImplementation);
       }
       
       // Process subdirectories recursively
-      processSubdirectories(fullPath, fullBackupPath, isEmailTracking, isBetaSignup);
+      processSubdirectories(fullPath, fullBackupPath, isEmailTracking, isBetaSignup, isWaitlist);
     }
   }
 }
