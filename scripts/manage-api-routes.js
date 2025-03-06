@@ -45,51 +45,111 @@ const pagesToKeep = [
   'api-test'
 ];
 
-// Default mock implementation for other routes
-const defaultMockImplementation = `import { NextResponse } from 'next/server';
-
-export async function GET() {
-  return NextResponse.json({ message: 'This API route is disabled in production' }, { status: 404 });
+// Mock implementations for disabled routes
+const defaultMockImplementation = `
+export async function GET(request) {
+  return new Response(JSON.stringify({ message: 'This API route is disabled in production' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
 }
 
-export async function POST() {
-  return NextResponse.json({ message: 'This API route is disabled in production' }, { status: 404 });
-}`;
+export async function POST(request) {
+  return new Response(JSON.stringify({ message: 'This API route is disabled in production' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+`;
 
-// Special mock implementation for email-tracking routes
-const emailTrackingMockImplementation = `import { NextResponse } from 'next/server';
+const emailTrackingMockImplementation = `
+export async function GET(request) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const trackingType = pathParts[pathParts.length - 2]; // 'pixel' or 'click'
+  
+  if (trackingType === 'pixel') {
+    // Return a 1x1 transparent GIF for tracking pixels
+    const TRANSPARENT_GIF = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+    return new Response(TRANSPARENT_GIF, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/gif',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
+  } else if (trackingType === 'click') {
+    // Handle click tracking by redirecting to the destination URL
+    const destination = url.searchParams.get('destination') || 'https://sickdaysportsclub.com';
+    return Response.redirect(destination, 302);
+  }
+  
+  return new Response(JSON.stringify({ message: 'Email tracking is disabled in production' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
 
-export async function GET(request, { params }) {
-  // For tracking pixel, return a 1x1 transparent GIF
-  if (request.url.includes('/pixel/')) {
-    return new NextResponse(
-      Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64'),
-      {
-        headers: {
-          'Content-Type': 'image/gif',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
+export async function POST(request) {
+  return new Response(JSON.stringify({ message: 'Email tracking is disabled in production' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+`;
+
+const betaSignupMockImplementation = `
+export async function GET(request) {
+  return new Response(JSON.stringify({ message: 'Beta signup API is available (mock)' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+export async function POST(request) {
+  try {
+    // Parse the request body
+    const data = await request.json();
+    
+    // Extract basic fields
+    const { 
+      firstName, lastName, email, 
+      first_name, last_name,
+      joinType, join_type
+    } = data;
+    
+    // Use camelCase fields if available, otherwise use snake_case fields
+    const firstNameValue = firstName || first_name || 'User';
+    const lastNameValue = lastName || last_name || '';
+    const emailValue = email || 'user@example.com';
+    const joinTypeValue = joinType || join_type || 'waitlist';
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: \`Successfully joined the \${joinTypeValue === 'waitlist' ? 'waitlist' : 'beta program'} (mock)\`,
+      userId: 'mock-user-id-' + Date.now(),
+      mockData: {
+        name: \`\${firstNameValue} \${lastNameValue}\`,
+        email: emailValue,
+        type: joinTypeValue
       }
-    );
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ 
+      error: 'Mock error processing request',
+      message: 'This is a mock implementation for the beta signup API'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-  
-  // For click tracking, redirect if destination is provided
-  if (request.url.includes('/click/')) {
-    const url = new URL(request.url);
-    const destination = url.searchParams.get('destination');
-    if (destination) {
-      return NextResponse.redirect(destination);
-    }
-  }
-  
-  return NextResponse.json({ message: 'Email tracking is disabled in production' }, { status: 404 });
 }
-
-export async function POST() {
-  return NextResponse.json({ message: 'Email tracking is disabled in production' }, { status: 404 });
-}`;
+`;
 
 const backupDir = path.join(process.cwd(), '.api-backups');
 const pagesBackupDir = path.join(process.cwd(), '.pages-backups');
@@ -131,17 +191,24 @@ function processDirectory(dirPath, isApiDir = false) {
           }
         }
         
-        // Replace route.ts with appropriate mock implementation
+        // Replace route.ts with mock implementation
         const routeFile = path.join(fullPath, 'route.ts');
         if (fs.existsSync(routeFile)) {
-          // Use special implementation for email-tracking routes
-          const mockImplementation = entry.name === 'email-tracking' ? emailTrackingMockImplementation : defaultMockImplementation;
+          console.log(`Replacing ${routeFile} with mock implementation`);
+          
+          // Choose the appropriate mock implementation
+          let mockImplementation = defaultMockImplementation;
+          if (entry.name === 'email-tracking') {
+            mockImplementation = emailTrackingMockImplementation;
+          } else if (entry.name === 'beta-signup') {
+            mockImplementation = betaSignupMockImplementation;
+          }
+          
           fs.writeFileSync(routeFile, mockImplementation);
-          console.log(`Disabled API route: ${relativePathFromApi}`);
         }
         
         // Process subdirectories to disable all nested routes
-        processSubdirectories(fullPath, backupPath, entry.name === 'email-tracking');
+        processSubdirectories(fullPath, backupPath, entry.name === 'email-tracking', entry.name === 'beta-signup');
       } else if (isApiRoute) {
         const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
         const backupPath = path.join(backupDir, relativePathFromApi);
@@ -191,7 +258,7 @@ function processDirectory(dirPath, isApiDir = false) {
 }
 
 // Helper function to process all subdirectories and disable all routes
-function processSubdirectories(dirPath, backupPath, isEmailTracking = false) {
+function processSubdirectories(dirPath, backupPath, isEmailTracking = false, isBetaSignup = false) {
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   
   for (const entry of entries) {
@@ -218,15 +285,21 @@ function processSubdirectories(dirPath, backupPath, isEmailTracking = false) {
       // Replace route.ts with mock implementation
       const routeFile = path.join(fullPath, 'route.ts');
       if (fs.existsSync(routeFile)) {
-        // Use special implementation for email-tracking routes
-        const mockImplementation = isEmailTracking ? emailTrackingMockImplementation : defaultMockImplementation;
+        console.log(`Replacing ${routeFile} with mock implementation`);
+        
+        // Choose the appropriate mock implementation
+        let mockImplementation = defaultMockImplementation;
+        if (isEmailTracking || entry.name === 'email-tracking') {
+          mockImplementation = emailTrackingMockImplementation;
+        } else if (isBetaSignup || entry.name === 'beta-signup') {
+          mockImplementation = betaSignupMockImplementation;
+        }
+        
         fs.writeFileSync(routeFile, mockImplementation);
-        const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
-        console.log(`Disabled nested API route: ${relativePathFromApi}`);
       }
       
       // Process subdirectories recursively
-      processSubdirectories(fullPath, fullBackupPath, isEmailTracking);
+      processSubdirectories(fullPath, fullBackupPath, isEmailTracking, isBetaSignup);
     }
   }
 }
