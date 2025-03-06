@@ -93,31 +93,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check if user has admin role after successful login
         if (response.data.user) {
           try {
-            const { data, error: roleError } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', response.data.user.id)
+            // First check if the user_roles table exists
+            const { data: tableExists, error: tableError } = await supabase
+              .from('information_schema.tables')
+              .select('table_name')
+              .eq('table_schema', 'public')
+              .eq('table_name', 'user_roles')
               .single();
-            
-            if (roleError) {
-              console.error('Error checking admin role:', roleError);
               
-              // Check if the error is because the table doesn't exist
-              if (roleError.code === 'PGRST116' || 
-                  roleError.message?.includes('does not exist') || 
-                  roleError.message?.includes('relation "user_roles" does not exist')) {
-                console.log('user_roles table might not exist yet');
-                
-                // For development purposes, assume the authenticated user is an admin
-                // This should be removed in production
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('Development mode: Treating user as admin');
-                  setIsAdmin(true);
-                }
+            if (tableError || !tableExists) {
+              console.log('user_roles table does not exist, treating as admin in development');
+              // In development mode, treat the user as an admin
+              if (process.env.NODE_ENV === 'development') {
+                setIsAdmin(true);
               }
             } else {
-              console.log('Role check result:', data);
-              setIsAdmin(data && data.role === 'admin');
+              // Table exists, check for admin role
+              const { data, error: roleError } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', response.data.user.id)
+                .single();
+              
+              if (roleError) {
+                console.error('Error checking admin role:', roleError);
+                
+                // Check if the error is because the table doesn't exist
+                if (roleError.code === 'PGRST116' || 
+                    roleError.message?.includes('does not exist') || 
+                    roleError.message?.includes('relation "user_roles" does not exist')) {
+                  console.log('user_roles table might not exist yet');
+                  
+                  // For development purposes, assume the authenticated user is an admin
+                  // This should be removed in production
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('Development mode: Treating user as admin');
+                    setIsAdmin(true);
+                  }
+                }
+              } else {
+                console.log('Role check result:', data);
+                setIsAdmin(data && data.role === 'admin');
+              }
             }
           } catch (err) {
             console.error('Unexpected error checking admin role:', err);

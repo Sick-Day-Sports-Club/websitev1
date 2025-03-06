@@ -34,80 +34,56 @@ export async function GET(request: NextRequest) {
       console.log('user_roles table does not exist, creating it');
       
       // Create the user_roles table
-      const { error: createError } = await supabase.rpc('exec_sql', {
-        sql_string: `
-          CREATE TABLE IF NOT EXISTS user_roles (
-            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-            user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-            role TEXT NOT NULL CHECK (role IN ('admin', 'user')),
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            UNIQUE(user_id, role)
-          );
-          
-          -- Add RLS policies
-          ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
-          
-          -- Policy for admins to read all roles
-          CREATE POLICY IF NOT EXISTS "Admins can read all roles"
-            ON user_roles
-            FOR SELECT
-            USING (
-              auth.uid() IN (
-                SELECT user_id FROM user_roles WHERE role = 'admin'
-              )
-            );
-          
-          -- Policy for users to read their own roles
-          CREATE POLICY IF NOT EXISTS "Users can read their own roles"
-            ON user_roles
-            FOR SELECT
-            USING (auth.uid() = user_id);
-          
-          -- Policy for service role to manage roles
-          CREATE POLICY IF NOT EXISTS "Service role can manage roles"
-            ON user_roles
-            USING (true)
-            WITH CHECK (true);
-        `
-      });
-
-      if (createError) {
-        console.error('Error creating user_roles table:', createError);
+      try {
+        // Try to create the table directly using the REST API
+        const createTableResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || ''}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            query: `
+              CREATE TABLE IF NOT EXISTS user_roles (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                user_id UUID NOT NULL,
+                role TEXT NOT NULL CHECK (role IN ('admin', 'user')),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                UNIQUE(user_id, role)
+              );
+            `
+          })
+        });
         
-        // Try an alternative approach if the RPC method fails
-        try {
-          // This is a workaround and should be replaced with a proper migration
-          const { error: altError } = await supabase.auth.admin.createUser({
-            email: 'temp@example.com',
-            password: 'tempPassword123!',
-            email_confirm: true
-          });
+        if (!createTableResponse.ok) {
+          console.error('Error creating user_roles table via REST API');
           
-          if (altError) {
-            console.error('Error with alternative approach:', altError);
+          // Fallback: Try to create the table using the Supabase client
+          const { error: createError } = await supabase
+            .from('user_roles')
+            .insert([{ 
+              user_id: '00000000-0000-0000-0000-000000000000', 
+              role: 'admin' 
+            }])
+            .select();
+            
+          if (createError && !createError.message.includes('already exists')) {
+            console.error('Error creating user_roles table via insert:', createError);
             return NextResponse.json(
               { error: 'Failed to create user_roles table' },
               { status: 500 }
             );
           }
-          
-          console.log('Created temporary user, now attempting to create user_roles table');
-          
-          // Now try to create the table again
-          // This is just a placeholder - in a real app, you would use migrations
-          
-          return NextResponse.json(
-            { message: 'Please run the SQL from docs/setup-admin-user.md in the Supabase dashboard' },
-            { status: 200 }
-          );
-        } catch (err) {
-          console.error('Error with alternative approach:', err);
-          return NextResponse.json(
-            { error: 'Failed to create user_roles table' },
-            { status: 500 }
-          );
         }
+      } catch (error) {
+        console.error('Unexpected error creating table:', error);
+        return NextResponse.json(
+          { error: 'Failed to create user_roles table' },
+          { status: 500 }
+        );
       }
     }
 
