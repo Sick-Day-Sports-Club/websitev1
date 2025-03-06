@@ -1,5 +1,18 @@
 const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+
+// Load environment variables
+dotenv.config({ path: '.env.production' });
+dotenv.config({ path: '.env.local' });
+
+// Log environment variables for debugging
+console.log('===== MANAGE API ROUTES ENVIRONMENT CHECK =====');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('NEXT_PUBLIC_SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+console.log('============================================');
 
 // Routes to keep enabled
 const routesToKeep = [

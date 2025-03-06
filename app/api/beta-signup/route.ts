@@ -1,21 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { sendBetaConfirmationEmail, sendWaitlistConfirmationEmail } from '@/utils/email';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-// Initialize Supabase admin client with service role key for bypassing RLS
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // Log environment variables (without exposing full keys)
 console.log('API Route Environment Variables Check:');
@@ -23,10 +11,30 @@ console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
 console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
+// Check if required environment variables are available
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Initialize Supabase clients only if the required environment variables are available
+let supabase: SupabaseClient | null = null;
+let supabaseAdmin: SupabaseClient | null = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+}
+
+if (supabaseUrl && supabaseServiceRoleKey) {
+  supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+}
+
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-});
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-02-24.acacia',
+  });
+}
 
 // Initialize rate limiter
 let ratelimit: Ratelimit | null = null;
@@ -44,12 +52,38 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
 }
 
 export async function GET(request: NextRequest) {
+  // Check if Supabase is properly initialized
+  if (!supabase) {
+    return NextResponse.json({ 
+      message: 'Beta signup API is available but Supabase is not configured properly',
+      supabaseUrl: !!supabaseUrl,
+      supabaseAnonKey: !!supabaseAnonKey
+    }, { status: 200 });
+  }
+  
   return NextResponse.json({ message: 'Beta signup API is available' }, { status: 200 });
 }
 
 export async function POST(request: NextRequest) {
   try {
     console.log('Beta signup API called');
+    
+    // Check if Supabase is properly initialized
+    if (!supabase || !supabaseAdmin) {
+      console.error('Supabase not properly initialized', {
+        supabaseUrl: !!supabaseUrl,
+        supabaseAnonKey: !!supabaseAnonKey,
+        supabaseServiceRoleKey: !!supabaseServiceRoleKey
+      });
+      return NextResponse.json({ 
+        error: 'Supabase not properly configured',
+        details: {
+          supabaseUrl: !!supabaseUrl,
+          supabaseAnonKey: !!supabaseAnonKey,
+          supabaseServiceRoleKey: !!supabaseServiceRoleKey
+        }
+      }, { status: 500 });
+    }
     
     // Apply rate limiting if configured
     if (ratelimit) {
