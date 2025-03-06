@@ -16,7 +16,7 @@ const ValueProp: React.FC<ValuePropProps> = () => {
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
             <div className="text-5xl mb-4">🌡️</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Personalized Adventures</h3>
-            <p className="text-gray-700">Weekly adventure options matched to your adventure style. Choose from solo or group outings based on your mood.</p>
+            <p className="text-gray-700">Personalized adventure options matched to your adventure style. Choose from solo or group outings based on your weekly stoke.</p>
           </div>
           
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
