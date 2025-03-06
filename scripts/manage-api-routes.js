@@ -38,7 +38,8 @@ const routesToKeep = [
 // Routes to completely disable (will be replaced with mock implementation)
 const routesToDisable = [
   'email-tracking',
-  'waitlist'
+  'waitlist',
+  'admin/waitlist'
 ];
 
 // Pages to keep enabled
@@ -190,6 +191,42 @@ export async function POST(request) {
 }
 `;
 
+const adminWaitlistMockImplementation = `
+export async function GET(request) {
+  // Return mock waitlist entries
+  return new Response(JSON.stringify({
+    entries: [
+      { 
+        id: '1', 
+        email: 'example1@example.com', 
+        created_at: new Date(Date.now() - 86400000).toISOString() 
+      },
+      { 
+        id: '2', 
+        email: 'example2@example.com', 
+        created_at: new Date(Date.now() - 172800000).toISOString() 
+      },
+      { 
+        id: '3', 
+        email: 'example3@example.com', 
+        created_at: new Date(Date.now() - 259200000).toISOString() 
+      }
+    ],
+    note: 'This is mock data. Configure SUPABASE_SERVICE_ROLE_KEY in your production environment to see real data.'
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+export async function POST(request) {
+  return new Response(JSON.stringify({ message: 'Admin waitlist API is disabled in production' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+`;
+
 const backupDir = path.join(process.cwd(), '.api-backups');
 const pagesBackupDir = path.join(process.cwd(), '.pages-backups');
 const apiDir = path.join(process.cwd(), 'app/api');
@@ -204,9 +241,36 @@ function processDirectory(dirPath, isApiDir = false) {
     if (entry.isDirectory()) {
       const isApi = entry.name === 'api' && path.relative(process.cwd(), dirPath) === 'app';
       const isApiRoute = isApiDir && !routesToKeep.includes(entry.name);
-      const isRouteToDisable = isApiDir && routesToDisable.includes(entry.name);
       const relativePath = path.relative(path.join(process.cwd(), 'app'), fullPath);
       const isPageToPreserve = pagesToKeep.includes(relativePath);
+      
+      // Check if this is a route to disable
+      let isRouteToDisable = false;
+      let routeToDisableName = '';
+      
+      for (const route of routesToDisable) {
+        const routeParts = route.split('/');
+        if (routeParts.length === 1) {
+          // Simple route like 'email-tracking'
+          if (isApiDir && entry.name === route) {
+            isRouteToDisable = true;
+            routeToDisableName = route;
+            break;
+          }
+        } else if (routeParts.length === 2) {
+          // Nested route like 'admin/waitlist'
+          if (isApiDir && entry.name === routeParts[0]) {
+            // This is the parent directory of a nested route to disable
+            // We'll check for the child directory in the recursive call
+            const nestedPath = path.join(fullPath, routeParts[1]);
+            if (fs.existsSync(nestedPath) && fs.statSync(nestedPath).isDirectory()) {
+              // Mark this directory for special handling
+              isRouteToDisable = false;
+              break;
+            }
+          }
+        }
+      }
       
       if (isRouteToDisable) {
         // Explicitly disable this route and all its children
@@ -237,11 +301,11 @@ function processDirectory(dirPath, isApiDir = false) {
           
           // Choose the appropriate mock implementation
           let mockImplementation = defaultMockImplementation;
-          if (entry.name === 'email-tracking') {
+          if (routeToDisableName === 'email-tracking') {
             mockImplementation = emailTrackingMockImplementation;
-          } else if (entry.name === 'beta-signup') {
+          } else if (routeToDisableName === 'beta-signup') {
             mockImplementation = betaSignupMockImplementation;
-          } else if (entry.name === 'waitlist') {
+          } else if (routeToDisableName === 'waitlist') {
             mockImplementation = waitlistMockImplementation;
           }
           
@@ -249,7 +313,62 @@ function processDirectory(dirPath, isApiDir = false) {
         }
         
         // Process subdirectories to disable all nested routes
-        processSubdirectories(fullPath, backupPath, entry.name === 'email-tracking', entry.name === 'beta-signup', entry.name === 'waitlist');
+        processSubdirectories(fullPath, backupPath, 
+          routeToDisableName === 'email-tracking', 
+          routeToDisableName === 'beta-signup', 
+          routeToDisableName === 'waitlist');
+      } else if (isApiDir && entry.name === 'admin') {
+        // Special handling for admin routes
+        console.log('Processing admin directory:', fullPath);
+        
+        // Check for nested routes to disable
+        const adminEntries = fs.readdirSync(fullPath, { withFileTypes: true });
+        for (const adminEntry of adminEntries) {
+          if (adminEntry.isDirectory()) {
+            const adminFullPath = path.join(fullPath, adminEntry.name);
+            const adminRelativePath = `admin/${adminEntry.name}`;
+            
+            if (routesToDisable.includes(adminRelativePath)) {
+              // This is a nested admin route to disable
+              const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), adminFullPath);
+              console.log(`Explicitly disabling admin route: ${relativePathFromApi}`);
+              
+              // Create backup
+              const backupPath = path.join(backupDir, relativePathFromApi);
+              if (!fs.existsSync(backupPath)) {
+                fs.mkdirSync(backupPath, { recursive: true });
+              }
+              
+              // Backup all files in this directory
+              const routeFiles = fs.readdirSync(adminFullPath);
+              for (const file of routeFiles) {
+                const sourceFile = path.join(adminFullPath, file);
+                const targetFile = path.join(backupPath, file);
+                
+                if (fs.statSync(sourceFile).isFile()) {
+                  fs.copyFileSync(sourceFile, targetFile);
+                }
+              }
+              
+              // Replace route.ts with mock implementation
+              const routeFile = path.join(adminFullPath, 'route.ts');
+              if (fs.existsSync(routeFile)) {
+                console.log(`Replacing ${routeFile} with mock implementation`);
+                
+                // Choose the appropriate mock implementation
+                let mockImplementation = defaultMockImplementation;
+                if (adminEntry.name === 'waitlist') {
+                  mockImplementation = adminWaitlistMockImplementation;
+                }
+                
+                fs.writeFileSync(routeFile, mockImplementation);
+              }
+            }
+          }
+        }
+        
+        // Continue processing the admin directory
+        processDirectory(fullPath, isApiDir);
       } else if (isApiRoute) {
         const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
         const backupPath = path.join(backupDir, relativePathFromApi);
@@ -336,6 +455,8 @@ function processSubdirectories(dirPath, backupPath, isEmailTracking = false, isB
           mockImplementation = betaSignupMockImplementation;
         } else if (isWaitlist || entry.name === 'waitlist') {
           mockImplementation = waitlistMockImplementation;
+        } else if (entry.name === 'admin' && isWaitlist) {
+          mockImplementation = adminWaitlistMockImplementation;
         }
         
         fs.writeFileSync(routeFile, mockImplementation);
@@ -350,6 +471,7 @@ function processSubdirectories(dirPath, backupPath, isEmailTracking = false, isB
 console.log('Restoring API routes...');
 
 function restoreApiRoutes() {
+  console.log('Environment:', process.env.NODE_ENV);
   console.log('Checking if backup directory exists:', backupDir);
   if (fs.existsSync(backupDir)) {
     const backupFiles = [];
