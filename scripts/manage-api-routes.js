@@ -26,6 +26,7 @@ const routesToKeep = [
   'check-env',
   'debug-env',
   'debug-form',
+  'debug-supabase-build',
   'hello',
   'send-email',
   'test-email',

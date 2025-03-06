@@ -11,53 +11,85 @@ console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
 console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-// Check if required environment variables are available
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Initialize Supabase clients only if the required environment variables are available
-let supabase: SupabaseClient | null = null;
-let supabaseAdmin: SupabaseClient | null = null;
-
-if (supabaseUrl && supabaseAnonKey) {
-  supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create a function to initialize Supabase client
+function initSupabase(): SupabaseClient | null {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase environment variables');
+      return null;
+    }
+    
+    // Explicitly convert to string to avoid any type issues
+    return createClient(String(supabaseUrl), String(supabaseAnonKey));
+  } catch (error) {
+    console.error('Error initializing Supabase client:', error);
+    return null;
+  }
 }
 
-if (supabaseUrl && supabaseServiceRoleKey) {
-  supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+// Create a function to initialize Supabase admin client
+function initSupabaseAdmin(): SupabaseClient | null {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase admin environment variables');
+      return null;
+    }
+    
+    // Explicitly convert to string to avoid any type issues
+    return createClient(String(supabaseUrl), String(supabaseServiceKey));
+  } catch (error) {
+    console.error('Error initializing Supabase admin client:', error);
+    return null;
+  }
 }
 
 // Initialize Stripe
 let stripe: Stripe | null = null;
 if (process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-02-24.acacia',
-  });
+  try {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-02-24.acacia',
+    });
+  } catch (error) {
+    console.error('Error initializing Stripe:', error);
+  }
 }
 
 // Initialize rate limiter
 let ratelimit: Ratelimit | null = null;
 if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-  
-  ratelimit = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(5, '1m'),
-    analytics: true,
-  });
+  try {
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    
+    ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '1m'),
+      analytics: true,
+    });
+  } catch (error) {
+    console.error('Error initializing rate limiter:', error);
+  }
 }
 
 export async function GET(request: NextRequest) {
+  // Initialize Supabase client on demand
+  const supabase = initSupabase();
+  
   // Check if Supabase is properly initialized
   if (!supabase) {
     return NextResponse.json({ 
       message: 'Beta signup API is available but Supabase is not configured properly',
-      supabaseUrl: !!supabaseUrl,
-      supabaseAnonKey: !!supabaseAnonKey
+      supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     }, { status: 200 });
   }
   
@@ -68,19 +100,23 @@ export async function POST(request: NextRequest) {
   try {
     console.log('Beta signup API called');
     
+    // Initialize Supabase clients on demand
+    const supabase = initSupabase();
+    const supabaseAdmin = initSupabaseAdmin();
+    
     // Check if Supabase is properly initialized
     if (!supabase || !supabaseAdmin) {
       console.error('Supabase not properly initialized', {
-        supabaseUrl: !!supabaseUrl,
-        supabaseAnonKey: !!supabaseAnonKey,
-        supabaseServiceRoleKey: !!supabaseServiceRoleKey
+        supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        supabaseServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
       });
       return NextResponse.json({ 
         error: 'Supabase not properly configured',
         details: {
-          supabaseUrl: !!supabaseUrl,
-          supabaseAnonKey: !!supabaseAnonKey,
-          supabaseServiceRoleKey: !!supabaseServiceRoleKey
+          supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+          supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+          supabaseServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
         }
       }, { status: 500 });
     }
