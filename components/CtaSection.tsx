@@ -121,7 +121,7 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
 
         {/* Waitlist form */}
         <div className="max-w-md mx-auto">
-          <form onSubmit={handleSubmit} className="flex flex-col items-center">
+          <form onSubmit={handleSubmit} className="flex items-center">
             <input
               type="email"
               value={email}
@@ -131,7 +131,14 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
               required
               disabled={isLoading}
             />
-            <div className="flex items-center mt-4">
+            <button
+              type="submit"
+              className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Submitting...' : 'Get Updates'}
+            </button>
+            <div className="flex items-center ml-4">
               <input
                 type="checkbox"
                 id="humanCheck"
@@ -140,13 +147,6 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
               />
               <label htmlFor="humanCheck" className="text-sm text-gray-300">Please check this to prove you're human</label>
             </div>
-            <button
-              type="submit"
-              className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors mt-4"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Submitting...' : 'Get Updates'}
-            </button>
           </form>
         </div>
       </div>

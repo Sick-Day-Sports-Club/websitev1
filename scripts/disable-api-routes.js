@@ -6,7 +6,9 @@ const routesToKeep = [
   'beta-signup',
   'test-supabase',
   'test-supabase-simple',
-  'env-check'
+  'env-check',
+  'waitlist',
+  'create-payment-intent'
 ];
 
 // Pages to keep enabled
