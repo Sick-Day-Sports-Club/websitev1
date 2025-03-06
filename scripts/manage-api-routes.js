@@ -8,7 +8,18 @@ const routesToKeep = [
   'test-supabase-simple',
   'env-check',
   'waitlist',
-  'create-payment-intent'
+  'create-payment-intent',
+  'email-tracking',
+  'check-env',
+  'debug-env',
+  'debug-form',
+  'hello',
+  'send-email',
+  'test-email',
+  'test-key',
+  'validate-coupon',
+  'validate-referral',
+  'verify-payment'
 ];
 
 // Pages to keep enabled
