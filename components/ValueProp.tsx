@@ -28,7 +28,7 @@ const ValueProp: React.FC<ValuePropProps> = () => {
           <div className="p-8 bg-gray-50 rounded-lg shadow-sm">
             <div className="text-5xl mb-4">💊</div>
             <h3 className="text-2xl font-semibold mb-4 text-gray-900">Flexible Membership</h3>
-            <p className="text-gray-700">Choose a membership that fits your adventure style. From our Basic tier with just solo mission recommendations to our Bomber tier with group experiences and gear shuttle service, we have options for every need.</p>
+            <p className="text-gray-700">From our Basic tier with just solo mission recommendations to our Bomber tier with group experiences and gear shuttle service, we have options to suit your adventure style.</p>
           </div>
         </div>
       </Container>
