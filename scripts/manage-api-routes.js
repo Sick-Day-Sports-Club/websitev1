@@ -35,35 +35,10 @@ const routesToKeep = [
   'verify-payment'
 ];
 
-// Nested routes to keep enabled (parent/child format)
-const nestedRoutesToKeep = [
-  'email-tracking/click',
-  'email-tracking/pixel'
+// Routes to completely disable (will be replaced with mock implementation)
+const routesToDisable = [
+  'email-tracking'
 ];
-
-// Function to check if a route should be kept
-function shouldKeepRoute(routePath) {
-  // Check direct routes
-  if (routesToKeep.includes(routePath)) {
-    return true;
-  }
-  
-  // Check nested routes
-  for (const nestedRoute of nestedRoutesToKeep) {
-    const [parent, child] = nestedRoute.split('/');
-    if (routePath === parent) {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-// Function to check if a nested route should be kept
-function shouldKeepNestedRoute(parentPath, childPath) {
-  const fullPath = `${parentPath}/${childPath}`;
-  return nestedRoutesToKeep.includes(fullPath);
-}
 
 // Pages to keep enabled
 const pagesToKeep = [
@@ -81,12 +56,47 @@ export async function POST() {
   return NextResponse.json({ message: 'This API route is disabled in production' }, { status: 404 });
 }`;
 
+// Special mock implementation for email-tracking routes
+const emailTrackingMockImplementation = `import { NextResponse } from 'next/server';
+
+export async function GET(request, { params }) {
+  // For tracking pixel, return a 1x1 transparent GIF
+  if (request.url.includes('/pixel/')) {
+    return new NextResponse(
+      Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64'),
+      {
+        headers: {
+          'Content-Type': 'image/gif',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
+  }
+  
+  // For click tracking, redirect if destination is provided
+  if (request.url.includes('/click/')) {
+    const url = new URL(request.url);
+    const destination = url.searchParams.get('destination');
+    if (destination) {
+      return NextResponse.redirect(destination);
+    }
+  }
+  
+  return NextResponse.json({ message: 'Email tracking is disabled in production' }, { status: 404 });
+}
+
+export async function POST() {
+  return NextResponse.json({ message: 'Email tracking is disabled in production' }, { status: 404 });
+}`;
+
 const backupDir = path.join(process.cwd(), '.api-backups');
 const pagesBackupDir = path.join(process.cwd(), '.pages-backups');
 const apiDir = path.join(process.cwd(), 'app/api');
 const appDir = path.join(process.cwd(), 'app');
 
-function processDirectory(dirPath, isApiDir = false, parentPath = '') {
+function processDirectory(dirPath, isApiDir = false) {
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -94,30 +104,23 @@ function processDirectory(dirPath, isApiDir = false, parentPath = '') {
     
     if (entry.isDirectory()) {
       const isApi = entry.name === 'api' && path.relative(process.cwd(), dirPath) === 'app';
-      const currentPath = isApiDir ? entry.name : '';
-      const fullRoutePath = parentPath ? `${parentPath}/${entry.name}` : entry.name;
-      const isApiRoute = isApiDir && !shouldKeepRoute(entry.name);
-      const isNestedApiRoute = parentPath && !shouldKeepNestedRoute(parentPath, entry.name);
+      const isApiRoute = isApiDir && !routesToKeep.includes(entry.name);
+      const isRouteToDisable = isApiDir && routesToDisable.includes(entry.name);
       const relativePath = path.relative(path.join(process.cwd(), 'app'), fullPath);
       const isPageToPreserve = pagesToKeep.includes(relativePath);
       
-      if ((isApiRoute || isNestedApiRoute) && parentPath) {
+      if (isRouteToDisable) {
+        // Explicitly disable this route and all its children
         const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
-        console.log(`Processing nested route: ${relativePathFromApi}, parent: ${parentPath}, current: ${entry.name}`);
+        console.log(`Explicitly disabling route: ${relativePathFromApi}`);
         
-        // Skip disabling if this is a nested route we want to keep
-        if (shouldKeepNestedRoute(parentPath, entry.name)) {
-          console.log(`Keeping nested route: ${relativePathFromApi}`);
-          processDirectory(fullPath, isApi || isApiDir, fullRoutePath);
-          continue;
-        }
-        
+        // Create backup
         const backupPath = path.join(backupDir, relativePathFromApi);
-        
         if (!fs.existsSync(backupPath)) {
           fs.mkdirSync(backupPath, { recursive: true });
         }
         
+        // Backup all files in this directory
         const routeFiles = fs.readdirSync(fullPath);
         for (const file of routeFiles) {
           const sourceFile = path.join(fullPath, file);
@@ -128,11 +131,17 @@ function processDirectory(dirPath, isApiDir = false, parentPath = '') {
           }
         }
         
+        // Replace route.ts with appropriate mock implementation
         const routeFile = path.join(fullPath, 'route.ts');
         if (fs.existsSync(routeFile)) {
-          fs.writeFileSync(routeFile, defaultMockImplementation);
-          console.log(`Disabled nested API route: ${relativePathFromApi}`);
+          // Use special implementation for email-tracking routes
+          const mockImplementation = entry.name === 'email-tracking' ? emailTrackingMockImplementation : defaultMockImplementation;
+          fs.writeFileSync(routeFile, mockImplementation);
+          console.log(`Disabled API route: ${relativePathFromApi}`);
         }
+        
+        // Process subdirectories to disable all nested routes
+        processSubdirectories(fullPath, backupPath, entry.name === 'email-tracking');
       } else if (isApiRoute) {
         const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
         const backupPath = path.join(backupDir, relativePathFromApi);
@@ -175,8 +184,49 @@ function processDirectory(dirPath, isApiDir = false, parentPath = '') {
         
         console.log(`Backed up page: ${relativePath}`);
       } else {
-        processDirectory(fullPath, isApi || isApiDir, isApiDir ? fullRoutePath : '');
+        processDirectory(fullPath, isApi || isApiDir);
       }
+    }
+  }
+}
+
+// Helper function to process all subdirectories and disable all routes
+function processSubdirectories(dirPath, backupPath, isEmailTracking = false) {
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      const fullPath = path.join(dirPath, entry.name);
+      const fullBackupPath = path.join(backupPath, entry.name);
+      
+      // Create backup directory
+      if (!fs.existsSync(fullBackupPath)) {
+        fs.mkdirSync(fullBackupPath, { recursive: true });
+      }
+      
+      // Backup all files
+      const files = fs.readdirSync(fullPath);
+      for (const file of files) {
+        const sourceFile = path.join(fullPath, file);
+        const targetFile = path.join(fullBackupPath, file);
+        
+        if (fs.statSync(sourceFile).isFile()) {
+          fs.copyFileSync(sourceFile, targetFile);
+        }
+      }
+      
+      // Replace route.ts with mock implementation
+      const routeFile = path.join(fullPath, 'route.ts');
+      if (fs.existsSync(routeFile)) {
+        // Use special implementation for email-tracking routes
+        const mockImplementation = isEmailTracking ? emailTrackingMockImplementation : defaultMockImplementation;
+        fs.writeFileSync(routeFile, mockImplementation);
+        const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
+        console.log(`Disabled nested API route: ${relativePathFromApi}`);
+      }
+      
+      // Process subdirectories recursively
+      processSubdirectories(fullPath, fullBackupPath, isEmailTracking);
     }
   }
 }
