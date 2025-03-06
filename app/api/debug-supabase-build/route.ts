@@ -22,9 +22,11 @@ export async function GET(request: NextRequest) {
       NEXT_PUBLIC_SUPABASE_ANON_KEY_EXISTS: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       NEXT_PUBLIC_SUPABASE_ANON_KEY_LENGTH: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length : 0,
       SUPABASE_SERVICE_ROLE_KEY_EXISTS: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      SUPABASE_SERVICE_ROLE_KEY_LENGTH: process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.length : 0
+      SUPABASE_SERVICE_ROLE_KEY_LENGTH: process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.length : 0,
+      USING_FALLBACK: process.env.NODE_ENV === 'production' && !process.env.SUPABASE_SERVICE_ROLE_KEY && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     },
     supabaseClientTest: null as string | null,
+    supabaseAdminTest: null as string | null,
     error: null as string | null
   };
   
@@ -41,6 +43,25 @@ export async function GET(request: NextRequest) {
         const supabase = createClient(supabaseUrl, supabaseAnonKey);
         response.supabaseClientTest = 'Client created successfully';
         console.log('Supabase client created successfully');
+        
+        // Try admin client (with fallback if needed)
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          // Use service role key if available
+          const supabaseAdmin = createClient(supabaseUrl, String(process.env.SUPABASE_SERVICE_ROLE_KEY));
+          response.supabaseAdminTest = 'Admin client created with service role key';
+        } else if (process.env.NODE_ENV === 'production') {
+          // In production, fall back to anon key if service role key is missing
+          console.log('Falling back to anon key for admin operations');
+          const supabaseAdmin = createClient(supabaseUrl, supabaseAnonKey, {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+            }
+          });
+          response.supabaseAdminTest = 'Admin client created with fallback to anon key';
+        } else {
+          response.supabaseAdminTest = 'Admin client not created (missing service role key)';
+        }
       } catch (clientError) {
         console.error('Error creating Supabase client:', clientError);
         response.supabaseClientTest = 'Failed to create client';

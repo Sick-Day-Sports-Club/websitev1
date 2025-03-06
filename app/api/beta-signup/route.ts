@@ -38,6 +38,22 @@ function initSupabaseAdmin(): SupabaseClient | null {
     
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Missing Supabase admin environment variables');
+      
+      // If we're in production and missing the service role key, fall back to anon key
+      if (process.env.NODE_ENV === 'production' && !supabaseServiceKey && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        console.log('Falling back to anon key for admin operations in production');
+        return createClient(
+          String(supabaseUrl), 
+          String(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+          {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+            }
+          }
+        );
+      }
+      
       return null;
     }
     
