@@ -1,16 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Function to initialize Supabase client
+function initSupabase(): SupabaseClient | null {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase environment variables');
+      return null;
+    }
+    
+    return createClient(String(supabaseUrl), String(supabaseAnonKey));
+  } catch (error) {
+    console.error('Error initializing Supabase client:', error);
+    return null;
+  }
+}
 
 export async function GET(
   request: NextRequest,
   context: { params: { id: string } }
 ) {
   try {
+    // Initialize Supabase client on demand
+    const supabase = initSupabase();
+    
+    // Check if Supabase is properly initialized
+    if (!supabase) {
+      console.error('Supabase not properly initialized', {
+        supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      });
+      
+      // Return a 1x1 transparent GIF anyway
+      return new NextResponse(
+        Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64'),
+        {
+          headers: {
+            'Content-Type': 'image/gif',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+        }
+      );
+    }
+    
     const trackingId = context.params.id;
 
     // Get the original email record to get the email type
@@ -53,6 +90,17 @@ export async function GET(
     );
   } catch (error) {
     console.error('Error tracking email open:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Return a 1x1 transparent GIF anyway
+    return new NextResponse(
+      Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64'),
+      {
+        headers: {
+          'Content-Type': 'image/gif',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   }
 } 
