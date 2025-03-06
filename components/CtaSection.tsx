@@ -121,31 +121,35 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
 
         {/* Waitlist form */}
         <div className="max-w-md mx-auto">
-          <form onSubmit={handleSubmit} className="flex items-center">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              className="flex-1 p-4 border-none rounded-l-md text-black"
-              required
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md hover:bg-[#1a1a1a] transition-colors"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Submitting...' : 'Get Updates'}
-            </button>
-            <div className="flex items-center ml-4">
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+            <div className="flex flex-col sm:flex-row">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Your email address"
+                className="flex-1 p-4 border-none rounded-l-md sm:rounded-r-none rounded-r-md text-black"
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                className="p-4 bg-[#2c2c2c] text-white font-semibold rounded-r-md sm:rounded-l-none rounded-l-md hover:bg-[#1a1a1a] transition-colors mt-2 sm:mt-0"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Submitting...' : 'Get Updates'}
+              </button>
+            </div>
+            <div className="flex items-center">
               <input
                 type="checkbox"
                 id="humanCheck"
                 required
-                className="mr-2"
+                className="w-5 h-5 mr-3"
               />
-              <label htmlFor="humanCheck" className="text-sm text-gray-300">Please check this to prove you're human</label>
+              <label htmlFor="humanCheck" className="text-sm text-gray-300">
+                Please check this to prove you're human
+              </label>
             </div>
           </form>
         </div>
