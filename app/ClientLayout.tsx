@@ -7,6 +7,7 @@ import CookieConsent from '../components/CookieConsent';
 import BackToTop from '../components/BackToTop';
 import SkipToContent from '../components/SkipToContent';
 import { initScrollDepthTracking } from '../utils/analytics';
+import { AuthProvider } from '../utils/auth-context';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,9 @@ export default function ClientLayout({
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <CookieConsent />
         <BackToTop />
       </body>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import Link from 'next/link';
+import { useAuth } from '../../../utils/auth-context';
 
 interface WaitlistEntry {
   id: string;
@@ -10,37 +12,13 @@ interface WaitlistEntry {
 }
 
 export default function WaitlistAdmin() {
+  const { user, isLoading, isAdmin } = useAuth();
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [authError, setAuthError] = useState<string | null>(null);
-
-  // Simple authentication function
-  const authenticate = () => {
-    // This is a simple authentication mechanism
-    // In a real-world scenario, you would use a more secure method
-    const adminPassword = 'sickdaysportsclub2024'; // You should change this to a strong password
-    
-    if (password === adminPassword) {
-      setIsAuthenticated(true);
-      setAuthError(null);
-      localStorage.setItem('waitlistAdminAuth', 'true');
-    } else {
-      setAuthError('Invalid password. Please try again.');
-    }
-  };
 
   useEffect(() => {
-    // Check if already authenticated
-    if (localStorage.getItem('waitlistAdminAuth') === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!user || !isAdmin) return;
 
     async function fetchWaitlist() {
       try {
@@ -71,45 +49,29 @@ export default function WaitlistAdmin() {
     }
 
     fetchWaitlist();
-  }, [isAuthenticated]);
+  }, [user, isAdmin]);
 
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem('waitlistAdminAuth');
-    setIsAuthenticated(false);
-  };
-
-  if (!isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Admin Login</h1>
-        
-        {authError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {authError}
-          </div>
-        )}
-        
+        <h1 className="text-3xl font-bold mb-6 text-center">Waitlist Admin</h1>
+        <p className="text-center">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-md">
+        <h1 className="text-3xl font-bold mb-6 text-center">Access Denied</h1>
         <div className="bg-white shadow-md rounded-lg p-6">
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Enter admin password"
-            />
-          </div>
-          <button
-            onClick={authenticate}
-            className="bg-[#4a7729] hover:bg-[#3d6222] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+          <p className="text-center mb-4">You do not have permission to access this page.</p>
+          <Link 
+            href="/admin" 
+            className="block text-center bg-[#4a7729] hover:bg-[#3d6222] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
           >
-            Login
-          </button>
+            Go to Admin Login
+          </Link>
         </div>
       </div>
     );
@@ -118,13 +80,21 @@ export default function WaitlistAdmin() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Waitlist Admin</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Logout
-        </button>
+        <div>
+          <h1 className="text-3xl font-bold">Waitlist Admin</h1>
+          <Link href="/admin" className="text-[#4a7729] hover:underline mt-1 inline-block">
+            ← Back to Admin Portal
+          </Link>
+        </div>
+        <div className="flex items-center space-x-4">
+          <p className="text-gray-600">{user.email}</p>
+          <Link
+            href="/admin"
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Back to Admin
+          </Link>
+        </div>
       </div>
       
       {loading && <p className="text-gray-600">Loading waitlist data...</p>}
