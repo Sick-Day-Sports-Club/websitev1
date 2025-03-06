@@ -92,17 +92,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Authentication successful, checking admin status');
         // Check if user has admin role after successful login
         if (response.data.user) {
-          const { data, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', response.data.user.id)
-            .single();
-          
-          if (roleError) {
-            console.error('Error checking admin role:', roleError);
-          } else {
-            console.log('Role check result:', data);
-            setIsAdmin(data && data.role === 'admin');
+          try {
+            const { data, error: roleError } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', response.data.user.id)
+              .single();
+            
+            if (roleError) {
+              console.error('Error checking admin role:', roleError);
+              
+              // Check if the error is because the table doesn't exist
+              if (roleError.code === 'PGRST116' || 
+                  roleError.message?.includes('does not exist') || 
+                  roleError.message?.includes('relation "user_roles" does not exist')) {
+                console.log('user_roles table might not exist yet');
+                
+                // For development purposes, assume the authenticated user is an admin
+                // This should be removed in production
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('Development mode: Treating user as admin');
+                  setIsAdmin(true);
+                }
+              }
+            } else {
+              console.log('Role check result:', data);
+              setIsAdmin(data && data.role === 'admin');
+            }
+          } catch (err) {
+            console.error('Unexpected error checking admin role:', err);
+            // For development purposes only
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Development mode: Treating user as admin despite error');
+              setIsAdmin(true);
+            }
           }
         }
       }

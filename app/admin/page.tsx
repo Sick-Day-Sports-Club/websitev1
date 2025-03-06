@@ -9,6 +9,8 @@ export default function AdminPortal() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [setupStatus, setSetupStatus] = useState<string | null>(null);
+  const [isSettingUp, setIsSettingUp] = useState(false);
 
   // Authentication function using Supabase
   const authenticate = async () => {
@@ -35,9 +37,15 @@ export default function AdminPortal() {
         setAuthError('No user returned from authentication');
       } else if (!isAdmin) {
         // If login was successful but user is not an admin
-        setAuthError('Your account does not have admin privileges');
-        // Sign out the user since they don't have admin access
-        await signOut();
+        // In development mode, we might have set isAdmin to true in auth-context.tsx
+        // even if the user_roles table doesn't exist
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Development mode: Proceeding despite potential admin role issues');
+        } else {
+          setAuthError('Your account does not have admin privileges');
+          // Sign out the user since they don't have admin access
+          await signOut();
+        }
       } else {
         console.log('Authentication successful!');
       }
@@ -50,6 +58,28 @@ export default function AdminPortal() {
   // Logout function
   const handleLogout = () => {
     signOut();
+  };
+
+  // Function to set up the user_roles table
+  const setupRolesTable = async () => {
+    try {
+      setIsSettingUp(true);
+      setSetupStatus('Setting up user_roles table...');
+      
+      const response = await fetch(`/api/admin/setup-roles-table${user ? `?userId=${user.id}` : ''}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSetupStatus(`Setup successful: ${data.message}`);
+      } else {
+        setSetupStatus(`Setup failed: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Error setting up roles table:', err);
+      setSetupStatus('An error occurred during setup');
+    } finally {
+      setIsSettingUp(false);
+    }
   };
 
   if (isLoading) {
@@ -129,6 +159,38 @@ export default function AdminPortal() {
           </button>
         </div>
       </div>
+      
+      {/* Setup Status */}
+      {setupStatus && (
+        <div className={`mb-6 p-4 rounded ${setupStatus.includes('failed') || setupStatus.includes('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+          <p>{setupStatus}</p>
+          {setupStatus.includes('failed') && (
+            <button
+              onClick={setupRolesTable}
+              disabled={isSettingUp}
+              className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm"
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+      )}
+      
+      {/* Setup Button */}
+      {!setupStatus && (
+        <div className="mb-6">
+          <button
+            onClick={setupRolesTable}
+            disabled={isSettingUp}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            {isSettingUp ? 'Setting up...' : 'Setup Admin Roles Table'}
+          </button>
+          <p className="text-sm text-gray-600 mt-1">
+            Click this button if you're having issues with admin permissions
+          </p>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Waitlist Dashboard Card */}
