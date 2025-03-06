@@ -200,9 +200,9 @@ const ACTIVITY_CATEGORIES: Record<string, Array<{ name: string; available: boole
 
 // Add new helper functions before the BetaSignupForm component
 const handleNestedChange = (
-  formValues: FormSchema,
-  setValue: UseFormSetValue<FormSchema>,
-  parent: keyof FormSchema,
+  formValues: FormDataType,
+  setValue: UseFormSetValue<FormDataType>,
+  parent: keyof FormDataType,
   child: string,
   value: any
 ) => {
@@ -669,44 +669,44 @@ export default function BetaSignupForm() {
     ) : null;
   };
 
-  const onSubmit = async (data: FormSchema) => {
+  // Correct the handling of JSONB fields and arrays
+  const transformFormData = (formData: FormDataType) => {
+    return {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      phone: formData.phone || null,
+      location: formData.location || null,
+      activities: formData.activities.length ? JSON.stringify(formData.activities) : null,
+      activity_experience: Object.keys(formData.activityExperience).length ? JSON.stringify(formData.activityExperience) : null,
+      adventure_style: selectedAdventureStyles.length ? selectedAdventureStyles : null,
+      social_preferences: Object.keys(formData.socialPreferences).length ? JSON.stringify(formData.socialPreferences) : null,
+      equipment_status: Object.keys(formData.equipmentStatus).length ? JSON.stringify(formData.equipmentStatus) : null,
+      availability: formData.availability.length ? formData.availability : null,
+      weekday_preference: formData.weekdayPreference.length ? formData.weekdayPreference : null,
+      time_of_day: formData.timeOfDay.length ? formData.timeOfDay : null,
+      referral_source: formData.referralSource || null,
+      additional_info: formData.additionalInfo || null,
+      join_type: formData.joinType || 'waitlist',
+    };
+  };
+
+  // Modify the onSubmit function to use the transformed data
+  const onSubmit = async (data: FormDataType) => {
+    const transformedData = transformFormData(data);
     setIsSubmitting(true);
     setError('');
     
     console.log('Form submission started with join type:', joinType);
-    console.log('Form data:', data);
+    console.log('Form data:', transformedData);
     
     try {
       if (!joinType) {
         throw new Error('Please select how you would like to join');
       }
 
-      // Transform the data to match database column names (using snake_case)
-      const submissionData = {
-        first_name: data.firstName.trim(),
-        last_name: data.lastName.trim(),
-        email: data.email.trim().toLowerCase(),
-        phone: data.phone?.trim() || null,
-        location: data.location,
-        activities: data.activities.map(a => ({
-          category: a.category,
-          subcategory: a.subcategory
-        })),
-        activity_experience: data.activityExperience,
-        adventure_style: data.adventureStyle,
-        social_preferences: data.socialPreferences,
-        equipment_status: data.equipmentStatus,
-        availability: data.availability,
-        weekday_preference: data.weekdayPreference,
-        time_of_day: data.timeOfDay,
-        referral_source: data.referralSource?.trim() || null,
-        additional_info: data.additionalInfo?.trim() || null,
-        status: joinType === 'waitlist' ? 'waitlist' : 'pending',
-        join_type: joinType
-      };
-
-      console.log('Submitting data to API...', submissionData);
-      console.log('Stringified data:', JSON.stringify(submissionData));
+      console.log('Submitting data to API...', transformedData);
+      console.log('Stringified data:', JSON.stringify(transformedData));
       
       try {
         // Always use the beta-signup endpoint for both waitlist and paid memberships
@@ -715,7 +715,7 @@ export default function BetaSignupForm() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(submissionData),
+          body: JSON.stringify(transformedData),
         });
 
         console.log('API response status:', response.status);
@@ -765,9 +765,9 @@ export default function BetaSignupForm() {
               },
               body: JSON.stringify({
                 type: 'waitlist',
-                email: data.email,
-                first_name: data.firstName,
-                last_name: data.lastName,
+                email: transformedData.email,
+                first_name: transformedData.first_name,
+                last_name: transformedData.last_name,
               }),
             });
           } catch (emailError) {
