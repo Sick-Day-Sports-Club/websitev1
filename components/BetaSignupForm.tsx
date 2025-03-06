@@ -670,6 +670,7 @@ export default function BetaSignupForm() {
 
   // Correct the handling of JSONB fields and arrays
   const transformFormData = (formData: FormDataType) => {
+    // Ensure adventure_style is always an array for proper database storage
     return {
       first_name: formData.firstName,
       last_name: formData.lastName,
