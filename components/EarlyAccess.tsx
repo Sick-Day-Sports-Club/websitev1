@@ -19,6 +19,8 @@ const EarlyAccess: React.FC<EarlyAccessProps> = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -48,15 +50,41 @@ const EarlyAccess: React.FC<EarlyAccessProps> = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSubmitSuccess(false);
+    setSubmitError('');
 
     try {
-      // TODO: Implement actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
+      // Use the actual waitlist API
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Waitlist submission failed:', result);
+        setSubmitError(result.error || 'Failed to join waitlist');
+        throw new Error(result.error || 'Failed to join waitlist');
+      }
+
+      console.log('Waitlist submission successful:', result);
+      
+      // Check if this is a mock response
+      if (result.mockData || result.note?.includes('mock')) {
+        console.log('Received mock response from waitlist API');
+      }
+      
+      // Track the submission regardless
       trackWaitlistSubmission(email);
       setEmail('');
-      alert('Thanks for joining our waitlist! We\'ll keep you updated.');
+      setSubmitSuccess(true);
     } catch (error) {
-      alert('Something went wrong. Please try again.');
+      console.error('Error submitting to waitlist:', error);
+      setSubmitError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +116,20 @@ const EarlyAccess: React.FC<EarlyAccessProps> = () => {
             </div>
           </div>
         </div>
+        
+        {/* Success message */}
+        {submitSuccess && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-green-600/80 text-white rounded-md">
+            Thanks for joining our waitlist! We'll keep you updated.
+          </div>
+        )}
+
+        {/* Error message */}
+        {submitError && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-red-600/80 text-white rounded-md">
+            {submitError}
+          </div>
+        )}
         
         {/* Waitlist form */}
         <form onSubmit={handleSubmit} className="flex max-w-md mx-auto">
