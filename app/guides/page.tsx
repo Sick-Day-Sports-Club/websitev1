@@ -1,6 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
 
+export const metadata = {
+  title: 'Become a Local Guide & Share Your Expertise | Sick Day Sports Club',
+  description: 'Join our network of local guides and adventure groups. Share your expertise, connect with outdoor enthusiasts, and help others discover the best local spots.',
+  keywords: 'become a guide, local expertise, adventure groups, outdoor community, guide network, share knowledge, outdoor activities',
+}
+
 const GuideRecruitmentWireframe = () => {
   return (
     <div className="flex flex-col w-full bg-gray-100 min-h-screen font-sans">

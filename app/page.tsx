@@ -12,8 +12,9 @@ import ContactForm from '../components/ContactForm';
 import LogoScroll from '../components/LogoScroll';
 
 export const metadata = {
-  title: 'Sick Day Sports Club | Connect with Local Outdoor Guides',
-  description: 'Connect with expert local guides for short but epic adventures in action sports and outdoor activities when you need a break from Zoom.',
+  title: 'Connect with Local Outdoor Guides & Adventure Groups | Sick Day Sports Club',
+  description: 'Access local expertise and join adventure groups for outdoor activities. Connect with experienced guides who know the best spots for hiking, climbing, skiing, and more.',
+  keywords: 'local guides, outdoor expertise, adventure groups, outdoor community, expert guides, local knowledge, outdoor activities',
 }
 
 export default function HomePage() {
