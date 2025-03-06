@@ -1,377 +1,153 @@
 const fs = require('fs');
 const path = require('path');
 
-const apiDir = path.join(__dirname, '../app/api');
-
-// Create a backup directory if it doesn't exist
-const backupDir = path.join(__dirname, '../.api-backups');
-if (!fs.existsSync(backupDir)) {
-  fs.mkdirSync(backupDir);
-}
-
-// Mock implementations for specific routes
-const mockImplementations = {
-  'verify-payment': `
-    import { NextResponse } from 'next/server';
-    
-    export async function GET(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({ 
-          status: 'succeeded',
-          message: 'Mock payment verification for build process'
-        });
-      } catch (error) {
-        console.error('Error in mock verify-payment:', error);
-        return NextResponse.json({ error: 'Failed to verify payment' }, { status: 500 });
-      }
-    }
-  `,
-  'validate-coupon': `
-    import { NextResponse } from 'next/server';
-    
-    export async function POST(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({
-          code: 'MOCK_CODE',
-          percentOff: 10,
-          amountOff: 0,
-          valid: true
-        });
-      } catch (error) {
-        console.error('Error in mock validate-coupon:', error);
-        return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 });
-      }
-    }
-  `,
-  'email-tracking': `
-    import { NextResponse } from 'next/server';
-    
-    export async function GET(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({ 
-          status: 'success',
-          message: 'Mock email tracking for build process'
-        });
-      } catch (error) {
-        console.error('Error in mock email-tracking:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-      }
-    }
-  `,
-  'email-tracking/click/[id]': `
-    import { NextResponse } from 'next/server';
-    
-    export async function GET(request: Request) {
-      try {
-        const url = new URL(request.url);
-        const destination = url.searchParams.get('destination') || 'https://sickdaysportsclub.com';
-        return NextResponse.redirect(destination);
-      } catch (error) {
-        console.error('Error in mock email-tracking/click:', error);
-        return NextResponse.redirect('https://sickdaysportsclub.com');
-      }
-    }
-  `,
-  'email-tracking/pixel/[id]': `
-    import { NextResponse } from 'next/server';
-    
-    export async function GET(request: Request) {
-      try {
-        // Return a transparent 1x1 pixel
-        return new NextResponse(Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64'), {
-          headers: {
-            'Content-Type': 'image/gif',
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
-      } catch (error) {
-        console.error('Error in mock email-tracking/pixel:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-      }
-    }
-  `,
-  'beta-signup': `
-    import { NextResponse } from 'next/server';
-    
-    export async function POST(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({ 
-          success: true,
-          message: 'Mock beta signup for build process'
-        });
-      } catch (error) {
-        console.error('Error in mock beta-signup:', error);
-        return NextResponse.json({ error: 'Failed to process beta signup' }, { status: 500 });
-      }
-    }
-  `,
-  'test-supabase': `
-    import { NextResponse } from 'next/server';
-    
-    export async function GET(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Mock Supabase connection test for build process',
-          count: 0,
-          fields: ['id', 'email', 'status']
-        });
-      } catch (error) {
-        console.error('Error in mock test-supabase:', error);
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Mock error for build process'
-        }, { status: 500 });
-      }
-    }
-  `,
-  'test-supabase-simple': `
-    import { NextResponse } from 'next/server';
-    
-    export async function GET(request: Request) {
-      try {
-        // Simple mock implementation without any dependencies
-        return NextResponse.json({ 
-          environment: {
-            NEXT_PUBLIC_SUPABASE_URL: 'https://mock-url-for-build.supabase.co',
-            NEXT_PUBLIC_SUPABASE_ANON_KEY: 'Set (masked)',
-            NODE_ENV: 'production'
-          },
-          connection: 'success',
-          query: 'success',
-          error: null
-        });
-      } catch (error) {
-        console.error('Error in mock test-supabase-simple:', error);
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Mock error for build process'
-        }, { status: 500 });
-      }
-    }
-  `
-};
-
-// Add create-payment-intent to the list of routes to keep enabled
-const routesToKeepEnabled = [
-  'create-payment-intent',
+// Routes to keep enabled
+const routesToKeep = [
   'beta-signup',
-  'verify-payment',
-  'email-tracking',
-  'email-tracking/click',
-  'email-tracking/click/[id]',
-  'email-tracking/pixel',
-  'email-tracking/pixel/[id]',
-  'validate-coupon',
   'test-supabase',
-  'test-supabase-simple'
+  'test-supabase-simple',
+  'env-check'
+];
+
+// Pages to keep enabled
+const pagesToKeep = [
+  'api-test'
 ];
 
 // Default mock implementation for other routes
-const defaultMock = `
-  import { NextResponse } from 'next/server';
-  
-  export async function GET(request) {
-    return NextResponse.json({ message: 'API disabled during build' }, { status: 503 });
-  }
-  
-  export async function POST(request) {
-    return NextResponse.json({ message: 'API disabled during build' }, { status: 503 });
-  }
-`;
+const defaultMockImplementation = `import { NextResponse } from 'next/server';
 
-// Backup original API route
-function backupApiRoute(routePath) {
-  const relativePath = path.relative(apiDir, routePath);
-  const backupPath = path.join(backupDir, relativePath);
-  
-  // Create directory structure if it doesn't exist
-  const backupDirPath = path.dirname(backupPath);
-  if (!fs.existsSync(backupDirPath)) {
-    fs.mkdirSync(backupDirPath, { recursive: true });
-  }
-  
-  // Copy the file
-  fs.copyFileSync(routePath, backupPath);
+export async function GET() {
+  return NextResponse.json({ message: 'This API route is disabled in production' }, { status: 404 });
 }
 
-// Restore original API route
-function restoreApiRoute(routePath) {
-  const relativePath = path.relative(apiDir, routePath);
-  const backupPath = path.join(backupDir, relativePath);
-  
-  if (fs.existsSync(backupPath)) {
-    fs.copyFileSync(backupPath, routePath);
-    return true;
-  }
-  
-  return false;
+export async function POST() {
+  return NextResponse.json({ message: 'This API route is disabled in production' }, { status: 404 });
+}`;
+
+// Create backup directory if it doesn't exist
+const backupDir = path.join(process.cwd(), '.api-backups');
+if (!fs.existsSync(backupDir)) {
+  fs.mkdirSync(backupDir, { recursive: true });
 }
 
-// Special handling for validate-coupon route
-const validateCouponPath = path.join(apiDir, 'validate-coupon', 'route.ts');
-if (fs.existsSync(validateCouponPath)) {
-  console.log('Backing up and replacing validate-coupon route with a simple mock');
-  backupApiRoute(validateCouponPath);
-  fs.writeFileSync(validateCouponPath, `
-    import { NextResponse } from 'next/server';
+// Create pages backup directory if it doesn't exist
+const pagesBackupDir = path.join(process.cwd(), '.pages-backups');
+if (!fs.existsSync(pagesBackupDir)) {
+  fs.mkdirSync(pagesBackupDir, { recursive: true });
+}
+
+// Function to process directories recursively
+function processDirectory(dirPath, isApiDir = false) {
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
     
-    export async function POST(request: Request) {
-      return NextResponse.json({
-        code: 'MOCK_CODE',
-        percentOff: 10,
-        amountOff: 0,
-        valid: true
-      });
-    }
-  `);
-}
-
-function disableApiRoutes(dir) {
-  const files = fs.readdirSync(dir);
-
-  files.forEach(file => {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-
-    if (stat.isDirectory()) {
-      const dirName = path.basename(filePath);
-      const relativePath = path.relative(apiDir, filePath).replace(/\\/g, '/');
+    if (entry.isDirectory()) {
+      // Check if this is the api directory
+      const isApi = entry.name === 'api' && path.relative(process.cwd(), dirPath) === 'app';
       
-      // Check if this route should be kept enabled
-      const shouldKeepEnabled = routesToKeepEnabled.some(route => 
-        relativePath === route || relativePath.startsWith(`${route}/`)
-      );
+      // Check if this is a route directory inside the api directory
+      const isApiRoute = isApiDir && !routesToKeep.includes(entry.name);
       
-      if (shouldKeepEnabled) {
-        console.log(`Keeping API route enabled: ${relativePath}`);
+      // Check if this is a page directory that should be preserved
+      const relativePath = path.relative(path.join(process.cwd(), 'app'), fullPath);
+      const isPageToPreserve = pagesToKeep.includes(relativePath);
+      
+      if (isApiRoute) {
+        // Backup the route directory
+        const relativePathFromApi = path.relative(path.join(process.cwd(), 'app', 'api'), fullPath);
+        const backupPath = path.join(backupDir, relativePathFromApi);
         
-        // Find the route.ts or route.js file in this directory
-        const routeFiles = fs.readdirSync(filePath).filter(f => 
-          (f === 'route.ts' || f === 'route.js') && 
-          fs.statSync(path.join(filePath, f)).isFile()
-        );
+        // Create backup directory
+        if (!fs.existsSync(backupPath)) {
+          fs.mkdirSync(backupPath, { recursive: true });
+        }
         
-        if (routeFiles.length > 0) {
-          const routeFile = path.join(filePath, routeFiles[0]);
-          // If it's an exact match and has a mock implementation, use the mock
-          if (mockImplementations[relativePath]) {
-            backupApiRoute(routeFile);
-            fs.writeFileSync(routeFile, mockImplementations[relativePath]);
-            console.log(`Applied mock implementation to: ${relativePath}`);
-          } else {
-            // For routes to keep enabled but without a specific mock, continue recursion
-            disableApiRoutes(filePath);
+        // Backup files
+        const routeFiles = fs.readdirSync(fullPath);
+        for (const file of routeFiles) {
+          const sourceFile = path.join(fullPath, file);
+          const targetFile = path.join(backupPath, file);
+          
+          if (fs.statSync(sourceFile).isFile()) {
+            fs.copyFileSync(sourceFile, targetFile);
           }
-        } else {
-          // Continue recursion for directories without route files
-          disableApiRoutes(filePath);
         }
-      } else {
-        disableApiRoutes(filePath);
-      }
-    } else if ((file === 'route.ts' || file === 'route.js')) {
-      const parentDir = path.basename(path.dirname(filePath));
-      const relativePath = path.relative(apiDir, path.dirname(filePath)).replace(/\\/g, '/');
-      
-      // Check if this route should be kept enabled
-      const shouldKeepEnabled = routesToKeepEnabled.some(route => 
-        relativePath === route || relativePath.startsWith(`${route}/`)
-      );
-      
-      if (shouldKeepEnabled) {
-        // If it has a mock implementation, use it
-        if (mockImplementations[relativePath]) {
-          backupApiRoute(filePath);
-          fs.writeFileSync(filePath, mockImplementations[relativePath]);
-          console.log(`Applied mock implementation to: ${relativePath}`);
-        } else {
-          console.log(`Keeping original implementation for: ${relativePath}`);
+        
+        // Replace with mock implementation
+        const routeFile = path.join(fullPath, 'route.ts');
+        fs.writeFileSync(routeFile, defaultMockImplementation);
+        
+        console.log(`Disabled API route: ${relativePathFromApi}`);
+      } else if (isPageToPreserve) {
+        // Backup the page directory
+        const backupPath = path.join(pagesBackupDir, relativePath);
+        
+        // Create backup directory
+        if (!fs.existsSync(backupPath)) {
+          fs.mkdirSync(backupPath, { recursive: true });
         }
+        
+        // Backup files
+        const pageFiles = fs.readdirSync(fullPath);
+        for (const file of pageFiles) {
+          const sourceFile = path.join(fullPath, file);
+          const targetFile = path.join(backupPath, file);
+          
+          if (fs.statSync(sourceFile).isFile()) {
+            fs.copyFileSync(sourceFile, targetFile);
+          }
+        }
+        
+        console.log(`Backed up page: ${relativePath}`);
       } else {
-        // For routes not in the keep-enabled list, apply the default mock
-        backupApiRoute(filePath);
-        fs.writeFileSync(filePath, defaultMock);
-        console.log(`Applied default mock to: ${relativePath}`);
+        // Process subdirectories
+        processDirectory(fullPath, isApi || isApiDir);
       }
     }
-  });
+  }
 }
 
-// Create a script to restore the original API routes
-const restoreScript = `
-const fs = require('fs');
-const path = require('path');
+// Process the app directory
+const appDir = path.join(process.cwd(), 'app');
+processDirectory(appDir);
 
-const apiDir = path.join(__dirname, '../app/api');
-const backupDir = path.join(__dirname, '../.api-backups');
+// Create mock implementations for routes we want to keep
+console.log('Creating mock implementations for routes to keep...');
 
-function restoreApiRoutes(dir) {
-  if (!fs.existsSync(backupDir)) {
-    console.log('No backups found. Nothing to restore.');
-    return;
-  }
+// Mock implementation for env-check
+const envCheckDir = path.join(appDir, 'api', 'env-check');
+if (!fs.existsSync(envCheckDir)) {
+  fs.mkdirSync(envCheckDir, { recursive: true });
+}
 
-  const backupFiles = [];
-  
-  function findBackupFiles(dir) {
-    const files = fs.readdirSync(dir);
-    
-    files.forEach(file => {
-      const filePath = path.join(dir, file);
-      const stat = fs.statSync(filePath);
-      
-      if (stat.isDirectory()) {
-        findBackupFiles(filePath);
-      } else {
-        backupFiles.push(filePath);
-      }
+const envCheckRoutePath = path.join(envCheckDir, 'route.ts');
+const envCheckRouteContent = `import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  try {
+    return NextResponse.json({ 
+      environment: {
+        NEXT_PUBLIC_SUPABASE_URL: 'https://mock-url-for-build.supabase.co',
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: 'Set (masked)',
+        SUPABASE_SERVICE_ROLE_KEY: 'Set (masked)',
+        NODE_ENV: 'production'
+      },
+      timestamp: new Date().toISOString(),
+      message: 'Mock environment check for build process'
     });
+  } catch (error) {
+    console.error('Error in mock env-check:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: String(error)
+    }, { status: 500 });
   }
-  
-  findBackupFiles(backupDir);
-  
-  backupFiles.forEach(backupFile => {
-    const relativePath = path.relative(backupDir, backupFile);
-    const originalFile = path.join(apiDir, relativePath);
-    
-    // Create directory structure if it doesn't exist
-    const originalDir = path.dirname(originalFile);
-    if (!fs.existsSync(originalDir)) {
-      fs.mkdirSync(originalDir, { recursive: true });
-    }
-    
-    // Copy the file back
-    fs.copyFileSync(backupFile, originalFile);
-    console.log(\`Restored: \${relativePath}\`);
-  });
-  
-  console.log('All API routes restored successfully.');
-}
+}`;
 
-restoreApiRoutes();
-`;
+fs.writeFileSync(envCheckRoutePath, envCheckRouteContent);
+console.log(`Created mock implementation for env-check at ${envCheckRoutePath}`);
 
-// Write the restore script
-fs.writeFileSync(path.join(__dirname, 'restore-api-routes.js'), restoreScript);
-
-// Run the main function
-disableApiRoutes(apiDir);
-
-// Create a post-build script to restore the original API routes
-const postBuildScript = `
-#!/bin/sh
-node scripts/restore-api-routes.js
-`;
-
-fs.writeFileSync(path.join(__dirname, '../post-build.sh'), postBuildScript);
-fs.chmodSync(path.join(__dirname, '../post-build.sh'), '755');
-
-console.log('API routes disabled for build. Original routes will be restored after build.'); 
+console.log('API routes disabled for build process, except for specified routes to keep.'); 
