@@ -16,10 +16,19 @@
 const { createClient } = require('@supabase/supabase-js');
 const readline = require('readline');
 const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 // Load environment variables from .env.local
-dotenv.config({ path: '.env.local' });
+const envPath = path.resolve(process.cwd(), '.env.local');
+if (fs.existsSync(envPath)) {
+  console.log(`Loading environment variables from ${envPath}`);
+  const envConfig = dotenv.parse(fs.readFileSync(envPath));
+  for (const key in envConfig) {
+    process.env[key] = envConfig[key];
+  }
+}
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -56,9 +65,14 @@ async function createAdmin() {
     }
 
     console.log(`\nCreating admin user: ${adminEmail}`);
+    console.log(`Using Supabase URL: ${supabaseUrl}`);
 
     // Make API request to create admin
-    const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/api/admin/create-admin`, {
+    // Use the local development server URL instead of the Supabase URL
+    const apiUrl = 'http://localhost:3000/api/admin/create-admin';
+    console.log(`Calling API endpoint: ${apiUrl}`);
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,10 +84,21 @@ async function createAdmin() {
       }),
     });
 
-    const result = await response.json();
+    const responseText = await response.text();
+    console.log(`API Response status: ${response.status}`);
+    console.log(`API Response: ${responseText}`);
+    
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Error parsing JSON response:', e);
+      console.error('Raw response:', responseText);
+      process.exit(1);
+    }
 
     if (!response.ok) {
-      console.error('Error creating admin user:', result.error);
+      console.error('Error creating admin user:', result.error || 'Unknown error');
       process.exit(1);
     }
 
