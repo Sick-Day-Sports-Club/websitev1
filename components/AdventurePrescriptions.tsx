@@ -28,7 +28,7 @@ export default function AdventurePrescriptions() {
           </div>
           
           <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold mb-3 text-gray-900">RTO Burnout</h3>
+            <h3 className="text-xl font-semibold mb-3 text-gray-900">RTOverload</h3>
             <p className="mb-3 text-gray-700">Symptoms: Calendar anxiety, buzzword overdose, overwhelming desire for sweatpants</p>
             <p className="font-semibold text-[#4a7729]">
               Prescription: <a href="https://www.bendparksandrec.org/facility/bend-whitewater-park/" className="text-[#4a7729] underline hover:text-[#3d6222]" target="_blank" rel="noopener noreferrer">Whitewater</a> with <a href="https://www.instagram.com/saveriat" className="text-[#4a7729] underline hover:text-[#3d6222]" target="_blank" rel="noopener noreferrer">Saveria</a>
