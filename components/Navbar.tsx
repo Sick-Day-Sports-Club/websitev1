@@ -1,11 +1,17 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Container from './Container';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+  
+  // Prefix for links - if we're not on the homepage, we need to add the homepage URL
+  const linkPrefix = isHomePage ? '' : '/';
 
   return (
     <div className="bg-[#2c2c2c]">
@@ -29,16 +35,16 @@ export default function Navbar() {
 
           {/* Desktop menu */}
           <div className="hidden md:flex">
-            <Link href="#how" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+            <Link href={`${linkPrefix}#how`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               How It Works
             </Link>
-            <Link href="#testimonials" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+            <Link href={`${linkPrefix}#testimonials`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               Testimonials
             </Link>
-            <Link href="#faq" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+            <Link href={`${linkPrefix}#faq`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               FAQ
             </Link>
-            <Link href="#launch" className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+            <Link href={`${linkPrefix}#signup`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               Join Now
             </Link>
           </div>
@@ -48,28 +54,28 @@ export default function Navbar() {
             <div className="absolute top-16 left-0 right-0 bg-[#2c2c2c] shadow-md p-4 md:hidden z-10">
               <div className="flex flex-col space-y-4">
                 <Link 
-                  href="#how" 
+                  href={`${linkPrefix}#how`}
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   How It Works
                 </Link>
                 <Link 
-                  href="#testimonials" 
+                  href={`${linkPrefix}#testimonials`}
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Testimonials
                 </Link>
                 <Link 
-                  href="#faq" 
+                  href={`${linkPrefix}#faq`}
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   FAQ
                 </Link>
                 <Link 
-                  href="#launch" 
+                  href={`${linkPrefix}#signup`}
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
