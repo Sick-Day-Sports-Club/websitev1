@@ -11,11 +11,6 @@ interface FormDataObject {
   };
 }
 
-export const metadata = {
-  title: 'Apply to Become a Guide Partner | Sick Day Sports Club',
-  description: 'Join our network of local guides and share your expertise with outdoor enthusiasts. Apply to become a guide partner with Sick Day Sports Club.',
-}
-
 export default function GuideApplicationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
