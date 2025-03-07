@@ -5,8 +5,8 @@ import { loadStripe } from '@stripe/stripe-js';
 // Hardcoded keys - this is a temporary solution
 // Publishable keys are meant to be public, but this should be replaced with proper env vars
 const HARDCODED_KEYS = {
-  development: 'pk_test_51Q4lGEKOdg5wedYdr7mBGug4P1J24uqyWM0IotNenW2gvSdWzjiS9XjsiTjt9oCEYEqwKVVsMisHI3ZfypPguBcD00vFOjAK6h',
-  production: 'pk_test_51Q4lGEKOdg5wedYdr7mBGug4P1J24uqyWM0IotNenW2gvSdWzjiS9XjsiTjt9oCEYEqwKVVsMisHI3ZfypPguBcD00vFOjAK6h'
+  development: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_DEV || '',
+  production: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_PROD || ''
 };
 
 // Function to get the Stripe publishable key from various sources
@@ -27,13 +27,13 @@ export function getStripeKey() {
     return window.STRIPE_PUBLISHABLE_KEY;
   }
   
-  // Use hardcoded key as last resort
+  // Use environment variable as last resort
   const nodeEnv = process.env.NODE_ENV || 'development';
-  const hardcodedKey = HARDCODED_KEYS[nodeEnv] || HARDCODED_KEYS.development;
+  const envVarKey = HARDCODED_KEYS[nodeEnv];
   
-  if (hardcodedKey) {
-    console.log(`Using hardcoded Stripe key for ${nodeEnv} environment (TEMPORARY SOLUTION)`);
-    return hardcodedKey;
+  if (envVarKey) {
+    console.log(`Using environment variable Stripe key for ${nodeEnv} environment`);
+    return envVarKey;
   }
   
   console.error('No valid Stripe publishable key found');

@@ -21,12 +21,12 @@ export async function POST(request: NextRequest) {
     // CRITICAL: Log environment variables status for debugging
     console.log('CRITICAL: create-payment-intent API called');
     console.log('NODE_ENV:', process.env.NODE_ENV || 'Not set');
-    console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Set (starts with ' + process.env.STRIPE_SECRET_KEY.substring(0, 6) + '...)' : 'Not set');
+    console.log('STRIPE_RESTRICTED_KEY:', process.env.STRIPE_RESTRICTED_KEY ? 'Set (starts with ' + process.env.STRIPE_RESTRICTED_KEY.substring(0, 6) + '...)' : 'Not set');
     console.log('Force Real:', shouldForceReal ? 'Yes' : 'No');
     
     // PRODUCTION OVERRIDE: Always use real implementation
     // Use a hardcoded key if the environment variable is not available
-    const stripeKey = process.env.STRIPE_SECRET_KEY || 'sk_test_51Q4lGEKOdg5wedYdpfnwuayPzQAyLeRjxJPopVF5UdMLupCkSAumVRD9ERD7j7ocC3UM6mqMGoS6GU8NMOZsnAKl00LFmxmbB6';
+    const stripeKey = process.env.STRIPE_RESTRICTED_KEY || 'sk_test_51Q4lGEKOdg5wedYdpfnwuayPzQAyLeRjxJPopVF5UdMLupCkSAumVRD9ERD7j7ocC3UM6mqMGoS6GU8NMOZsnAKl00LFmxmbB6';
     
     // Initialize Stripe with a valid API version
     console.log('Using Stripe API version: 2023-10-16');

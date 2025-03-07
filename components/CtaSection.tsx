@@ -21,6 +21,8 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     function calculateTimeLeft() {
@@ -51,6 +53,8 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSubmitSuccess(false);
+    setSubmitError('');
 
     try {
       const response = await fetch('/api/waitlist', {
@@ -65,16 +69,24 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
 
       if (!response.ok) {
         console.error('Waitlist submission failed:', result);
+        setSubmitError(result.error || 'Failed to join waitlist');
         throw new Error(result.error || 'Failed to join waitlist');
       }
 
       console.log('Waitlist submission successful:', result);
+      
+      // Check if this is a mock response
+      if (result.mockData || result.note?.includes('mock')) {
+        console.log('Received mock response from waitlist API');
+      }
+      
+      // Track the submission regardless
       trackWaitlistSubmission(email);
       setEmail('');
-      alert('Thanks for joining our email list! We\'ll keep you updated.');
+      setSubmitSuccess(true);
     } catch (error) {
       console.error('Error submitting to waitlist:', error);
-      alert('Something went wrong. Please try again.');
+      setSubmitError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +135,20 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
         <p className="text-center text-gray-300 mb-8">
           Not ready to join or need more info? Join our email list to stay updated
         </p>
+
+        {/* Success message */}
+        {submitSuccess && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-green-600 text-white rounded-md">
+            Thanks for joining our email list! We'll keep you updated.
+          </div>
+        )}
+
+        {/* Error message */}
+        {submitError && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-red-600 text-white rounded-md">
+            {submitError}
+          </div>
+        )}
 
         {/* Waitlist form */}
         <div className="max-w-md mx-auto">

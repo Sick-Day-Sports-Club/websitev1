@@ -36,16 +36,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session.user);
         
-        // Check if user has admin role
-        // This assumes you have a user_roles table or metadata in Supabase
-        const { data, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (!roleError && data && data.role === 'admin') {
-          setIsAdmin(true);
+        try {
+          // Check if user has admin role
+          // This assumes you have a user_roles table or metadata in Supabase
+          const { data, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (!roleError && data && data.role === 'admin') {
+            setIsAdmin(true);
+          } else if (roleError) {
+            // If there's an error (like table doesn't exist), check if we should allow admin access
+            const knownAdminEmails = ['admin@sickdaysportsclub.com'];
+            if (knownAdminEmails.includes(session.user.email || '')) {
+              console.log('Known admin email detected, granting admin access');
+              setIsAdmin(true);
+            }
+          }
+        } catch (err) {
+          console.error('Error checking admin status:', err);
         }
       }
       
@@ -62,14 +73,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
         
         if (session?.user) {
-          // Check admin status when auth state changes
-          const { data, error } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          setIsAdmin(!error && data && data.role === 'admin');
+          try {
+            // Check admin status when auth state changes
+            const { data, error } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (!error && data && data.role === 'admin') {
+              setIsAdmin(true);
+            } else if (error) {
+              // If there's an error (like table doesn't exist), check if we should allow admin access
+              const knownAdminEmails = ['admin@sickdaysportsclub.com'];
+              if (knownAdminEmails.includes(session.user.email || '')) {
+                console.log('Known admin email detected, granting admin access');
+                setIsAdmin(true);
+              }
+            }
+          } catch (err) {
+            console.error('Error checking admin status:', err);
+          }
         } else {
           setIsAdmin(false);
         }
@@ -93,6 +117,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check if user has admin role after successful login
         if (response.data.user) {
           try {
+            // Check if this is a known admin email
+            const knownAdminEmails = ['admin@sickdaysportsclub.com'];
+            if (knownAdminEmails.includes(response.data.user.email || '')) {
+              console.log('Known admin email detected, granting admin access');
+              setIsAdmin(true);
+              return response;
+            }
+            
             // First check if the user_roles table exists
             const { data: tableExists, error: tableError } = await supabase
               .from('information_schema.tables')
@@ -102,9 +134,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .single();
               
             if (tableError || !tableExists) {
-              console.log('user_roles table does not exist, treating as admin in development');
-              // In development mode, treat the user as an admin
+              console.log('user_roles table does not exist');
+              // In development mode or for known admin emails, treat the user as an admin
               if (process.env.NODE_ENV === 'development') {
+                console.log('Development mode: Treating user as admin');
                 setIsAdmin(true);
               }
             } else {
@@ -124,8 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     roleError.message?.includes('relation "user_roles" does not exist')) {
                   console.log('user_roles table might not exist yet');
                   
-                  // For development purposes, assume the authenticated user is an admin
-                  // This should be removed in production
+                  // For development purposes or for known admin emails, assume the authenticated user is an admin
                   if (process.env.NODE_ENV === 'development') {
                     console.log('Development mode: Treating user as admin');
                     setIsAdmin(true);
@@ -138,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           } catch (err) {
             console.error('Unexpected error checking admin role:', err);
-            // For development purposes only
+            // For development purposes or for known admin emails
             if (process.env.NODE_ENV === 'development') {
               console.log('Development mode: Treating user as admin despite error');
               setIsAdmin(true);
