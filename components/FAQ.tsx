@@ -14,7 +14,7 @@ interface FAQProps {}
 const faqs: FAQItem[] = [
   {
     question: "How does Sick Day Sports Club work?",
-    answer: "We connect you with local guides for short adventure experiences based on your detailed member profile. Each weekend, we'll offer a personalized menu of adventure options for the week ahead matched to your preferences, skill level, availability, and upcoming conditions. Simply select the adventures that appeal to you, and we handle all the logistics. Whether you prefer solo adventures, guided experiences, or self-guided group activities, we'll match you with the right opportunities to make the most of your time outdoors."
+    answer: "We connect you with local guide advice to inspire short adventure experiences based on your detailed member profile. Each weekend, we'll offer a personalized menu of adventure options for the week ahead matched to your preferences, skill level, availability, and upcoming conditions. Simply select the adventures that appeal to you, add them to your calendar and go. Whether you prefer solo adventures, guided experiences, or self-guided group activities, we'll match you with the right opportunities to make the most of your time outdoors."
   },
   {
     question: "What activities are available?",
