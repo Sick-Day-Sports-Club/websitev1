@@ -44,7 +44,7 @@ export default function Navbar() {
             <Link href={`${linkPrefix}#faq`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               FAQ
             </Link>
-            <Link href={`${linkPrefix}#cta`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
+            <Link href={`${linkPrefix}#launch`} className="text-white font-semibold ml-8 hover:text-[#4a7729] transition-colors">
               Join Now
             </Link>
           </div>
@@ -75,7 +75,7 @@ export default function Navbar() {
                   FAQ
                 </Link>
                 <Link 
-                  href={`${linkPrefix}#cta`}
+                  href={`${linkPrefix}#launch`}
                   className="text-white font-semibold hover:text-[#4a7729] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
