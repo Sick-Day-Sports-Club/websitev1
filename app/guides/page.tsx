@@ -88,17 +88,17 @@ const GuideRecruitmentWireframe = () => {
           
           <div className="text-center flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-green-700 text-white flex items-center justify-center text-xl font-bold mb-4">2</div>
-            <h3 className="text-xl font-semibold mb-2">Set Your Schedule</h3>
+            <h3 className="text-xl font-semibold mb-2">Get Matched</h3>
             <p className="text-gray-600 max-w-xs">
-              Tell us when you're available to lead adventures.
+              We connect you with members who need your expertise.
             </p>
           </div>
           
           <div className="text-center flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-green-700 text-white flex items-center justify-center text-xl font-bold mb-4">3</div>
-            <h3 className="text-xl font-semibold mb-2">Get Matched</h3>
+            <h3 className="text-xl font-semibold mb-2">Give Beta</h3>
             <p className="text-gray-600 max-w-xs">
-              We connect you with members who match your expertise.
+              Share intel and guidance to help members optimize their adventures and if you're free, offer a trip they can book!
             </p>
           </div>
           
