@@ -35,9 +35,9 @@ const GuideRecruitmentWireframe = () => {
             <p className="text-xl mb-8">
               Join our network of independent guides and help people turn their sick days into unforgettable adventures - with zero commission costs.
             </p>
-            <button className="bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded">
+            <Link href="/guides/apply" className="bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded inline-block">
               Partner With Us
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -249,9 +249,9 @@ const GuideRecruitmentWireframe = () => {
             We're currently accepting applications for independent guide partners in several adventure towns across North America.
           </p>
           
-          <button className="px-8 py-4 bg-white text-green-700 hover:bg-gray-100 font-semibold rounded-md text-lg">
+          <Link href="/guides/apply" className="px-8 py-4 bg-white text-green-700 hover:bg-gray-100 font-semibold rounded-md text-lg inline-block">
             Apply to Become a Partner
-          </button>
+          </Link>
           
           <p className="mt-6 text-sm opacity-80">
             Not ready to apply? Email us at <span className="underline">guides@sickdaysports.club</span> with any questions.
@@ -287,7 +287,7 @@ const GuideRecruitmentWireframe = () => {
               <h3 className="font-semibold mb-2">For Guides</h3>
               <ul className="space-y-1 text-gray-400">
                 <li><a href="#how-it-works" className="hover:text-white">How It Works</a></li>
-                <li><a href="#" className="hover:text-white">Apply Now</a></li>
+                <li><Link href="/guides/apply" className="hover:text-white">Apply Now</Link></li>
                 <li><Link href="/partner-portal" className="hover:text-white">Partner Portal</Link></li>
               </ul>
             </div>
