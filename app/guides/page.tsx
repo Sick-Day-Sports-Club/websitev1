@@ -288,7 +288,7 @@ const GuideRecruitmentWireframe = () => {
               <ul className="space-y-1 text-gray-400">
                 <li><a href="#how-it-works" className="hover:text-white">How It Works</a></li>
                 <li><a href="#" className="hover:text-white">Apply Now</a></li>
-                <li><a href="#" className="hover:text-white">Partner Portal</a></li>
+                <li><Link href="/partner-portal" className="hover:text-white">Partner Portal</Link></li>
               </ul>
             </div>
 
