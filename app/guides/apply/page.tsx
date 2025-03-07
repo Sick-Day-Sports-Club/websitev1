@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useRef } from 'react';
 import Link from 'next/link';
 
 interface FormDataObject {
@@ -15,6 +15,7 @@ export default function GuideApplicationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,24 +27,43 @@ export default function GuideApplicationPage() {
       const formData = new FormData(e.currentTarget);
       const formDataObj: FormDataObject = {};
       
+      // Initialize arrays and objects for multi-value fields
+      formDataObj.activities = [];
+      formDataObj.availability = {};
+      
       // Process form data
       formData.forEach((value, key) => {
         if (key === 'activities') {
-          if (!formDataObj[key]) {
-            formDataObj[key] = [];
+          if (!formDataObj.activities) {
+            formDataObj.activities = [];
           }
-          formDataObj[key]?.push(value.toString());
+          formDataObj.activities.push(value.toString());
         } else if (key === 'availability') {
-          if (!formDataObj[key]) {
-            formDataObj[key] = {};
+          if (!formDataObj.availability) {
+            formDataObj.availability = {};
           }
-          if (formDataObj[key]) {
-            formDataObj[key][value.toString()] = true;
-          }
+          formDataObj.availability[value.toString()] = true;
         } else {
           formDataObj[key] = value.toString();
         }
       });
+      
+      // Validate required fields
+      const requiredFields = [
+        'firstName', 'lastName', 'email', 'phone', 'location',
+        'experience', 'certifications', 'firstAid', 'insurance', 'aboutYou'
+      ];
+      
+      const missingFields = requiredFields.filter(field => !formDataObj[field]);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      }
+      
+      // Validate activities
+      if (!formDataObj.activities || formDataObj.activities.length === 0) {
+        throw new Error('Please select at least one activity');
+      }
       
       // Submit form data to API
       const response = await fetch('/api/guides/apply', {
@@ -63,8 +83,10 @@ export default function GuideApplicationPage() {
       // Show success message
       setSubmitSuccess(true);
       
-      // Reset form
-      e.currentTarget.reset();
+      // Reset form safely
+      if (formRef.current) {
+        formRef.current.reset();
+      }
       
       // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -139,7 +161,7 @@ export default function GuideApplicationPage() {
         {!submitSuccess && (
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="bg-white rounded-lg shadow-md p-8">
-              <form className="space-y-8" onSubmit={handleSubmit}>
+              <form className="space-y-8" onSubmit={handleSubmit} ref={formRef}>
                 {/* Personal Information */}
                 <div>
                   <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b pb-2">Personal Information</h2>
