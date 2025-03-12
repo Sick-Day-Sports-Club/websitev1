@@ -3,15 +3,24 @@ import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client with service role key for admin operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function GET(request: NextRequest) {
+  if (!supabaseKey) {
+    console.error('SUPABASE_SERVICE_ROLE_KEY is missing. Skipping guide_applications table setup.');
+    return NextResponse.json({
+      error: 'Service role key is not configured. Skipping table setup.',
+      note: 'This operation requires SUPABASE_SERVICE_ROLE_KEY to be set in the environment variables.'
+    }, { status: 500 });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+
   try {
     console.log('Setting up guide_applications table...');
     
