@@ -196,7 +196,7 @@ const Hero: React.FC<HeroProps> = () => {
             Take A Sick Day. Make It Count.
           </h1>
           <p className="text-xl mb-8 max-w-[500px]">
-            Unlock epic adventures with expert local guides, tailored to your skills and style. Join now for exclusive founding member rates!
+            Unlock epic adventures curated by expert local guides, tailored to your skills and style. Join now for exclusive founding member rates!
           </p>
           <Link 
             href="#launch"
