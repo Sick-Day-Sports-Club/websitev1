@@ -888,6 +888,11 @@ export default function BetaSignupForm() {
     await validateCoupon(couponCode);
   };
 
+  const handleJoinTypeSelection = (type: 'beta-basic' | 'beta-better' | 'beta-bomber' | 'waitlist') => {
+    setJoinType(type);
+    setValue('joinType', type, { shouldValidate: true });
+  };
+
   // If payment was successful
   if (success) {
     return (
@@ -1520,7 +1525,7 @@ export default function BetaSignupForm() {
                       ? 'border-[#4a7729] bg-green-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setJoinType('beta-basic')}
+                  onClick={() => handleJoinTypeSelection('beta-basic')}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-base">Basic</h4>
@@ -1537,7 +1542,7 @@ export default function BetaSignupForm() {
                       ? 'border-[#4a7729] bg-green-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setJoinType('beta-better')}
+                  onClick={() => handleJoinTypeSelection('beta-better')}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-base">Better</h4>
@@ -1555,7 +1560,7 @@ export default function BetaSignupForm() {
                       ? 'border-[#4a7729] bg-green-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setJoinType('beta-bomber')}
+                  onClick={() => handleJoinTypeSelection('beta-bomber')}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-base">Bomber</h4>
@@ -1574,7 +1579,7 @@ export default function BetaSignupForm() {
                       ? 'border-[#4a7729] bg-green-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setJoinType('waitlist')}
+                  onClick={() => handleJoinTypeSelection('waitlist')}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-base">TBD</h4>
