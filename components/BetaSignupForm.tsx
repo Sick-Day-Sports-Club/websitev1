@@ -695,7 +695,7 @@ export default function BetaSignupForm() {
       time_of_day: formData.timeOfDay.length ? formData.timeOfDay : null,
       referral_source: formData.referralSource || null,
       additional_info: formData.additionalInfo || null,
-      join_type: joinType || 'waitlist',
+      join_type: formData.joinType,
     };
   };
 
@@ -1142,7 +1142,6 @@ export default function BetaSignupForm() {
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded text-sm"
                 required
-                multiple
               >
                 <option value="">Select one or more areas you often use as basecamp</option>
                 {ADVENTURE_ZONES.map(zone => (
