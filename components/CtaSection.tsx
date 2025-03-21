@@ -1,50 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { trackCTAClick, trackWaitlistSubmission } from '../utils/analytics';
 
-interface TimeLeft {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-}
-
 interface CtaSectionProps {}
-
-// Set LAUNCH_DATE to March 27, 2025
-const LAUNCH_DATE = new Date('2025-03-27T00:00:00Z');
 
 const CtaSection: React.FC<CtaSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
-
-  useEffect(() => {
-    function calculateTimeLeft() {
-      const now = new Date();
-      const difference = LAUNCH_DATE.getTime() - now.getTime();
-      
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-
-        setTimeLeft({ days, hours, minutes, seconds: 0 });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
-    }
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute instead of every second
-
-    return () => clearInterval(timer);
-  }, []);
 
   const handleCTAClick = (ctaType: 'beta_access' | 'waitlist') => {
     trackCTAClick(ctaType);
@@ -75,12 +42,10 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
 
       console.log('Waitlist submission successful:', result);
       
-      // Check if this is a mock response
       if (result.mockData || result.note?.includes('mock')) {
         console.log('Received mock response from waitlist API');
       }
       
-      // Track the submission regardless
       trackWaitlistSubmission(email);
       setEmail('');
       setSubmitSuccess(true);
@@ -91,6 +56,7 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
       setIsLoading(false);
     }
   };
+
   return (
     <section className="bg-gray-900 text-white py-20" id="launch">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -100,25 +66,6 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
         <p className="mt-6 text-lg leading-8 text-gray-300">
           Sick Day Sports Club is launching in Bend, OR soon with plans for other top adventure towns through 2025. Save those sick days and be the first to experience the club.
         </p>
-        
-        {/* Countdown timer */}
-        <div className="mb-12 bg-white/10 p-6 rounded-lg max-w-2xl mx-auto">
-          <p className="font-bold mb-4 text-center">Countdown to Launch</p>
-          <div className="flex justify-center gap-12 mb-4">
-            <div className="text-center">
-              <div className="text-5xl font-bold">{String(timeLeft.days).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide mt-2">Days</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold">{String(timeLeft.hours).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide mt-2">Hours</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold">{String(timeLeft.minutes).padStart(2, '0')}</div>
-              <div className="text-sm uppercase tracking-wide mt-2">Minutes</div>
-            </div>
-          </div>
-        </div>
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
