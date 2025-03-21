@@ -94,11 +94,11 @@ const CtaSection: React.FC<CtaSectionProps> = () => {
   return (
     <section className="bg-gray-900 text-white py-20" id="launch">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">
-          We're Launching March 27th
+        <h2 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+          We're Launching Soon
         </h2>
-        <p className="text-xl max-w-4xl mx-auto mb-8 text-center">
-          Sick Day Sports Club is launching in Bend, OR this spring with plans for other top adventure towns through 2025. Save those sick days and be the first to experience the club.
+        <p className="mt-6 text-lg leading-8 text-gray-300">
+          Sick Day Sports Club is launching in Bend, OR soon with plans for other top adventure towns through 2025. Save those sick days and be the first to experience the club.
         </p>
         
         {/* Countdown timer */}
